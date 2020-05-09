@@ -6,6 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+requests = "*"
+schedule = "*"
+vkbottle = "*"
 
 [requires]
 python_version = "3.8"
