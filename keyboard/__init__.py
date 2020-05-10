@@ -28,4 +28,7 @@ class Keyboards:
         kb.add_row()
         kb.add_button(Text(label="Расписание", payload={"button": "schedule"}))
         kb.add_button(Text(label="Рассылки", payload={"button": "mailings"}))
+        if is_admin:
+            kb.add_button(Text(label="Настройки", payload={"button": "settings"}))
+            kb.add_button(Text(label="Веб", payload={"button": "web"}))
         return kb.generate()
