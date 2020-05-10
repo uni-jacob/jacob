@@ -9,6 +9,9 @@ verify_ssl = true
 requests = "*"
 schedule = "*"
 vkbottle = "*"
+uvloop = "*"
+loguru = "*"
+hyperjson = "*"
 
 [requires]
 python_version = "3.8"
