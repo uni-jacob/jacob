@@ -2,7 +2,7 @@ import os
 
 from vkbottle import Bot
 from vkbottle import Message
-from vkbottle.rule import PayloadRule
+from utils.rules import ButtonRule
 
 from keyboard import Keyboards
 
@@ -15,7 +15,7 @@ async def start_bot(ans: Message):
     await ans("Привет", keyboard=kbs.main_menu(ans.from_id))
 
 
-@bot.on.message(PayloadRule({"button": "call"}, mode=2))
+@bot.on.message(ButtonRule("call"))
 async def start_call(ans: Message):
     await ans(f"Здесь будет призыв...")
 
