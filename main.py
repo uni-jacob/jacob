@@ -2,9 +2,9 @@ import os
 
 from vkbottle import Bot
 from vkbottle import Message
-from utils.rules import ButtonRule
 
 from keyboard import Keyboards
+from utils.rules import ButtonRule
 
 bot = Bot(os.environ["VK_TOKEN"])
 kbs = Keyboards()
