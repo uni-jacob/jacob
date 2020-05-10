@@ -12,6 +12,7 @@ vkbottle = "*"
 uvloop = "*"
 loguru = "*"
 hyperjson = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.8"
