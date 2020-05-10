@@ -35,4 +35,14 @@ async def open_mailings(ans: Message):
     await ans("Здесь будут рассылки...")
 
 
+@bot.on.message(ButtonRule("settings"))
+async def open_mailings(ans: Message):
+    await ans("Здесь будут настройки...")
+
+
+@bot.on.message(ButtonRule("web"))
+async def open_mailings(ans: Message):
+    await ans("Здесь будет доступ к вебу...")
+
+
 bot.run_polling(skip_updates=False)
