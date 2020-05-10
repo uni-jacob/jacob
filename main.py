@@ -16,8 +16,23 @@ async def start_bot(ans: Message):
 
 
 @bot.on.message(ButtonRule("call"))
-async def start_call(ans: Message):
-    await ans(f"Здесь будет призыв...")
+async def open_call(ans: Message):
+    await ans("Здесь будет призыв...")
+
+
+@bot.on.message(ButtonRule("finances"))
+async def open_finances(ans: Message):
+    await ans("Здесь будут финансы...")
+
+
+@bot.on.message(ButtonRule("schedule"))
+async def open_schedule(ans: Message):
+    await ans("Здесь будет расписание...")
+
+
+@bot.on.message(ButtonRule("mailings"))
+async def open_mailings(ans: Message):
+    await ans("Здесь будут рассылки...")
 
 
 bot.run_polling(skip_updates=False)
