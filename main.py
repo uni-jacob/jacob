@@ -10,7 +10,7 @@ kbs = Keyboards()
 
 
 @bot.on.message(text="начать", lower=True)
-async def wrapper(ans: Message):
+async def start_bot(ans: Message):
     await ans("Привет", keyboard=kbs.main_menu())
 
 
