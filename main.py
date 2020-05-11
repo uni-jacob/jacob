@@ -1,5 +1,7 @@
+import asyncio
 import os
 
+from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
 
@@ -10,9 +12,15 @@ bot = Bot(os.environ["VK_TOKEN"])
 kbs = Keyboards()
 
 
+async def init_db():
+    await Tortoise.init(
+        db_url=os.environ["DATABASE_URL"], modules={"models": ["database.models"]}
+    )
+
+
 @bot.on.message(text="начать", lower=True)
 async def start_bot(ans: Message):
-    await ans("Привет", keyboard=kbs.main_menu(ans.from_id))
+    await ans(f"Привет!", keyboard=kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(ButtonRule("call"))
@@ -45,4 +53,6 @@ async def open_mailings(ans: Message):
     await ans("Здесь будет доступ к вебу...")
 
 
+loop = asyncio.get_event_loop()
+loop.run_until_complete(init_db())
 bot.run_polling(skip_updates=False)
