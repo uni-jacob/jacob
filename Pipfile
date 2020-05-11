@@ -13,6 +13,8 @@ uvloop = "*"
 loguru = "*"
 hyperjson = "*"
 psycopg2-binary = "*"
+asyncpg = "*"
+tortoise-orm = "*"
 
 [requires]
 python_version = "3.8"
