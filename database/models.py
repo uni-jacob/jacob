@@ -143,7 +143,7 @@ class Student(Model):
     vk_id = fields.BigIntField(unique=True)
     first_name = fields.CharField(max_length=50)
     second_name = fields.CharField(max_length=50)
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
+    alma_mater = fields.ForeignKeyField("models.AlmaMater")
     fields.ForeignKeyField("models.Group")
     academic_status = fields.IntField()
 
