@@ -77,7 +77,7 @@ class Keyboards:
         Returns:
             JSON-like str: Строка с клавиатурой
         """
-        kb = self.generate_alphabet(user_id)
+        kb = self.alphabet(user_id)
         if len(kb.buttons[-1]):
             kb.add_row()
         kb.add_button(Text(label="Сохранить", payload={"button": "save_selected"}))
