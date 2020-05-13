@@ -85,7 +85,7 @@ async def open_mailings(ans: Message):
 
 @bot.on.message(ButtonRule("settings"))
 async def open_mailings(ans: Message):
-    await ans("Здесь будут настройки...")
+    await ans("Настройки бота", keyboard=kbs.settings())
 
 
 @bot.on.message(ButtonRule("web"))
