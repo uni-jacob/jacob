@@ -17,3 +17,24 @@ async def get_storage(user_id: int) -> Storage:
         return user[0]
     else:
         return None
+
+
+async def clear_storage(user_id: int):
+    """
+    Очищает пользовательское хранилище
+
+    Args:
+        user_id: Идентификатор пользователя
+    Returns:
+        bool: True в случае успеха, False, если администратор не был найден
+    """
+    admin = await Administrator.get_or_none(vk_id=user_id)
+    if admin is not None:
+        user = await Storage.get(id=admin.id)
+        user.selected_students = None
+        user.text = None
+        user.attaches = None
+        user.mailing_id = None
+        await user.save()
+        return True
+    return False
