@@ -12,9 +12,9 @@ class AcademicStatus(Model):
 
 class Administrator(Model):
     id = fields.IntField(pk=True)
-    vk_id = fields.ForeignKeyField("models.Student", to_field="vk_id")
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
-    group_id = fields.ForeignKeyField("models.Group")
+    vk = fields.ForeignKeyField("models.Student", to_field="vk_id")
+    alma_mater = fields.ForeignKeyField("models.AlmaMater")
+    group = fields.ForeignKeyField("models.Group")
 
     class Meta:
         table = "administrators"
@@ -34,16 +34,6 @@ class CachedChat(Model):
 
     class Meta:
         table = "cached_chats"
-
-
-class CallStorage(Model):
-    id = fields.IntField(pk=True)
-    selected_students = fields.TextField()
-    call_text = fields.TextField()
-    call_attaches = fields.TextField()
-
-    class Meta:
-        table = "call_storage"
 
 
 class Chat(Model):
@@ -100,16 +90,6 @@ class Group(Model):
         table = "groups"
 
 
-class MailingStorage(Model):
-    id = fields.IntField(pk=True)
-    mailing_id = fields.IntField()
-    mailing_text = fields.TextField()
-    mailing_attaches = fields.TextField()
-
-    class Meta:
-        table = "mailing_storage"
-
-
 class Mailing(Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=30)
@@ -133,6 +113,10 @@ class Storage(Model):
     state_id = fields.IntField()
     current_chat = fields.IntField()
     names_usage = fields.BooleanField()
+    selected_students = fields.TextField()
+    text = fields.TextField()
+    attaches = fields.TextField()
+    mailing_id = fields.TextField()
 
     class Meta:
         table = "storage"
