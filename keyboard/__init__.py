@@ -86,3 +86,15 @@ class Keyboards:
         kb.add_button(Text(label="Отмена", payload={"button": "cancel_call"}))
 
         return kb.generate()
+
+    @staticmethod
+    def settings():
+        kb = Keyboard()
+        kb.add_row()
+        kb.add_button(Text(label="💬 Чаты", payload={"button": "chat_settings"}))
+        kb.add_button(
+            Text(label="Локальные настройки", payload={"button": "local_settings"})
+        )
+        kb.add_row()
+        kb.add_button(Text(label="👈🏻 Назад", payload={"button": "home"}))
+        return kb.generate()
