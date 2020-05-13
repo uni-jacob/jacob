@@ -6,12 +6,14 @@ from vkbottle import Bot
 from vkbottle import Message
 
 import utils
+from database.db import Database
 from database.models import State
 from keyboard import Keyboards
 from utils.rules import ButtonRule
 from utils.rules import StateRule
 
 bot = Bot(os.environ["VK_TOKEN"])
+db = Database(os.environ["DATABASE_URL"])
 kbs = Keyboards()
 
 
@@ -53,6 +55,12 @@ async def register_call_message(ans: Message, message: str):
 @bot.on.message(ButtonRule("skip_call_message"))
 async def generate_call_kb(ans: Message):
     await ans(message="Выберите призываемых:", keyboard=kbs.call_interface(ans.from_id))
+
+
+@bot.on.message(ButtonRule("cancel_call"))
+async def cancel_call(ans: Message):
+    await utils.clear_storage(ans.from_id)
+    await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(ButtonRule("finances"))
