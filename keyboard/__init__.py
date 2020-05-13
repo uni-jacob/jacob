@@ -43,7 +43,9 @@ class Keyboards:
         """
         kb = Keyboard()
         kb.add_row()
-        kb.add_button(Text(label="Пропустить", payload={"button": "skip_call_message"}))
+        kb.add_button(
+            Text(label="👉🏻 Пропустить", payload={"button": "skip_call_message"})
+        )
         return kb.generate()
 
     def alphabet(self, user_id):
@@ -80,10 +82,10 @@ class Keyboards:
         kb = self.alphabet(user_id)
         if len(kb.buttons[-1]):
             kb.add_row()
-        kb.add_button(Text(label="Сохранить", payload={"button": "save_selected"}))
-        kb.add_button(Text(label="Призвать всех", payload={"button": "call_all"}))
+        kb.add_button(Text(label="✅ Сохранить", payload={"button": "save_selected"}))
+        kb.add_button(Text(label="👥 Призвать всех", payload={"button": "call_all"}))
         kb.add_row()
-        kb.add_button(Text(label="Отмена", payload={"button": "cancel_call"}))
+        kb.add_button(Text(label="🚫 Отмена", payload={"button": "cancel_call"}))
 
         return kb.generate()
 
