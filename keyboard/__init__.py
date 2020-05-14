@@ -122,6 +122,14 @@ class Keyboards:
         return kb.generate()
 
     @staticmethod
+    def prompt():
+        kb = Keyboard()
+        kb.add_row()
+        kb.add_button(Text(label="✅ Подтвердить", payload={"button": "confirm"}))
+        kb.add_button(Text(label="🚫 Отменить", payload={"button": "deny"}))
+        return kb.generate()
+
+    @staticmethod
     def settings():
         """
         Генерирует клавиатуру главного окна настроек
