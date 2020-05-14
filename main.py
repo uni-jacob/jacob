@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import random
 
 from tortoise import Tortoise
 from vkbottle import Bot
@@ -8,8 +9,10 @@ from vkbottle import Message
 
 from database import Database
 from database import utils
+from database.models import Chat
 from database.models import State
 from keyboard import Keyboards
+from utils import call
 from utils.rules import ButtonRule
 from utils.rules import StateRule
 
@@ -95,6 +98,46 @@ async def edit_call_list(ans: Message):
         user.selected_students = ",".join(students)
         await user.save()
         await ans(f"{payload['name']} убран из списка призывемых")
+
+
+@bot.on.message(ButtonRule("save_selected"))
+async def save_call(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    state = await State.get(description="confirm_call")
+    user.state_id = state.id
+    await user.save()
+    chat_id = user.current_chat
+    chat = await Chat.get(id=chat_id)
+    chat_text = "основную" if chat.chat_type else "тестовую"
+    message = await call.generate_message(ans.from_id)
+    await ans(f"Это сообщение будет отправлено в {chat_text} беседу:")
+    await ans(message, keyboard=kbs.prompt())
+
+
+@bot.on.message(StateRule("confirm_call"), ButtonRule("confirm"))
+async def confirm_call(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    state = await State.get(description="main")
+    user.state_id = state.id
+    await user.save()
+    message = await call.generate_message(ans.from_id)
+    chat_id = user.current_chat
+    chat = await Chat.get(id=chat_id)
+    await bot.api.messages.send(
+        random_id=random.getrandbits(64), peer_id=chat.chat_id, message=message
+    )
+    await utils.clear_storage(ans.from_id)
+    await ans("Сообщение отправлено", keyboard=kbs.main_menu(ans.from_id))
+
+
+@bot.on.message(StateRule("confirm_call"), ButtonRule("deny"))
+async def deny_call(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    state = await State.get(description="main")
+    user.state_id = state.id
+    await user.save()
+    await utils.clear_storage(ans.from_id)
+    await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(ButtonRule("finances"))
