@@ -118,6 +118,12 @@ class Keyboards:
 
     @staticmethod
     def settings():
+        """
+        Генерирует клавиатуру главного окна настроек
+
+        Returns:
+            JSON-like str: Строка с клавиатурой
+        """
         kb = Keyboard()
         kb.add_row()
         kb.add_button(Text(label="💬 Чаты", payload={"button": "chat_settings"}))
