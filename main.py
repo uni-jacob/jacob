@@ -5,8 +5,8 @@ from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
 
-import utils
-from database.db import Database
+from database import Database
+from database import utils
 from database.models import State
 from keyboard import Keyboards
 from utils.rules import ButtonRule

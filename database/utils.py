@@ -1,5 +1,5 @@
-from database.models import Administrator
-from database.models import Storage
+from .models import Administrator
+from .models import Storage
 
 
 async def get_storage(user_id: int) -> Storage:

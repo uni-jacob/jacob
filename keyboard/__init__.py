@@ -3,7 +3,7 @@ import os
 from vkbottle.keyboard import Keyboard
 from vkbottle.keyboard import Text
 
-from database.db import Database
+from database.__init__ import Database
 
 
 class Keyboards:

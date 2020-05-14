@@ -1,48 +1,41 @@
-import urllib.parse as urlparse
-
-import psycopg2
+from .base import Base
 
 
-class Base:
-    def __init__(self, db_url, logs=False):
-        self.logs = logs
-        url = urlparse.urlparse(db_url)
-        self.db_auth = {
-            "user": url.username,
-            "password": url.password,
-            "host": url.hostname,
-            "port": url.port,
-            "database": url.path[1:],
-        }
-        self.conn, self.cur = None, None
-        self.connect()
+class Database(Base):
+    def is_admin(self, user_id: int):
+        """
+        Проверяет наличие прав администратора (любого заведения/группы) у выбранного
+        пользователя
+        Args:
+            user_id: Идентификатор пользователя
 
-    def query(self, query: str, args=None, fetchone=False, fetchall=False):
-        print(query) if self.logs else None
-        commit_func = ["create", "insert", "delete", "update"]
-        result_func = ["select", "returning"]
-        self.cur.execute(query, args) if args else self.cur.execute(query)
+        Returns:
+            bool: Статус администратора
+        """
 
-        if any(func in query.lower() for func in commit_func):
-            self.commit()
+        query = self.query(
+            "select * from administrators where vk_id=%s", (user_id,), fetchone=True
+        )
+        return bool(query)
 
-        if any(func in query.lower() for func in result_func):
-            if not fetchone and not fetchall:
-                fetchall = True
+    def get_unique_second_name_letters(self, user_id: int):
+        """
+        Получает список первых букв фамилий студентов
+        Args:
+            user_id: Идентификатор администратора
 
-        if fetchone:
-            return self.cur.fetchone()
-        if fetchall:
-            return self.cur.fetchall()
-        return None
-
-    def commit(self):
-        self.conn.commit()
-
-    def connect(self):
-        self.conn = psycopg2.connect(**self.db_auth)
-        self.cur = self.conn.cursor()
-
-    def close(self):
-        self.cur.close()
-        self.conn.close()
+        Returns:
+            list: Список первых букв фамилий
+        """
+        data = self.query(
+            "select alma_mater_id, group_id from administrators where vk_id=%s",
+            (user_id,),
+            fetchone=True,
+        )
+        query = self.query(
+            "SELECT DISTINCT substring(second_name from  '^.') FROM students where "
+            "alma_mater_id = %s and group_id=%s ORDER BY substring(second_name from  "
+            "'^.')",
+            (data[0], data[1]),
+        )
+        return [letter for (letter,) in query]
