@@ -89,6 +89,33 @@ class Keyboards:
 
         return kb.generate()
 
+    def list_of_students(self, letter: str, user_id: int):
+        """
+        Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
+        Args:
+            letter: Первая буква фамилий
+            user_id: Идентификатор пользователя
+
+        Returns:
+            JSON-like str: Строка с клавиатурой
+        """
+        data = self.db.get_list_of_names(letter, user_id)
+        kb = Keyboard()
+        kb.add_row()
+        for item in data:
+            if len(kb.buttons[-1]) == 2:
+                kb.add_row()
+            kb.add_button(
+                Text(
+                    label=f"{item[2]} {item[1]}",
+                    payload={"button": "student", "student_id": item[0]},
+                )
+            )
+        if kb.buttons[-1]:
+            kb.add_row()
+        kb.add_button(Text(label="Назад", payload={"button": "skip_call_message"}))
+        return kb.generate()
+
     @staticmethod
     def settings():
         kb = Keyboard()
