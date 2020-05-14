@@ -78,6 +78,25 @@ async def generate_students_kb(ans: Message):
     )
 
 
+@bot.on.message(ButtonRule("student"))
+async def edit_call_list(ans: Message):
+    payload = json.loads(ans.payload)
+    user = await utils.get_storage(ans.from_id)
+    if user.selected_students is None:
+        user.selected_students = ""
+    students = [i for i in user.selected_students.split(",") if i]
+    if str(payload["student_id"]) not in students:
+        students.append(str(payload["student_id"]))
+        user.selected_students = ",".join(students)
+        await user.save()
+        await ans(f"{payload['name']} добавлен к списку призывемых")
+    else:
+        students.remove(str(payload["student_id"]))
+        user.selected_students = ",".join(students)
+        await user.save()
+        await ans(f"{payload['name']} убран из списка призывемых")
+
+
 @bot.on.message(ButtonRule("finances"))
 async def open_finances(ans: Message):
     await ans("Здесь будут финансы...")
