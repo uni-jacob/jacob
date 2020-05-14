@@ -39,3 +39,27 @@ class Database(Base):
             (data[0], data[1]),
         )
         return [letter for (letter,) in query]
+
+    def get_list_of_names(self, letter: str, user_id: int):
+        """
+        Получает список студентов, фамилии которых начинаются на letter
+        Args:
+            letter: Первая буква фамилий для поиска
+            user_id: Идентификатор администратора
+
+        Returns:
+            List[tuple]: Информация о студентах (ид, имя, фамилия), пододящих под фильтр
+        """
+        data = self.query(
+            "select alma_mater_id, group_id from administrators where vk_id=%s",
+            (user_id,),
+            fetchone=True,
+        )
+        names = self.query(
+            "SELECT id, first_name, second_name FROM students "
+            "WHERE substring(second_name from '^.') = %s "
+            "AND academic_status > 0 AND alma_mater_id=%s AND group_id=%s ORDER BY "
+            "id",
+            (letter, data[0], data[1]),
+        )
+        return names
