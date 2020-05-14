@@ -45,6 +45,12 @@ async def open_call(ans: Message):
     )
 
 
+@bot.on.message(ButtonRule("cancel_call"))
+async def cancel_call(ans: Message):
+    await utils.clear_storage(ans.from_id)
+    await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
+
+
 @bot.on.message(StateRule("wait_call_text"), text="<message>")
 async def register_call_message(ans: Message, message: str):
     user = await utils.get_storage(ans.from_id)
@@ -70,12 +76,6 @@ async def generate_students_kb(ans: Message):
         f"Список студентов на букву \"{payload['value']}\"",
         keyboard=kbs.list_of_students(payload["value"], ans.from_id),
     )
-
-
-@bot.on.message(ButtonRule("cancel_call"))
-async def cancel_call(ans: Message):
-    await utils.clear_storage(ans.from_id)
-    await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(ButtonRule("finances"))
