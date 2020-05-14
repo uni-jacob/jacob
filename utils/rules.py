@@ -3,7 +3,7 @@ import json
 from vkbottle import Message
 from vkbottle.rule import AbstractMessageRule
 
-import utils
+from database import utils
 from database.models import State
 
 
