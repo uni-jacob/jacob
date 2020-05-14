@@ -39,8 +39,8 @@ class CachedChat(Model):
 class Chat(Model):
     id = fields.IntField(pk=True)
     chat_id = fields.BigIntField()
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
-    group_id = fields.ForeignKeyField("models.Group")
+    alma_mater = fields.ForeignKeyField("models.AlmaMater")
+    group = fields.ForeignKeyField("models.Group")
     chat_type = fields.IntField()
 
     class Meta:
