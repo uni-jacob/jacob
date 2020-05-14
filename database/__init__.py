@@ -6,6 +6,7 @@ class Database(Base):
         """
         Проверяет наличие прав администратора (любого заведения/группы) у выбранного
         пользователя
+
         Args:
             user_id: Идентификатор пользователя
 
@@ -21,6 +22,7 @@ class Database(Base):
     def get_unique_second_name_letters(self, user_id: int):
         """
         Получает список первых букв фамилий студентов
+
         Args:
             user_id: Идентификатор администратора
 
@@ -43,6 +45,7 @@ class Database(Base):
     def get_list_of_names(self, letter: str, user_id: int):
         """
         Получает список студентов, фамилии которых начинаются на letter
+
         Args:
             letter: Первая буква фамилий для поиска
             user_id: Идентификатор администратора
