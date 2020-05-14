@@ -109,7 +109,11 @@ class Keyboards:
             kb.add_button(
                 Text(
                     label=f"{item[2]} {item[1]}",
-                    payload={"button": "student", "student_id": item[0]},
+                    payload={
+                        "button": "student",
+                        "student_id": item[0],
+                        "name": f"{item[2]} {item[1]}",
+                    },
                 )
             )
         if kb.buttons[-1]:
