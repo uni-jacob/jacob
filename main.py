@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 
 from tortoise import Tortoise
@@ -60,6 +61,15 @@ async def register_call_message(ans: Message, message: str):
 @bot.on.message(ButtonRule("skip_call_message"))
 async def generate_call_kb(ans: Message):
     await ans(message="Выберите призываемых:", keyboard=kbs.call_interface(ans.from_id))
+
+
+@bot.on.message(ButtonRule("letter"))
+async def generate_students_kb(ans: Message):
+    payload = json.loads(ans.payload)
+    await ans(
+        f"Список студентов на букву \"{payload['value']}\"",
+        keyboard=kbs.list_of_students(payload["value"], ans.from_id),
+    )
 
 
 @bot.on.message(ButtonRule("cancel_call"))
