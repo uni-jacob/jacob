@@ -9,6 +9,7 @@ from vkbottle import Message
 
 from database import Database
 from database import utils
+from database.models import Administrator
 from database.models import Chat
 from database.models import State
 from keyboard import Keyboards
@@ -146,6 +147,27 @@ async def edit_names_usage(ans: Message):
     user.names_usage = not user.names_usage
     await user.save()
     await save_call(ans)
+
+
+@bot.on.message(StateRule("confirm_call"), ButtonRule("chat_config"))
+async def edit_chat(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    chat_id = user.current_chat
+    chat = await Chat.get(id=chat_id)
+    chat_type = chat.chat_type
+    chat_type = 0 if chat_type else 1
+    admin = await Administrator.get(vk_id=ans.from_id)
+    print(admin.group_id)
+    chat = await Chat.get_or_none(
+        alma_mater=admin.alma_mater_id, group=admin.group_id, chat_type=chat_type,
+    )
+    if chat is not None:
+        user.current_chat = chat.id
+        await user.save()
+        await save_call(ans)
+    else:
+        chat_text = "Основной" if chat_type else "Тестовый"
+        await ans(f"{chat_text} чат не настроен")
 
 
 @bot.on.message(ButtonRule("finances"))
