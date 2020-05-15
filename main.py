@@ -56,7 +56,7 @@ async def open_call(ans: Message):
 @bot.on.message(ButtonRule("cancel_call"))
 async def cancel_call(ans: Message):
     await utils.clear_storage(ans.from_id)
-    await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
+    await ans("Выполнение команды отменено", keyboard=await kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(
@@ -76,12 +76,16 @@ async def register_call_message(ans: Message):
         await user.save()
     else:
         return "Access denied."
-    await ans(message="Выберите призываемых:", keyboard=kbs.call_interface(ans.from_id))
+    await ans(
+        message="Выберите призываемых:", keyboard=await kbs.call_interface(ans.from_id)
+    )
 
 
 @bot.on.message(ButtonRule("skip_call_message"))
 async def generate_call_kb(ans: Message):
-    await ans(message="Выберите призываемых:", keyboard=kbs.call_interface(ans.from_id))
+    await ans(
+        message="Выберите призываемых:", keyboard=await kbs.call_interface(ans.from_id)
+    )
 
 
 @bot.on.message(ButtonRule("letter"))
@@ -89,7 +93,7 @@ async def generate_students_kb(ans: Message):
     payload = json.loads(ans.payload)
     await ans(
         f"Список студентов на букву \"{payload['value']}\"",
-        keyboard=kbs.list_of_students(payload["value"], ans.from_id),
+        keyboard=await kbs.list_of_students(payload["value"], ans.from_id),
     )
 
 
@@ -148,7 +152,7 @@ async def confirm_call(ans: Message):
         attachment=attachments,
     )
     await utils.clear_storage(ans.from_id)
-    await ans("Сообщение отправлено", keyboard=kbs.main_menu(ans.from_id))
+    await ans("Сообщение отправлено", keyboard=await kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("deny"))
@@ -158,7 +162,7 @@ async def deny_call(ans: Message):
     user.state_id = state.id
     await user.save()
     await utils.clear_storage(ans.from_id)
-    await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
+    await ans("Выполнение команды отменено", keyboard=await kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("names_usage"))
