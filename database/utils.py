@@ -2,6 +2,24 @@ from .models import Administrator
 from .models import Storage
 
 
+async def is_admin(user_id: int) -> bool:
+    """
+    Проверяет наличие прав администратора (любого заведения/группы) у выбранного
+    пользователя
+
+    Args:
+        user_id: Идентификатор пользователя
+
+    Returns:
+        bool: Статус администратора
+    """
+
+    admin = await Administrator.get_or_none(vk_id=user_id)
+    if admin:
+        return True
+    return False
+
+
 async def get_storage(user_id: int) -> Storage:
     """
     Возвращает объект хранилища администратора

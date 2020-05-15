@@ -34,12 +34,12 @@ async def init_db():
 
 @bot.on.message(text="начать", lower=True)
 async def start_bot(ans: Message):
-    await ans(f"Привет!", keyboard=kbs.main_menu(ans.from_id))
+    await ans(f"Привет!", keyboard=await kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(ButtonRule("home"))
 async def start_bot(ans: Message):
-    await ans(f"Главное меню", keyboard=kbs.main_menu(ans.from_id))
+    await ans(f"Главное меню", keyboard=await kbs.main_menu(ans.from_id))
 
 
 @bot.on.message(ButtonRule("call"))

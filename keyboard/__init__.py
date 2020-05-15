@@ -3,14 +3,16 @@ import os
 from vkbottle.keyboard import Keyboard
 from vkbottle.keyboard import Text
 
-from database.__init__ import Database
+from database import Database
+from database import utils
 
 
 class Keyboards:
     def __init__(self):
         self.db = Database(os.environ["DATABASE_URL"])
 
-    def main_menu(self, user_id: int) -> str:
+    @staticmethod
+    async def main_menu(user_id: int) -> str:
         """
         Генерирует клавиатуру главного меню
         Args:
@@ -19,7 +21,7 @@ class Keyboards:
             JSON-like str: Строка с клавиатурой
 
         """
-        is_admin = self.db.is_admin(user_id=user_id)
+        is_admin = await utils.is_admin(user_id=user_id)
         kb = Keyboard()
         if is_admin:
             kb.add_row()
