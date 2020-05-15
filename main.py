@@ -14,6 +14,7 @@ from database.models import Chat
 from database.models import State
 from keyboard import Keyboards
 from utils import call
+from utils import media
 from utils.rules import ButtonRule
 from utils.rules import StateRule
 
@@ -58,6 +59,10 @@ async def cancel_call(ans: Message):
 @bot.on.message(StateRule("wait_call_text"), text="<message>")
 async def register_call_message(ans: Message, message: str):
     user = await utils.get_storage(ans.from_id)
+    if ans.attachments:
+        attaches = await media.load_attachments(bot, ans.attachments, ans.from_id)
+        user.attaches = attaches
+        await user.save()
     if user is not None:
         state = await State.get(description="main")
         user.text = message
@@ -111,8 +116,13 @@ async def save_call(ans: Message):
     chat = await Chat.get(id=chat_id)
     chat_text = "основную" if chat.chat_type else "тестовую"
     message = await call.generate_message(ans.from_id)
+    attachments = user.attaches
     await ans(f"Это сообщение будет отправлено в {chat_text} беседу:")
-    await ans(message, keyboard=kbs.call_prompt(user.names_usage, chat.chat_type))
+    await ans(
+        message=message,
+        attachment=attachments,
+        keyboard=kbs.call_prompt(user.names_usage, chat.chat_type),
+    )
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("confirm"))
@@ -122,10 +132,14 @@ async def confirm_call(ans: Message):
     user.state_id = state.id
     await user.save()
     message = await call.generate_message(ans.from_id)
+    attachments = user.attaches
     chat_id = user.current_chat
     chat = await Chat.get(id=chat_id)
     await bot.api.messages.send(
-        random_id=random.getrandbits(64), peer_id=chat.chat_id, message=message
+        random_id=random.getrandbits(64),
+        peer_id=chat.chat_id,
+        message=message,
+        attachment=attachments,
     )
     await utils.clear_storage(ans.from_id)
     await ans("Сообщение отправлено", keyboard=kbs.main_menu(ans.from_id))
