@@ -51,7 +51,7 @@ class Keyboards:
         kb.add_button(Text(label="🚫 Отмена", payload={"button": "cancel_call"}))
         return kb.generate()
 
-    def alphabet(self, user_id):
+    async def alphabet(self, user_id):
         """
         Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов
 
@@ -63,7 +63,7 @@ class Keyboards:
         """
         kb = Keyboard()
         kb.add_row()
-        alphabet = self.db.get_unique_second_name_letters(user_id)
+        alphabet = await self.db.get_unique_second_name_letters(user_id)
         for letter in alphabet:
             if len(kb.buttons[-1]) == 4:
                 kb.add_row()
@@ -72,7 +72,7 @@ class Keyboards:
             )
         return kb
 
-    def call_interface(self, user_id: int):
+    async def call_interface(self, user_id: int):
         """
         Генерирует клавиатуру для выбора призываемых
 
@@ -82,7 +82,7 @@ class Keyboards:
         Returns:
             JSON-like str: Строка с клавиатурой
         """
-        kb = self.alphabet(user_id)
+        kb = await self.alphabet(user_id)
         if len(kb.buttons[-1]):
             kb.add_row()
         kb.add_button(Text(label="✅ Сохранить", payload={"button": "save_selected"}))
@@ -92,7 +92,7 @@ class Keyboards:
 
         return kb.generate()
 
-    def list_of_students(self, letter: str, user_id: int):
+    async def list_of_students(self, letter: str, user_id: int):
         """
         Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
         Args:
@@ -102,19 +102,20 @@ class Keyboards:
         Returns:
             JSON-like str: Строка с клавиатурой
         """
-        data = self.db.get_list_of_names(letter, user_id)
+        data = await self.db.get_list_of_names(letter, user_id)
         kb = Keyboard()
         kb.add_row()
         for item in data:
+            print(item)
             if len(kb.buttons[-1]) == 2:
                 kb.add_row()
             kb.add_button(
                 Text(
-                    label=f"{item[2]} {item[1]}",
+                    label=f"{item['second_name']} {item['first_name']}",
                     payload={
                         "button": "student",
-                        "student_id": item[0],
-                        "name": f"{item[2]} {item[1]}",
+                        "student_id": item["id"],
+                        "name": f"{item['second_name']} {item['first_name']}",
                     },
                 )
             )

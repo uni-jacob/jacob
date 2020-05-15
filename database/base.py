@@ -1,11 +1,10 @@
 import urllib.parse as urlparse
 
-import psycopg2
+import asyncpg
 
 
 class Base:
-    def __init__(self, db_url, logs=False):
-        self.logs = logs
+    def __init__(self, db_url):
         url = urlparse.urlparse(db_url)
         self.db_auth = {
             "user": url.username,
@@ -14,35 +13,24 @@ class Base:
             "port": url.port,
             "database": url.path[1:],
         }
-        self.conn, self.cur = None, None
-        self.connect()
+        self.conn = None
 
-    def query(self, query: str, args=None, fetchone=False, fetchall=False):
-        print(query) if self.logs else None
-        commit_func = ["create", "insert", "delete", "update"]
-        result_func = ["select", "returning"]
-        self.cur.execute(query, args) if args else self.cur.execute(query)
+    async def query(self, query: str, *args, fetchone=False, fetchall=False):
 
-        if any(func in query.lower() for func in commit_func):
-            self.commit()
-
-        if any(func in query.lower() for func in result_func):
-            if not fetchone and not fetchall:
-                fetchall = True
+        await self.connect()
 
         if fetchone:
-            return self.cur.fetchone()
-        if fetchall:
-            return self.cur.fetchall()
-        return None
+            result = await self.conn.fetchrow(query, *args)
+        elif fetchall:
+            result = await self.conn.fetch(query, *args)
+        else:
+            result = await self.conn.execute(query, *args)
 
-    def commit(self):
-        self.conn.commit()
+        await self.conn.close()
+        return result
 
-    def connect(self):
-        self.conn = psycopg2.connect(**self.db_auth)
-        self.cur = self.conn.cursor()
+    async def connect(self):
+        self.conn = await asyncpg.connect(**self.db_auth)
 
     def close(self):
-        self.cur.close()
         self.conn.close()
