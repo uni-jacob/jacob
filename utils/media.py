@@ -30,5 +30,4 @@ async def load_attachments(bot, attachments, from_id):
             save = await bot.api.docs.save(file=upload["file"])
             doc = f"doc{save.doc.owner_id}_{save.doc.id}"
             atch.append(doc)
-    print(atch)
     return ",".join(atch)

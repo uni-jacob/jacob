@@ -6,6 +6,9 @@ import random
 from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
+from vkbottle.rule import VBMLRule
+from vkbottle.rule import filters
+from vkbottle.rule import AttachmentRule
 
 from database import Database
 from database import utils
@@ -56,8 +59,11 @@ async def cancel_call(ans: Message):
     await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
 
 
-@bot.on.message(StateRule("wait_call_text"), text="<message>")
-async def register_call_message(ans: Message, message: str):
+@bot.on.message(
+    StateRule("wait_call_text"),
+    filters.or_filter(AttachmentRule(), VBMLRule("<message>")),
+)
+async def register_call_message(ans: Message):
     user = await utils.get_storage(ans.from_id)
     if ans.attachments:
         attaches = await media.load_attachments(bot, ans.attachments, ans.from_id)
@@ -65,7 +71,7 @@ async def register_call_message(ans: Message, message: str):
         await user.save()
     if user is not None:
         state = await State.get(description="main")
-        user.text = message
+        user.text = ans.text
         user.state_id = state.id
         await user.save()
     else:
