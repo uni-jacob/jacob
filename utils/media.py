@@ -3,7 +3,17 @@ from pathlib import Path
 import requests
 
 
-async def load_attachments(bot, attachments, from_id):
+async def load_attachments(bot, attachments, from_id) -> str:
+    """
+    Загружает вложения на сервера ВК
+    Args:
+        bot: Объект бота
+        attachments: Вложения
+        from_id: Отправитель сообщения с вложениями
+
+    Returns:
+        str: Список идентификаторов вложений, готовых к отправке
+    """
     atch = []
     for attach in attachments:
         if attach.photo:
