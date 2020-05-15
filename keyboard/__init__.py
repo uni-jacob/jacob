@@ -123,10 +123,51 @@ class Keyboards:
 
     @staticmethod
     def prompt():
+        """
+        Генерирует клавиатуру с подтверждением действия
+        Returns:
+            Keyboard: Объект клавиатуры
+        """
         kb = Keyboard()
         kb.add_row()
         kb.add_button(Text(label="✅ Подтвердить", payload={"button": "confirm"}))
         kb.add_button(Text(label="🚫 Отменить", payload={"button": "deny"}))
+        return kb
+
+    def call_prompt(self, names_usage: bool, chat_type: int):
+        """
+        Генерирует клавиатуру с подтверждением отправки призыва и возможностью его
+        настройки
+
+        Args:
+            names_usage: Использование имен
+            chat_type: Тип выбранного чата
+
+        Returns:
+            JSON-like str:  Клавиатура
+        """
+        kb = self.prompt()
+        kb.add_row()
+        if names_usage:
+            names_emoji = "✅"
+        else:
+            names_emoji = "🚫"
+        if chat_type:
+            chat_emoji = "📡"
+        else:
+            chat_emoji = "🛠"
+        kb.add_button(
+            Text(
+                label=f"{names_emoji} Использовать имена",
+                payload={"button": "names_usage"},
+            )
+        )
+        kb.add_button(
+            Text(
+                label=f"{chat_emoji} Переключить беседу",
+                payload={"button": "chat_config"},
+            )
+        )
         return kb.generate()
 
     @staticmethod
