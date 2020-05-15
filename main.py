@@ -111,7 +111,7 @@ async def save_call(ans: Message):
     chat_text = "основную" if chat.chat_type else "тестовую"
     message = await call.generate_message(ans.from_id)
     await ans(f"Это сообщение будет отправлено в {chat_text} беседу:")
-    await ans(message, keyboard=kbs.prompt())
+    await ans(message, keyboard=kbs.call_prompt(user.names_usage, chat.chat_type))
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("confirm"))
@@ -138,6 +138,14 @@ async def deny_call(ans: Message):
     await user.save()
     await utils.clear_storage(ans.from_id)
     await ans("Выполнение команды отменено", keyboard=kbs.main_menu(ans.from_id))
+
+
+@bot.on.message(StateRule("confirm_call"), ButtonRule("names_usage"))
+async def edit_names_usage(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    user.names_usage = not user.names_usage
+    await user.save()
+    await save_call(ans)
 
 
 @bot.on.message(ButtonRule("finances"))
