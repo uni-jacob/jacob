@@ -87,6 +87,11 @@ async def register_call_message(ans: Message):
 
 @bot.on.message(ButtonRule("skip_call_message"))
 async def generate_call_kb(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    if user is not None:
+        state = await State.get(description="main")
+        user.state_id = state.id
+        await user.save()
     await ans(
         message="Выберите призываемых:", keyboard=await kbs.call_interface(ans.from_id)
     )
@@ -137,6 +142,18 @@ async def save_call(ans: Message):
         attachment=attachments,
         keyboard=kbs.call_prompt(user.names_usage, chat.chat_type),
     )
+
+
+@bot.on.message(ButtonRule("call_all"))
+async def call_all_of_them(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    students = await db.get_active_students(ans.from_id)
+    called = []
+    for student in students:
+        called.append(str(student["id"]))
+    user.selected_students = ",".join(called)
+    await user.save()
+    await save_call(ans)
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("confirm"))
