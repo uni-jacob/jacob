@@ -36,7 +36,8 @@ class Database(Base):
             user_id: Идентификатор администратора
 
         Returns:
-            List[tuple]: Информация о студентах (ид, имя, фамилия), пододящих под фильтр
+            List[Record]: Информация о студентах (ид, имя, фамилия), пододящих под
+            фильтр
         """
         data = await self.query(
             "select alma_mater_id, group_id from administrators where vk_id=$1",
