@@ -61,6 +61,14 @@ async def commands_list(ans: Message):
     await ans("\n".join(commands))
 
 
+@bot.on.chat_message(CommandRule("tr"))
+async def transliterate(ans: Message):
+    for msg in ans.fwd_messages:
+        await ans(media.translate_string(msg.text))
+    if msg := ans.reply_message:
+        await ans(media.translate_string(msg.text))
+
+
 @bot.on.message(ButtonRule("call"))
 async def open_call(ans: Message):
     user = await utils.get_storage(ans.from_id)
