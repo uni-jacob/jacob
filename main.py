@@ -6,9 +6,9 @@ import random
 from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
+from vkbottle.rule import AttachmentRule
 from vkbottle.rule import VBMLRule
 from vkbottle.rule import filters
-from vkbottle.rule import AttachmentRule
 
 from database import Database
 from database import utils
@@ -18,6 +18,7 @@ from database.models import State
 from keyboard import Keyboards
 from utils import call
 from utils import media
+from utils.filters import NotFilter
 from utils.rules import ButtonRule
 from utils.rules import StateRule
 
@@ -60,8 +61,11 @@ async def cancel_call(ans: Message):
 
 
 @bot.on.message(
-    StateRule("wait_call_text"),
-    filters.or_filter(AttachmentRule(), VBMLRule("<message>")),
+    filters.and_filter(
+        StateRule("wait_call_text"),
+        filters.or_filter(AttachmentRule(), VBMLRule("<message>")),
+        NotFilter(ButtonRule("skip_call_message")),
+    ),
 )
 async def register_call_message(ans: Message):
     user = await utils.get_storage(ans.from_id)
