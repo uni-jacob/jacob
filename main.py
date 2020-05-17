@@ -228,7 +228,6 @@ async def edit_chat(ans: Message):
     chat_type = chat.chat_type
     chat_type = 0 if chat_type else 1
     admin = await Administrator.get(vk_id=ans.from_id)
-    print(admin.group_id)
     chat = await Chat.get_or_none(
         alma_mater=admin.alma_mater_id, group=admin.group_id, chat_type=chat_type,
     )
@@ -259,6 +258,53 @@ async def open_mailings(ans: Message):
 @bot.on.message(ButtonRule("settings"))
 async def open_mailings(ans: Message):
     await ans("Настройки бота", keyboard=kbs.settings())
+
+
+@bot.on.message(ButtonRule("admin_settings"))
+async def open_chat_settings(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    chat_id = user.current_chat
+    chat = await Chat.get(id=chat_id)
+    await ans(
+        "Настройки администратора",
+        keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
+    )
+
+
+@bot.on.message(StateRule("main"), ButtonRule("chat_config"))
+async def change_active_chat(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    chat_id = user.current_chat
+    chat = await Chat.get(id=chat_id)
+    chat_type = chat.chat_type
+    chat_type = 0 if chat_type else 1
+    admin = await Administrator.get(vk_id=ans.from_id)
+    chat = await Chat.get_or_none(
+        alma_mater=admin.alma_mater_id, group=admin.group_id, chat_type=chat_type,
+    )
+    if chat is not None:
+        user.current_chat = chat.id
+        await user.save()
+        await ans(
+            "Параметры изменены",
+            keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
+        )
+    else:
+        chat_text = "Основной" if chat_type else "Тестовый"
+        await ans(f"{chat_text} чат не настроен")
+
+
+@bot.on.message(StateRule("main"), ButtonRule("names_usage"))
+async def change_names_usage(ans: Message):
+    user = await utils.get_storage(ans.from_id)
+    user.names_usage = not user.names_usage
+    chat_id = user.current_chat
+    chat = await Chat.get(id=chat_id)
+    await user.save()
+    await ans(
+        "Параметры изменены",
+        keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
+    )
 
 
 @bot.on.message(ButtonRule("web"))

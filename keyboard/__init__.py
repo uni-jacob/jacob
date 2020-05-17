@@ -193,3 +193,40 @@ class Keyboards:
         kb.add_row()
         kb.add_button(Text(label="👈🏻 Назад", payload={"button": "home"}))
         return kb.generate()
+
+    @staticmethod
+    def admin_settings(names_usage: bool, chat_type: int):
+        """
+        Генерирует клавивтуру настроек администратора
+
+        Args:
+            names_usage: Использование имен пользователя
+            chat_type: Тип выбранного чата
+        Returns:
+            JSON-like str: Строка с клавиатурой
+        """
+        kb = Keyboard()
+        kb.add_row()
+        if names_usage:
+            names_emoji = "✅"
+        else:
+            names_emoji = "🚫"
+        if chat_type:
+            chat_emoji = "📡"
+        else:
+            chat_emoji = "🛠"
+        kb.add_button(
+            Text(
+                label=f"{names_emoji} Использовать имена",
+                payload={"button": "names_usage"},
+            )
+        )
+        kb.add_button(
+            Text(
+                label=f"{chat_emoji} Переключить беседу",
+                payload={"button": "chat_config"},
+            )
+        )
+        kb.add_row()
+        kb.add_button(Text(label="👈🏻 Назад", payload={"button": "settings"}))
+        return kb.generate()
