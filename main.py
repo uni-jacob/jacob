@@ -6,6 +6,7 @@ import random
 from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
+from vkbottle.rule import CommandRule
 from vkbottle.rule import AttachmentRule
 from vkbottle.rule import VBMLRule
 from vkbottle.rule import filters
@@ -49,8 +50,15 @@ async def invite_to_chat(ans: Message):
     await CachedChat.get_or_create(chat_id=ans.peer_id)
     await ans(
         "Привет всем! Я - Якоб, универсальный бот - помощник. Список моих команд "
-        "можно получить, отправив /команды"
+        "можно получить, отправив /help"
     )
+
+
+@bot.on.chat_message(CommandRule("help"))
+async def commands_list(ans: Message):
+    with open("commands.txt", "r") as f:
+        commands = f.readlines()
+    await ans("\n".join(commands))
 
 
 @bot.on.message(ButtonRule("call"))
