@@ -183,9 +183,12 @@ class Keyboards:
         """
         kb = Keyboard()
         kb.add_row()
-        kb.add_button(Text(label="💬 Чаты", payload={"button": "chat_settings"}))
         kb.add_button(
-            Text(label="Локальные настройки", payload={"button": "local_settings"})
+            Text(label="Настройки администратора", payload={"button": "admin_settings"})
+        )
+        kb.add_row()
+        kb.add_button(
+            Text(label="Настройки группы", payload={"button": "group_settings"})
         )
         kb.add_row()
         kb.add_button(Text(label="👈🏻 Назад", payload={"button": "home"}))
