@@ -13,6 +13,7 @@ from vkbottle.rule import filters
 from database import Database
 from database import utils
 from database.models import Administrator
+from database.models import CachedChat
 from database.models import Chat
 from database.models import State
 from keyboard import Keyboards
@@ -41,6 +42,15 @@ async def start_bot(ans: Message):
 @bot.on.message(ButtonRule("home"))
 async def start_bot(ans: Message):
     await ans(f"Главное меню", keyboard=await kbs.main_menu(ans.from_id))
+
+
+@bot.on.chat_invite()
+async def invite_to_chat(ans: Message):
+    await CachedChat.get_or_create(chat_id=ans.peer_id)
+    await ans(
+        "Привет всем! Я - Якоб, универсальный бот - помощник. Список моих команд "
+        "можно получить, отправив /команды"
+    )
 
 
 @bot.on.message(ButtonRule("call"))
