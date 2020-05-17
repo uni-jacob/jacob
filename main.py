@@ -53,6 +53,13 @@ async def invite_to_chat(ans: Message):
     )
 
 
+@bot.on.chat_message(command="команды")
+async def commands_list(ans: Message):
+    with open("commands.txt", "r") as f:
+        commands = f.readlines()
+    await ans("\n".join(commands))
+
+
 @bot.on.message(ButtonRule("call"))
 async def open_call(ans: Message):
     user = await utils.get_storage(ans.from_id)
