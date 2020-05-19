@@ -89,3 +89,53 @@ class Database(Base):
             fetchall=True,
         )
         return names
+
+    async def get_list_of_chats(self, user_id: int):
+        """
+        Получает список настроенных чатов для группы, администратором которой
+        является user_id
+        Args:
+            user_id: Идентификатор пользователя
+
+        Returns:
+            list[Records]: Список с данными о чатах
+        """
+        data = await self.get_ownership_of_admin(user_id)
+        chats = await self.query(
+            "SELECT chat_id, chat_type, active from chats where alma_mater_id=$1 AND "
+            "group_id=$2",
+            data["alma_mater_id"],
+            data["group_id"],
+            fetchall=True,
+        )
+        return data, chats
+
+    async def get_cached_chats(self):
+        """
+        Получает список кэшированных чатов
+        Returns:
+            list[Record]: Список чатов
+        """
+        chats = await self.query("select chat_id from cached_chats", fetchall=True)
+        return chats
+
+    async def is_chat_registered(self, user_id: int, chat_type: int):
+        """
+        Был ли зарегистрирован чат с указанным типом
+        Args:
+            user_id: Идентификатор пользователя
+            chat_type: Тип чата
+        Returns:
+            bool: Наличие зарегистрированного чата
+        """
+        data = await self.get_ownership_of_admin(user_id)
+        query = await self.query(
+            "select * from chats where alma_mater_id=$1 and "
+            "group_id=$2 and "
+            "chat_type=$3",
+            data["alma_mater_id"],
+            data["group_id"],
+            chat_type,
+            fetchone=True,
+        )
+        return bool(query)
