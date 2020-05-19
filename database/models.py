@@ -42,6 +42,7 @@ class Chat(Model):
     alma_mater = fields.ForeignKeyField("models.AlmaMater")
     group = fields.ForeignKeyField("models.Group")
     chat_type = fields.IntField()
+    active = fields.IntField()
 
     class Meta:
         table = "chats"
