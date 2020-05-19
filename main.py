@@ -271,6 +271,93 @@ async def open_chat_settings(ans: Message):
     )
 
 
+@bot.on.message(ButtonRule("group_settings"))
+async def open_group_settings(ans: Message):
+    await ans("Настроенные чаты", keyboard=await kbs.group_settings(ans.from_id))
+
+
+@bot.on.message(ButtonRule("configure_chat"))
+async def configure_chat(ans: Message):
+    payload = json.loads(ans.payload)
+    payload.pop("button")
+    chats = await bot.api.messages.get_conversations_by_id(
+        peer_ids=payload["chat_id"], group_id=bot.group_id
+    )
+    if chat := chats.items:
+        title = chat[0].chat_settings.title
+        msg = ""
+    else:
+        title = "???"
+        msg = (
+            "Бот не является администратором в этом чате. Это может помешать "
+            "его нормальной работе"
+        )
+    await ans(
+        f"Настройки чата {title}\n{msg}", keyboard=await kbs.configure_chat(**payload),
+    )
+
+
+@bot.on.message(ButtonRule("activate_chat"))
+async def activate_chat(ans: Message):
+    payload = json.loads(ans.payload)
+    payload.pop("button")
+    chat = await Chat.get(chat_id=payload["chat_id"])
+    chat.active = 1
+    await chat.save()
+    chat_type = abs(payload["chat_type"] - 1)
+    chat = await Chat.get_or_none(chat_type=chat_type, group_id=payload["group_id"])
+    if chat:
+        chat.active = 0
+        await chat.save()
+    await ans(
+        "Чат выбран для отправки рассылок",
+        keyboard=await kbs.configure_chat(
+            payload["group_id"], payload["chat_id"], payload["chat_type"], 1
+        ),
+    )
+
+
+@bot.on.message(ButtonRule("delete_chat"))
+async def delete_chat(ans: Message):
+    payload = json.loads(ans.payload)
+    chat = await Chat.get_or_none(chat_id=payload["chat_id"])
+    if chat:
+        await chat.delete()
+    await CachedChat.get_or_create(chat_id=payload["chat_id"])
+    await ans("Чат удален", keyboard=await kbs.group_settings(ans.from_id))
+
+
+@bot.on.message(ButtonRule("register_chat"))
+async def registrate_chat(ans: Message):
+    await ans("Выберите чат для регистрации", keyboard=await kbs.free_chats(bot))
+
+
+@bot.on.message(ButtonRule("add_chat"))
+async def select_type_of_new_chat(ans: Message):
+    payload = json.loads(ans.payload)
+    await ans(
+        f"Укажите тип для чата \"{payload['title']}\"",
+        keyboard=await kbs.free_types_of_chats(ans.from_id, payload["chat_id"]),
+    )
+
+
+@bot.on.message(ButtonRule("bind_chat"))
+async def bind_chat(ans: Message):
+    payload = json.loads(ans.payload)
+    chat = await CachedChat.get_or_none(chat_id=payload["chat_id"])
+    if chat:
+        await chat.delete()
+    data = await db.get_ownership_of_admin(ans.from_id)
+    await Chat.create(
+        chat_id=payload["chat_id"],
+        alma_mater_id=data["alma_mater_id"],
+        group_id=data["group_id"],
+        chat_type=payload["chat_type"],
+        active=0,
+    )
+    await ans("Чат добавлен", keyboard=await kbs.group_settings(ans.from_id))
+
+
 @bot.on.message(StateRule("main"), ButtonRule("chat_config"))
 async def change_active_chat(ans: Message):
     user = await utils.get_storage(ans.from_id)
