@@ -22,7 +22,8 @@ copyright = "2020, dadyarri"
 author = "dadyarri"
 
 # The full version, including alpha/beta/rc tags
-release = "1.2.0"
+with open("../../version.txt") as f:
+    release = f.readline()
 
 
 # -- General configuration ---------------------------------------------------
