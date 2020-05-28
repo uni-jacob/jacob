@@ -6,14 +6,13 @@ import random
 from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
-from vkbottle.rule import CommandRule
 from vkbottle.rule import AttachmentRule
+from vkbottle.rule import CommandRule
 from vkbottle.rule import VBMLRule
 from vkbottle.rule import filters
 
 from database import Database
 from database import utils
-from database.models import Administrator
 from database.models import CachedChat
 from database.models import Chat
 from database.models import State
