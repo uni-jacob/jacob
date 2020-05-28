@@ -17,6 +17,7 @@ from database.models import Administrator
 from database.models import CachedChat
 from database.models import Chat
 from database.models import State
+from database.models import Student
 from keyboard import Keyboards
 from utils import call
 from utils import media
@@ -153,12 +154,15 @@ async def edit_call_list(ans: Message):
 
 @bot.on.message(ButtonRule("save_selected"))
 async def save_call(ans: Message):
+    student = await Student.get(vk_id=ans.from_id)
     user = await utils.get_storage(ans.from_id)
     state = await State.get(description="confirm_call")
     user.state_id = state.id
     await user.save()
-    chat_id = user.current_chat
-    chat = await Chat.get(id=chat_id)
+    chat_type = user.current_chat
+    chat = await Chat.get(
+        chat_type=chat_type, alma_mater=student.alma_mater_id, group=student.group_id,
+    )
     chat_text = "основную" if chat.chat_type else "тестовую"
     message = await call.generate_message(ans.from_id)
     attachments = user.attaches
@@ -184,14 +188,17 @@ async def call_all_of_them(ans: Message):
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("confirm"))
 async def confirm_call(ans: Message):
+    student = await Student.get(vk_id=ans.from_id)
     user = await utils.get_storage(ans.from_id)
     state = await State.get(description="main")
     user.state_id = state.id
     await user.save()
     message = await call.generate_message(ans.from_id)
     attachments = user.attaches
-    chat_id = user.current_chat
-    chat = await Chat.get(id=chat_id)
+    chat_type = user.current_chat
+    chat = await Chat.get(
+        chat_type=chat_type, alma_mater=student.alma_mater_id, group=student.group_id,
+    )
     await bot.api.messages.send(
         random_id=random.getrandbits(64),
         peer_id=chat.chat_id,
