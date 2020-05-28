@@ -16,7 +16,7 @@ async def is_admin(user_id: int) -> bool:
     """
     student = await Student.get_or_none(vk_id=user_id)
     if student:
-        admin = await Administrator.get_or_none(vk_id=student.id)
+        admin = await Administrator.get_or_none(id=student.id)
         if admin:
             return True
         return False
@@ -34,7 +34,7 @@ async def get_storage(user_id: int) -> Storage:
     """
     student = await Student.get_or_none(vk_id=user_id)
     if student:
-        admin = await Administrator.get_or_none(vk_id=student.id)
+        admin = await Administrator.get_or_none(id=student.id)
         if admin is not None:
             user = await Storage.get_or_create(id=admin.id)
             return user[0]
