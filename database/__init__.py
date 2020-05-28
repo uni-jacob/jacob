@@ -18,7 +18,7 @@ class Database(Base):
             Record: Информация об администраторе (первая существующая запись)
         """
         data = await self.query(
-            "select alma_mater_id, group_id from administrators where vk_id=$1",
+            "select alma_mater_id, group_id from students where vk_id=$1",
             user_id,
             fetchone=True,
         )
