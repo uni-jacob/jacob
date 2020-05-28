@@ -106,7 +106,6 @@ class Keyboards:
         kb = Keyboard()
         kb.add_row()
         for item in data:
-            print(item)
             if len(kb.buttons[-1]) == 2:
                 kb.add_row()
             kb.add_button(
