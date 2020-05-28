@@ -231,10 +231,9 @@ async def edit_names_usage(ans: Message):
 async def edit_chat(ans: Message):
     user = await utils.get_storage(ans.from_id)
     student = await Student.get(vk_id=ans.from_id)
-    admin = await Administrator.get(id=student.id)
     chat_type = abs(user.current_chat - 1)
     chat = await Chat.get_or_none(
-        alma_mater=admin.alma_mater_id, group=admin.group_id, chat_type=chat_type,
+        alma_mater=student.alma_mater_id, group=student.group_id, chat_type=chat_type,
     )
     if chat:
         user.current_chat = chat_type
@@ -365,18 +364,17 @@ async def bind_chat(ans: Message):
 async def change_active_chat(ans: Message):
     user = await utils.get_storage(ans.from_id)
     student = await Student.get(vk_id=ans.from_id)
-    admin = await Administrator.get(id=student.id)
     chat_type = abs(user.current_chat - 1)
     chat = await Chat.get_or_none(
-        alma_mater=admin.alma_mater_id, group=admin.group_id, chat_type=chat_type,
+        alma_mater=student.alma_mater_id, group=student.group_id, chat_type=chat_type,
     )
     if chat:
         user.current_chat = chat_type
+        await user.save()
         await ans(
             "Параметры изменены",
-            keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
+            keyboard=kbs.admin_settings(user.names_usage, chat_type),
         )
-        await save_call(ans)
     else:
         await ans(f"{'Основной' if chat_type else 'Тестовый'} чат не настроен")
 
@@ -385,12 +383,10 @@ async def change_active_chat(ans: Message):
 async def change_names_usage(ans: Message):
     user = await utils.get_storage(ans.from_id)
     user.names_usage = not user.names_usage
-    chat_id = user.current_chat
-    chat = await Chat.get(id=chat_id)
+    chat_type = user.current_chat
     await user.save()
     await ans(
-        "Параметры изменены",
-        keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
+        "Параметры изменены", keyboard=kbs.admin_settings(user.names_usage, chat_type),
     )
 
 
