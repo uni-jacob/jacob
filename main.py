@@ -267,11 +267,10 @@ async def open_mailings(ans: Message):
 @bot.on.message(ButtonRule("admin_settings"))
 async def open_chat_settings(ans: Message):
     user = await utils.get_storage(ans.from_id)
-    chat_id = user.current_chat
-    chat = await Chat.get(id=chat_id)
+    chat_type = user.current_chat
     await ans(
         "Настройки администратора",
-        keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
+        keyboard=kbs.admin_settings(user.names_usage, chat_type),
     )
 
 
