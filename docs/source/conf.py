@@ -70,17 +70,11 @@ html_theme_options = {
     "color_accent": "blue",
     "color_primary": "blue",
     "master_doc": False,
-    "heroes": {
-        "index": "Универсальный бот-помощник для студенческих бесед"
-    },
+    "heroes": {"index": "Универсальный бот-помощник для студенческих бесед"},
     "nav_links": [
         {"href": "index", "internal": True, "title": "Главная"},
-        {
-            "href": "https://vk.com/jacob_bot",
-            "internal": False,
-            "title": "Бот",
-        },
-    ]
+        {"href": "https://vk.com/jacob_bot", "internal": False, "title": "Бот",},
+    ],
 }
 
 html_sidebars = {
