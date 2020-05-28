@@ -126,7 +126,7 @@ class Student(Model):
     first_name = fields.CharField(max_length=50)
     second_name = fields.CharField(max_length=50)
     alma_mater = fields.ForeignKeyField("models.AlmaMater")
-    fields.ForeignKeyField("models.Group")
+    group = fields.ForeignKeyField("models.Group")
     academic_status = fields.IntField()
 
     class Meta:
