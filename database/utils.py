@@ -1,5 +1,6 @@
 from .models import Administrator
 from .models import Storage
+from .models import Student
 
 
 async def is_admin(user_id: int) -> bool:
@@ -13,10 +14,12 @@ async def is_admin(user_id: int) -> bool:
     Returns:
         bool: Статус администратора
     """
-
-    admin = await Administrator.get_or_none(vk_id=user_id)
-    if admin:
-        return True
+    student = await Student.get_or_none(vk_id=user_id)
+    if student:
+        admin = await Administrator.get_or_none(vk_id=student.id)
+        if admin:
+            return True
+        return False
     return False
 
 
