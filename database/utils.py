@@ -52,13 +52,16 @@ async def clear_storage(user_id: int):
     Returns:
         bool: True в случае успеха, False, если администратор не был найден
     """
-    admin = await Administrator.get_or_none(vk_id=user_id)
-    if admin is not None:
-        user = await Storage.get(id=admin.id)
-        user.selected_students = None
-        user.text = None
-        user.attaches = None
-        user.mailing_id = None
-        await user.save()
-        return True
+    student = await Student.get_or_none(vk_id=user_id)
+    if student:
+        admin = await Administrator.get_or_none(id=student.id)
+        if admin is not None:
+            user = await Storage.get(id=admin.id)
+            user.selected_students = None
+            user.text = None
+            user.attaches = None
+            user.mailing_id = None
+            await user.save()
+            return True
+        return False
     return False
