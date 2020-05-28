@@ -12,9 +12,6 @@ class AcademicStatus(Model):
 
 class Administrator(Model):
     id = fields.IntField(pk=True)
-    vk = fields.ForeignKeyField("models.Student", to_field="vk_id")
-    alma_mater = fields.ForeignKeyField("models.AlmaMater")
-    group = fields.ForeignKeyField("models.Group")
 
     class Meta:
         table = "administrators"
