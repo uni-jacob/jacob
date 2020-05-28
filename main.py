@@ -365,24 +365,21 @@ async def bind_chat(ans: Message):
 @bot.on.message(StateRule("main"), ButtonRule("chat_config"))
 async def change_active_chat(ans: Message):
     user = await utils.get_storage(ans.from_id)
-    chat_id = user.current_chat
-    chat = await Chat.get(id=chat_id)
-    chat_type = chat.chat_type
-    chat_type = 0 if chat_type else 1
-    admin = await Administrator.get(vk_id=ans.from_id)
+    student = await Student.get(vk_id=ans.from_id)
+    admin = await Administrator.get(id=student.id)
+    chat_type = abs(user.current_chat - 1)
     chat = await Chat.get_or_none(
         alma_mater=admin.alma_mater_id, group=admin.group_id, chat_type=chat_type,
     )
-    if chat is not None:
-        user.current_chat = chat.id
-        await user.save()
+    if chat:
+        user.current_chat = chat_type
         await ans(
             "Параметры изменены",
             keyboard=kbs.admin_settings(user.names_usage, chat.chat_type),
         )
+        await save_call(ans)
     else:
-        chat_text = "Основной" if chat_type else "Тестовый"
-        await ans(f"{chat_text} чат не настроен")
+        await ans(f"{'Основной' if chat_type else 'Тестовый'} чат не настроен")
 
 
 @bot.on.message(StateRule("main"), ButtonRule("names_usage"))
