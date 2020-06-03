@@ -68,6 +68,9 @@ async def transliterate(ans: Message):
     if msg := ans.reply_message:
         await ans(media.translate_string(msg.text))
 
+    if not ans.reply_message and not ans.fwd_messages:
+        await ans("Эта команда работает только в ответ на какое-то сообщение")
+
 
 @bot.on.message(ButtonRule("call"))
 async def open_call(ans: Message):
