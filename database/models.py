@@ -4,7 +4,7 @@ from tortoise import fields
 
 class AcademicStatus(Model):
     id = fields.IntField(pk=True)
-    description = fields.CharField(max_length=50)
+    description = fields.CharField(max_length=50, null=False)
 
     class Meta:
         table = "academic_statuses"
@@ -12,6 +12,7 @@ class AcademicStatus(Model):
 
 class Administrator(Model):
     id = fields.IntField(pk=True)
+    group_id = fields.ForeignKeyField("models.Group", on_delete="CASCADE")
 
     class Meta:
         table = "administrators"
@@ -19,7 +20,7 @@ class Administrator(Model):
 
 class AlmaMater(Model):
     id = fields.IntField(pk=True)
-    name = fields.CharField(max_length=300)
+    name = fields.TextField(null=False)
 
     class Meta:
         table = "alma_maters"
@@ -27,7 +28,7 @@ class AlmaMater(Model):
 
 class CachedChat(Model):
     id = fields.IntField(pk=True)
-    chat_id = fields.BigIntField()
+    chat_id = fields.BigIntField(null=False, unique=True)
 
     class Meta:
         table = "cached_chats"
@@ -36,10 +37,9 @@ class CachedChat(Model):
 class Chat(Model):
     id = fields.IntField(pk=True)
     chat_id = fields.BigIntField()
-    alma_mater = fields.ForeignKeyField("models.AlmaMater")
     group = fields.ForeignKeyField("models.Group")
-    chat_type = fields.IntField()
-    active = fields.IntField()
+    chat_type = fields.ForeignKeyField("models.ChatType", on_delete="RESTRICT")
+    active = fields.BooleanField(null=False, default=False)
 
     class Meta:
         table = "chats"
@@ -49,8 +49,7 @@ class FinancialCategory(Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=35)
     summ = fields.IntField()
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
-    group_id = fields.ForeignKeyField("models.Group")
+    group_id = fields.ForeignKeyField("models.Group", on_delete="CASCADE")
 
     class Meta:
         table = "financial_categories"
@@ -82,7 +81,7 @@ class Group(Model):
     id = fields.IntField(pk=True)
     group_num = fields.CharField(max_length=20)
     speciality = fields.TextField()
-    alma_mater_id = fields.IntField()
+    alma_mater_id = fields.ForeignKeyField("models.AlmaMater", on_delete="RESTRICT")
 
     class Meta:
         table = "groups"
@@ -91,8 +90,7 @@ class Group(Model):
 class Mailing(Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=30)
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
-    group_id = fields.ForeignKeyField("models.Group")
+    group_id = fields.ForeignKeyField("models.Group", on_delete="CASCADE")
 
     class Meta:
         table = "mailings"
@@ -111,32 +109,49 @@ class Storage(Model):
     state_id = fields.IntField()
     current_chat = fields.IntField()
     names_usage = fields.BooleanField()
-    selected_students = fields.TextField()
-    text = fields.TextField()
-    attaches = fields.TextField()
-    mailing_id = fields.TextField()
 
     class Meta:
         table = "storage"
 
 
+class CallStorage(Model):
+    selected_students = fields.TextField()
+    call_text = fields.TextField()
+    call_attaches = fields.TextField()
+    mailing_id = fields.TextField()
+
+    class Meta:
+        table = "call_storage"
+
+
+class MailingStorage(Model):
+    call_text = fields.TextField()
+    call_attaches = fields.TextField()
+    mailing_id = fields.TextField()
+
+    class Meta:
+        table = "mailing_storage"
+
+
 class Student(Model):
     id = fields.IntField(pk=True)
     vk_id = fields.BigIntField(unique=True)
-    first_name = fields.CharField(max_length=50)
-    second_name = fields.CharField(max_length=50)
-    alma_mater = fields.ForeignKeyField("models.AlmaMater")
-    group = fields.ForeignKeyField("models.Group")
-    academic_status = fields.IntField()
+    first_name = fields.CharField(max_length=50, null=False)
+    second_name = fields.CharField(max_length=50, null=False)
+    group = fields.ForeignKeyField("models.Group", on_delete="CASCADE")
+    academic_status = fields.ForeignKeyField(
+        "models.AcademicStatus", on_delete="RESTRICT"
+    )
 
     class Meta:
         table = "students"
 
 
 class Subscription(Model):
-    student_id = fields.IntField()
-    mailing_id = fields.IntField()
-    status = fields.BooleanField()
+    id = fields.IntField(pk=True)
+    student_id = fields.ForeignKeyField('models.Student', on_delete='CASCADE')
+    mailing_id = fields.ForeignKeyField('models.Mailing', on_delete='CASCADE')
+    status = fields.BooleanField(null=False, default=True)
 
     class Meta:
         table = "subscriptions"
