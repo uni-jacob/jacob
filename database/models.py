@@ -111,10 +111,11 @@ class Storage(Model):
     names_usage = fields.BooleanField()
     text = fields.TextField()
     attaches = fields.TextField()
-    mailing_id = fields.ForeignKeyField('models.Mailing')
+    mailing_id = fields.ForeignKeyField("models.Mailing")
 
     class Meta:
         table = "storage"
+
 
 class Student(Model):
     id = fields.IntField(pk=True)
