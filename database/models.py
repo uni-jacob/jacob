@@ -109,29 +109,12 @@ class Storage(Model):
     state_id = fields.IntField()
     current_chat = fields.IntField()
     names_usage = fields.BooleanField()
+    text = fields.TextField()
+    attaches = fields.TextField()
+    mailing_id = fields.ForeignKeyField('models.Mailing')
 
     class Meta:
         table = "storage"
-
-
-class CallStorage(Model):
-    selected_students = fields.TextField()
-    call_text = fields.TextField()
-    call_attaches = fields.TextField()
-    mailing_id = fields.TextField()
-
-    class Meta:
-        table = "call_storage"
-
-
-class MailingStorage(Model):
-    call_text = fields.TextField()
-    call_attaches = fields.TextField()
-    mailing_id = fields.TextField()
-
-    class Meta:
-        table = "mailing_storage"
-
 
 class Student(Model):
     id = fields.IntField(pk=True)
