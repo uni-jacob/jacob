@@ -131,3 +131,14 @@ class Database(Base):
             fetchone=True,
         )
         return bool(query)
+
+    async def get_chat_types(self):
+        """
+        Возвращает доступные типы чатов
+        Returns:
+            list[Record]: Типы чатов
+        """
+
+        data = self.query("select * from chat_types", fetchall=True)
+
+        return data
