@@ -149,8 +149,8 @@ class Student(Model):
 
 class Subscription(Model):
     id = fields.IntField(pk=True)
-    student_id = fields.ForeignKeyField('models.Student', on_delete='CASCADE')
-    mailing_id = fields.ForeignKeyField('models.Mailing', on_delete='CASCADE')
+    student_id = fields.ForeignKeyField("models.Student", on_delete="CASCADE")
+    mailing_id = fields.ForeignKeyField("models.Mailing", on_delete="CASCADE")
     status = fields.BooleanField(null=False, default=True)
 
     class Meta:
