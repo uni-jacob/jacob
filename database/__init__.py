@@ -67,7 +67,7 @@ class Database(Base):
         )
         return names
 
-    async def get_active_students(self, user_id: int):
+    async def get_active_students(self, user_id: int) -> list:
         """
         Получает список студентов группы, чей академический статус больше нуля
 
@@ -86,7 +86,7 @@ class Database(Base):
         )
         return names
 
-    async def get_list_of_chats(self, user_id: int):
+    async def get_list_of_chats(self, user_id: int) -> list:
         """
         Получает список настроенных чатов для группы, администратором которой
         является user_id
@@ -105,7 +105,7 @@ class Database(Base):
         )
         return chats
 
-    async def get_cached_chats(self):
+    async def get_cached_chats(self) -> list:
         """
         Получает список кэшированных чатов
         Returns:
@@ -114,7 +114,7 @@ class Database(Base):
         chats = await self.query("select chat_id from cached_chats", fetchall=True)
         return chats
 
-    async def is_chat_registered(self, user_id: int, chat_type: int):
+    async def is_chat_registered(self, user_id: int, chat_type: int) -> bool:
         """
         Был ли зарегистрирован чат с указанным типом
         Args:
@@ -132,7 +132,7 @@ class Database(Base):
         )
         return bool(query)
 
-    async def get_chat_types(self):
+    async def get_chat_types(self) -> list:
         """
         Возвращает доступные типы чатов
         Returns:
