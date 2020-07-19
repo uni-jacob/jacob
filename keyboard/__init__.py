@@ -237,7 +237,7 @@ class Keyboards:
         Returns:
             JSON-like str: Клавиатура
         """
-        data, chats = await self.db.get_list_of_chats(user_id)
+        chats = await self.db.get_list_of_chats(user_id)
         kb = Keyboard()
         kb.add_row()
         for chat in chats:
@@ -249,7 +249,7 @@ class Keyboards:
                         label="Основной чат",
                         payload={
                             "button": "configure_chat",
-                            "group_id": data["group_id"],
+                            "group_id": chat["group_id"],
                             "chat_type": chat["chat_type"],
                             "chat_id": chat["chat_id"],
                             "active": chat["active"],
@@ -262,14 +262,17 @@ class Keyboards:
                         label="Тестовый чат",
                         payload={
                             "button": "configure_chat",
-                            "group_id": data["group_id"],
+                            "group_id": chat["group_id"],
                             "chat_type": chat["chat_type"],
                             "chat_id": chat["chat_id"],
                             "active": chat["active"],
                         },
                     )
                 )
-        if len(chats) < 2 and await self.db.get_cached_chats():
+        if (
+            len(chats) < await self.db.get_chat_types()
+            and await self.db.get_cached_chats()
+        ):
             if kb.buttons[-1]:
                 kb.add_row()
             kb.add_button(
