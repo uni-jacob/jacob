@@ -1,0 +1,2 @@
+class UserIsNotAnAdministrator(Exception):
+    pass

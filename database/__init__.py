@@ -17,13 +17,33 @@ class Database(Base):
         query = await self.query(
             "select id from students where vk_id=$1", user_id, fetchone=True,
         )
-        data = await self.query(
-            "select group_id from administrators where id=$1",
-            query["id"],
-            fetchone=True,
-        )
+        if query is not None:
+            data = await self.query(
+                "select group_id from administrators where id=$1",
+                query["id"],
+                fetchone=True,
+            )
+            if data is not None:
+                return data["group_id"]
+        return 0
 
-        return data["group_id"]
+    async def get_user_id(self, user_id: int) -> int:
+        """
+        Вовзвращает идентификатор пользователя в системе по идентификатору ВК
+        или 0, если пользователь не существует в системе
+
+        Args:
+            user_id: Идентификатор ВК
+
+        Returns:
+            int: Идентификатор пользователя в системе
+        """
+        student = await self.query(
+            "SELECT id from students WHERE vk_id=$1;", user_id, fetchone=True
+        )
+        if student is not None:
+            return student["id"]
+        return 0
 
     async def get_unique_second_name_letters(self, user_id: int) -> list:
         """

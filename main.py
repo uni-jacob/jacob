@@ -74,10 +74,9 @@ async def transliterate(ans: Message):
 
 @bot.on.message(ButtonRule("call"))
 async def open_call(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    state = await State.get(description="wait_call_text")
-    user.state_id = state.id
-    await user.save()
+    await utils.update_storage(
+        ans.from_id, state_id=await utils.get_id_of_state("wait_call_text")
+    )
     await ans(
         "Отправьте сообщение к призыву", keyboard=kbs.skip_call_message(),
     )
@@ -100,15 +99,10 @@ async def register_call_message(ans: Message):
     user = await utils.get_storage(ans.from_id)
     if ans.attachments:
         attaches = await media.load_attachments(bot, ans.attachments, ans.from_id)
-        user.attaches = attaches
-        await user.save()
-    if user is not None:
-        state = await State.get(description="main")
-        user.text = ans.text
-        user.state_id = state.id
-        await user.save()
-    else:
-        return "Access denied."
+        await utils.update_storage(ans.from_id, attaches=attaches)
+    await utils.update_storage(
+        ans.from_id, state_id=await utils.get_id_of_state(), text=ans.text
+    )
     await ans(
         message="Выберите призываемых:", keyboard=await kbs.call_interface(ans.from_id)
     )
@@ -116,11 +110,7 @@ async def register_call_message(ans: Message):
 
 @bot.on.message(ButtonRule("skip_call_message"))
 async def generate_call_kb(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    if user is not None:
-        state = await State.get(description="main")
-        user.state_id = state.id
-        await user.save()
+    await utils.update_storage(ans.from_id, state_id=await utils.get_id_of_state())
     await ans(
         message="Выберите призываемых:", keyboard=await kbs.call_interface(ans.from_id)
     )
@@ -138,19 +128,15 @@ async def generate_students_kb(ans: Message):
 @bot.on.message(ButtonRule("student"))
 async def edit_call_list(ans: Message):
     payload = json.loads(ans.payload)
-    user = await utils.get_storage(ans.from_id)
-    if user.selected_students is None:
-        user.selected_students = ""
-    students = [i for i in user.selected_students.split(",") if i]
+    store = await utils.get_storage(ans.from_id, ["selected_students"])
+    students = [i for i in store["selected_students"].split(",") if i]
     if str(payload["student_id"]) not in students:
         students.append(str(payload["student_id"]))
-        user.selected_students = ",".join(students)
-        await user.save()
+        await utils.update_storage(ans.from_id, selected_students=",".join(students))
         await ans(f"{payload['name']} добавлен к списку призывемых")
     else:
         students.remove(str(payload["student_id"]))
-        user.selected_students = ",".join(students)
-        await user.save()
+        await utils.update_storage(ans.from_id, selected_students=",".join(students))
         await ans(f"{payload['name']} убран из списка призывемых")
 
 
@@ -213,11 +199,8 @@ async def confirm_call(ans: Message):
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("deny"))
 async def deny_call(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    state = await State.get(description="main")
-    user.state_id = state.id
-    await user.save()
     await utils.clear_storage(ans.from_id)
+    await utils.update_storage(ans.from_id, state_id=await utils.get_id_of_state())
     await ans("Выполнение команды отменено", keyboard=await kbs.main_menu(ans.from_id))
 
 
@@ -383,12 +366,11 @@ async def change_active_chat(ans: Message):
 
 @bot.on.message(StateRule("main"), ButtonRule("names_usage"))
 async def change_names_usage(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    user.names_usage = not user.names_usage
-    chat_type = user.current_chat
-    await user.save()
+    store = await utils.get_storage(ans.from_id, ["names_usage", "current_chat"])
+    await utils.update_storage(ans.from_id, names_usage=not store["names_usage"])
     await ans(
-        "Параметры изменены", keyboard=kbs.admin_settings(user.names_usage, chat_type),
+        "Параметры изменены",
+        keyboard=kbs.admin_settings(not store["names_usage"], store["current_chat"]),
     )
 
 
