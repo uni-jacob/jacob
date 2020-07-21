@@ -41,7 +41,7 @@ async def update_storage(user_id: int, **kwargs):
 
 async def get_storage(user_id: int, fields: Union[list, tuple]):
     """
-    Возвращает объект хранилища администратора
+    Возвращает словарь с выбранными полями из хранилища администратора
     Args:
         user_id: Идентфикатор администратора
         fields: Поля, которые нужно вернуть в результате
