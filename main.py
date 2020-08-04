@@ -47,7 +47,7 @@ async def start_bot(ans: Message):
 
 @bot.on.chat_invite()
 async def invite_to_chat(ans: Message):
-    await CachedChat.get_or_create(chat_id=ans.peer_id)
+    await utils.save_chat_to_cache(ans.peer_id)
     await ans(
         "Привет всем! Я - Якоб, универсальный бот - помощник. Список моих команд "
         "можно получить, отправив /help"
@@ -96,7 +96,6 @@ async def cancel_call(ans: Message):
     ),
 )
 async def register_call_message(ans: Message):
-    user = await utils.get_storage(ans.from_id)
     if ans.attachments:
         attaches = await media.load_attachments(bot, ans.attachments, ans.from_id)
         await utils.update_storage(ans.from_id, attaches=attaches)
@@ -142,54 +141,44 @@ async def edit_call_list(ans: Message):
 
 @bot.on.message(ButtonRule("save_selected"))
 async def save_call(ans: Message):
-    student = await Student.get(vk_id=ans.from_id)
-    user = await utils.get_storage(ans.from_id)
-    state = await State.get(description="confirm_call")
-    user.state_id = state.id
-    await user.save()
-    chat_type = user.current_chat
-    chat = await Chat.get(
-        chat_type=chat_type, alma_mater=student.alma_mater_id, group=student.group_id,
+    store = await utils.get_storage(ans.from_id)
+    await utils.update_storage(
+        ans.from_id, state_id=await utils.get_id_of_state("confirm_call")
     )
-    chat_text = "основную" if chat.chat_type else "тестовую"
+    chat_text = "основную" if store["current_chat"] else "тестовую"
     message = await call.generate_message(ans.from_id)
-    attachments = user.attaches
+    attachments = store["attaches"]
     await ans(f"Это сообщение будет отправлено в {chat_text} беседу:")
     await ans(
         message=message,
         attachment=attachments,
-        keyboard=kbs.call_prompt(user.names_usage, chat.chat_type),
+        keyboard=kbs.call_prompt(store["names_usage"], store["current_chat"]),
     )
 
 
 @bot.on.message(ButtonRule("call_all"))
 async def call_all_of_them(ans: Message):
-    user = await utils.get_storage(ans.from_id)
     students = await db.get_active_students(ans.from_id)
     called = []
     for student in students:
         called.append(str(student["id"]))
-    user.selected_students = ",".join(called)
-    await user.save()
+    await utils.update_storage(ans.from_id, selected_students=",".join(called))
     await save_call(ans)
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("confirm"))
 async def confirm_call(ans: Message):
-    student = await Student.get(vk_id=ans.from_id)
-    user = await utils.get_storage(ans.from_id)
-    state = await State.get(description="main")
-    user.state_id = state.id
-    await user.save()
+    store = await utils.get_storage(ans.from_id)
+    student = await utils.find_student(fetch="one", st_id=store["id"])
+    await utils.update_storage(ans.from_id, state_id=await utils.get_id_of_state())
     message = await call.generate_message(ans.from_id)
-    attachments = user.attaches
-    chat_type = user.current_chat
-    chat = await Chat.get(
-        chat_type=chat_type, alma_mater=student.alma_mater_id, group=student.group_id,
+    attachments = store["attaches"]
+    chat = await utils.find_chat(
+        fetch="one", group_id=student["group_id"], chat_type=store["current_chat"]
     )
     await bot.api.messages.send(
         random_id=random.getrandbits(64),
-        peer_id=chat.chat_id,
+        peer_id=chat["chat_id"],
         message=message,
         attachment=attachments,
     )
@@ -206,23 +195,21 @@ async def deny_call(ans: Message):
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("names_usage"))
 async def edit_names_usage(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    user.names_usage = not user.names_usage
-    await user.save()
+    store = await utils.get_storage(ans.from_id)
+    await utils.update_storage(ans.from_id, names_usage=not store["names_usage"])
     await save_call(ans)
 
 
 @bot.on.message(StateRule("confirm_call"), ButtonRule("chat_config"))
 async def edit_chat(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    student = await Student.get(vk_id=ans.from_id)
-    chat_type = abs(user.current_chat - 1)
-    chat = await Chat.get_or_none(
-        alma_mater=student.alma_mater_id, group=student.group_id, chat_type=chat_type,
+    store = await utils.get_storage(ans.from_id)
+    student = await utils.find_student(fetch="one", st_id=store["id"])
+    chat_type = abs(store["current_chat"] - 1)
+    chat = await utils.find_chat(
+        fetch="one", chat_type=chat_type, group_id=student["group_id"]
     )
-    if chat:
-        user.current_chat = chat_type
-        await user.save()
+    if chat is not None:
+        await utils.update_storage(ans.from_id, current_chat=chat_type)
         await save_call(ans)
     else:
         await ans(f"{'Основной' if chat_type else 'Тестовый'} чат не настроен")
@@ -250,11 +237,10 @@ async def open_mailings(ans: Message):
 
 @bot.on.message(ButtonRule("admin_settings"))
 async def open_chat_settings(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    chat_type = user.current_chat
+    store = await utils.get_storage(ans.from_id)
     await ans(
         "Настройки администратора",
-        keyboard=kbs.admin_settings(user.names_usage, chat_type),
+        keyboard=kbs.admin_settings(store["names_usage"], store["current_chat"]),
     )
 
 
@@ -287,15 +273,16 @@ async def configure_chat(ans: Message):
 @bot.on.message(ButtonRule("activate_chat"))
 async def activate_chat(ans: Message):
     payload = json.loads(ans.payload)
-    payload.pop("button")
-    chat = await Chat.get(chat_id=payload["chat_id"])
-    chat.active = 1
-    await chat.save()
-    chat_type = abs(payload["chat_type"] - 1)
-    chat = await Chat.get_or_none(chat_type=chat_type, group_id=payload["group_id"])
-    if chat:
-        chat.active = 0
-        await chat.save()
+    active_chat = await utils.update_chat_activity(1, chat_id=payload["chat_id"])
+    chat = await utils.find_chat(
+        fetch="one",
+        chat_id=payload["chat_id"],  # TODO
+        chat_type=abs(active_chat["chat_type"] - 1),
+    )
+    if chat is not None:
+        await utils.update_chat_activity(
+            0, chat_id=payload["chat_id"], group_id=payload["group_id"]
+        )
     await ans(
         "Чат выбран для отправки рассылок",
         keyboard=await kbs.configure_chat(
@@ -307,11 +294,11 @@ async def activate_chat(ans: Message):
 @bot.on.message(ButtonRule("delete_chat"))
 async def delete_chat(ans: Message):
     payload = json.loads(ans.payload)
-    chat = await Chat.get_or_none(chat_id=payload["chat_id"])
-    if chat:
-        await chat.delete()
-    await CachedChat.get_or_create(chat_id=payload["chat_id"])
-    await ans("Чат удален", keyboard=await kbs.group_settings(ans.from_id))
+    await utils.unbind_chat(chat_id=payload["chat_id"])
+    await utils.save_chat_to_cache(payload["chat_id"])
+    await ans(
+        "Чат отвязан от вашей группы", keyboard=await kbs.group_settings(ans.from_id)
+    )
 
 
 @bot.on.message(ButtonRule("register_chat"))
@@ -331,34 +318,30 @@ async def select_type_of_new_chat(ans: Message):
 @bot.on.message(ButtonRule("bind_chat"))
 async def bind_chat(ans: Message):
     payload = json.loads(ans.payload)
-    chat = await CachedChat.get_or_none(chat_id=payload["chat_id"])
-    if chat:
-        await chat.delete()
-    data = await db.get_ownership_of_admin(ans.from_id)
-    await Chat.create(
-        chat_id=payload["chat_id"],
-        alma_mater_id=data["alma_mater_id"],
-        group_id=data["group_id"],
+    group_id = await db.get_ownership_of_admin(ans.from_id)
+    await utils.delete_chat_from_cache(payload["chat_id"])
+    await utils.bind_chat(
+        chat_id=payload["payload_id"],
+        group_id=group_id,
         chat_type=payload["chat_type"],
-        active=0,
+        is_active=False,
     )
     await ans("Чат добавлен", keyboard=await kbs.group_settings(ans.from_id))
 
 
 @bot.on.message(StateRule("main"), ButtonRule("chat_config"))
 async def change_active_chat(ans: Message):
-    user = await utils.get_storage(ans.from_id)
-    student = await Student.get(vk_id=ans.from_id)
-    chat_type = abs(user.current_chat - 1)
-    chat = await Chat.get_or_none(
-        alma_mater=student.alma_mater_id, group=student.group_id, chat_type=chat_type,
+    store = await utils.get_storage(ans.from_id)
+    student = await utils.find_student(fetch="one", st_id=store["id"])
+    chat_type = abs(store["current_chat"] - 1)
+    chat = await utils.find_chat(
+        fetch="one", group_id=student["group_id"], chat_type=chat_type
     )
-    if chat:
-        user.current_chat = chat_type
-        await user.save()
+    if chat is not None:
+        await utils.update_storage(ans.from_id, current_chat=chat_type)
         await ans(
             "Параметры изменены",
-            keyboard=kbs.admin_settings(user.names_usage, chat_type),
+            keyboard=kbs.admin_settings(store["names_usage"], chat_type),
         )
     else:
         await ans(f"{'Основной' if chat_type else 'Тестовый'} чат не настроен")

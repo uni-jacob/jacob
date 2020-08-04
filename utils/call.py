@@ -11,10 +11,10 @@ async def generate_message(from_id: int):
     Returns:
         str: Сообщение призыва
     """
-    user = await utils.get_storage(from_id)
-    message = user.text or ""
-    students = user.selected_students or ""
-    mentions = await generate_mentions(user.names_usage, students)
+    store = await utils.get_storage(from_id)
+    message = store["text"] or ""
+    students = store["selected_students"] or ""
+    mentions = await generate_mentions(store["names_usage"], students)
     message = f"{mentions}\n{message}"
     return message
 
@@ -33,7 +33,7 @@ async def generate_mentions(names_usage: bool, students: str):
     sep = ", " if names_usage else ""
     for student in students.split(","):
         if student:
-            st = await Student.get(id=student)
-            hint = st.first_name if names_usage else "!"
-            mentions.append(f"@id{st.vk_id} ({hint})")
+            st = await utils.find_student(fetch="one", st_id=int(student))
+            hint = st["first_name"] if names_usage else "!"
+            mentions.append(f"@id{st['vk_id']} ({hint})")
     return sep.join(mentions)

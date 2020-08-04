@@ -23,7 +23,7 @@ class StateRule(AbstractMessageRule):
         self.state = state
 
     async def check(self, message: Message) -> bool:
-        user = await utils.get_storage(message.from_id)
-        state = await State.get(description=self.state)
-        if user is not None and user.state_id == state.id:
+        store = await utils.get_storage(message.from_id)
+        state_id = await utils.get_id_of_state(self.state)
+        if store is not None and store["state_id"] == state_id:
             return True
