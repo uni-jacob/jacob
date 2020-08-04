@@ -14,14 +14,12 @@ class Database(Base):
             int: Идентификатор группы, в которой указанный пользователь
             является администратором
         """
-        query = await self.query(
-            "select id from students where vk_id=$1", user_id, fetchone=True,
-        )
-        if query is not None:
+        admin_id = await self.get_user_id(user_id)
+        if admin_id:
             data = await self.query(
                 "select group_id from administrators where id=$1",
-                query["id"],
-                fetchone=True,
+                admin_id,
+                fetch="one",
             )
             if data is not None:
                 return data["group_id"]
@@ -39,7 +37,7 @@ class Database(Base):
             int: Идентификатор пользователя в системе
         """
         student = await self.query(
-            "SELECT id from students WHERE vk_id=$1;", user_id, fetchone=True
+            "SELECT id from students WHERE vk_id=$1;", user_id, fetch="one"
         )
         if student is not None:
             return student["id"]
@@ -60,7 +58,7 @@ class Database(Base):
             "SELECT DISTINCT substring(second_name from  '^.') FROM students where "
             "group_id=$1 ORDER BY substring(second_name from  '^.')",
             data,
-            fetchall=True,
+            fetch="all",
         )
         return [letter for (letter,) in iter(query)]
 
@@ -83,7 +81,7 @@ class Database(Base):
             "AND academic_status > 0 AND group_id=$2 ORDER BY id",
             letter,
             data,
-            fetchall=True,
+            fetch="all",
         )
         return names
 
@@ -102,7 +100,7 @@ class Database(Base):
             "SELECT id, first_name, second_name FROM students "
             "WHERE academic_status > 0 AND group_id=$1 ORDER BY id",
             data,
-            fetchall=True,
+            fetch="all",
         )
         return names
 
@@ -121,7 +119,7 @@ class Database(Base):
             "SELECT chat_id, group_id, chat_type, is_active from chats where "
             "group_id=$1",
             data,
-            fetchall=True,
+            fetch="all",
         )
         return chats
 
@@ -131,7 +129,7 @@ class Database(Base):
         Returns:
             list[Record]: Список чатов
         """
-        chats = await self.query("select chat_id from cached_chats", fetchall=True)
+        chats = await self.query("select chat_id from cached_chats", fetch="all")
         return chats
 
     async def is_chat_registered(self, user_id: int, chat_type: int) -> bool:
@@ -148,7 +146,7 @@ class Database(Base):
             "select * from chats where group_id=$1 and chat_type=$3",
             data,
             chat_type,
-            fetchone=True,
+            fetch="all",
         )
         return bool(query)
 
@@ -159,6 +157,6 @@ class Database(Base):
             list[Record]: Типы чатов
         """
 
-        data = self.query("select * from chat_types", fetchall=True)
+        data = self.query("select * from chat_types", fetch="all")
 
         return data

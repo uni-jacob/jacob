@@ -76,7 +76,7 @@ async def get_id_of_state(description: str = "main"):
         int: Идентификатор состояния
     """
     query = await db.query(
-        "select id from states where description=$1", description, fetchone=True
+        "select id from states where description=$1", description, fetch="one"
     )
     return query["id"]
 

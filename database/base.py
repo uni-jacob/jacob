@@ -2,6 +2,8 @@ import urllib.parse as urlparse
 
 import asyncpg
 
+from utils.exceptions import NotAllowedFetchType
+
 
 class Base:
     def __init__(self, db_url):
@@ -15,16 +17,18 @@ class Base:
         }
         self.conn = None
 
-    async def query(self, query: str, *args, fetchone=False, fetchall=False):
+    async def query(self, query: str, *args, fetch=""):
 
         await self.connect()
 
-        if fetchone:
+        if fetch == "one":
             result = await self.conn.fetchrow(query, *args)
-        elif fetchall:
+        elif fetch == "all":
             result = await self.conn.fetch(query, *args)
-        else:
+        elif fetch == "":
             result = await self.conn.execute(query, *args)
+        else:
+            raise NotAllowedFetchType(f"Неизвестный вариант fetch: {fetch}")
 
         await self.conn.close()
         return result
