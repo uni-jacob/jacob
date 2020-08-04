@@ -1,9 +1,7 @@
-import asyncio
 import json
 import os
 import random
 
-from tortoise import Tortoise
 from vkbottle import Bot
 from vkbottle import Message
 from vkbottle.rule import AttachmentRule
@@ -13,10 +11,6 @@ from vkbottle.rule import filters
 
 from database import Database
 from database import utils
-from database.models import CachedChat
-from database.models import Chat
-from database.models import State
-from database.models import Student
 from keyboard import Keyboards
 from utils import call
 from utils import media
@@ -27,12 +21,6 @@ from utils.rules import StateRule
 bot = Bot(os.environ["VK_TOKEN"])
 db = Database(os.environ["DATABASE_URL"])
 kbs = Keyboards()
-
-
-async def init_db():
-    await Tortoise.init(
-        db_url=os.environ["DATABASE_URL"], modules={"models": ["database.models"]}
-    )
 
 
 @bot.on.message(text="начать", lower=True)
@@ -362,6 +350,4 @@ async def open_mailings(ans: Message):
     await ans("Здесь будет доступ к вебу...")
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(init_db())
 bot.run_polling(skip_updates=False)

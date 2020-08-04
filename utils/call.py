@@ -1,5 +1,4 @@
 from database import utils
-from database.models import Student
 
 
 async def generate_message(from_id: int):

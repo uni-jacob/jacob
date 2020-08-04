@@ -4,7 +4,6 @@ from vkbottle import Message
 from vkbottle.rule import AbstractMessageRule
 
 from database import utils
-from database.models import State
 
 
 class ButtonRule(AbstractMessageRule):
