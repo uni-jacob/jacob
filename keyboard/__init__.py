@@ -282,7 +282,9 @@ class Keyboards:
         return kb.generate()
 
     @staticmethod
-    async def configure_chat(group_id: int, chat_id: int, chat_type: int, active: int):
+    async def configure_chat(
+        group_id: int, chat_id: int, chat_type: int, active: int, **_
+    ):
         """
         Генериует клавиатуру настройки чатов
         Args:

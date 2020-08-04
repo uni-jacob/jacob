@@ -253,7 +253,6 @@ async def open_group_settings(ans: Message):
 @bot.on.message(ButtonRule("configure_chat"))
 async def configure_chat(ans: Message):
     payload = json.loads(ans.payload)
-    payload.pop("button")
     chats = await bot.api.messages.get_conversations_by_id(
         peer_ids=payload["chat_id"], group_id=bot.group_id
     )
