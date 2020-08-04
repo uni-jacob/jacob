@@ -1,5 +1,4 @@
 import os
-from typing import Union
 
 from database import Database
 from utils.exceptions import UserIsNotAnAdministrator
@@ -38,20 +37,40 @@ async def update_storage(user_id: int, **kwargs):
         )
 
 
-async def get_storage(user_id: int, fields: Union[list, tuple]):
+async def get_storage(user_id: int):
     """
     Возвращает словарь с выбранными полями из хранилища администратора
     Args:
         user_id: Идентфикатор администратора
-        fields: Поля, которые нужно вернуть в результате
 
     Returns:
         dict: Поля из хранилища администратора
     """
-    query = await db.query(
-        "SELECT $1 FROM storage WHERE id=$2;", ", ".join(fields), user_id, fetchone=True
-    )
-    return dict(query)
+    if await db.get_ownership_of_admin(user_id):
+        admin_id = await db.get_user_id(user_id)
+        query = await db.query(
+            "SELECT * FROM storage WHERE id=$1", admin_id, fetch="one",
+        )
+        if query is not None:
+            return query
+        else:
+            await db.query(
+                "INSERT INTO storage (id, state_id, current_chat, "
+                "mailing_id, names_usage, selected_students, text, "
+                "attaches) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+                admin_id,
+                1,
+                None,
+                None,
+                True,
+                None,
+                None,
+                None,
+            )
+    else:
+        raise UserIsNotAnAdministrator(
+            f"Пользователь {user_id} не является администратором"
+        )
 
 
 async def clear_storage(user_id: int):

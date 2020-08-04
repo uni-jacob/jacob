@@ -127,8 +127,9 @@ async def generate_students_kb(ans: Message):
 @bot.on.message(ButtonRule("student"))
 async def edit_call_list(ans: Message):
     payload = json.loads(ans.payload)
-    store = await utils.get_storage(ans.from_id, ["selected_students"])
-    students = [i for i in store["selected_students"].split(",") if i]
+    store = await utils.get_storage(ans.from_id)
+    st = store["selected_students"] or ""
+    students = [i for i in st.split(",") if i]
     if str(payload["student_id"]) not in students:
         students.append(str(payload["student_id"]))
         await utils.update_storage(ans.from_id, selected_students=",".join(students))
@@ -349,7 +350,7 @@ async def change_active_chat(ans: Message):
 
 @bot.on.message(StateRule("main"), ButtonRule("names_usage"))
 async def change_names_usage(ans: Message):
-    store = await utils.get_storage(ans.from_id, ["names_usage", "current_chat"])
+    store = await utils.get_storage(ans.from_id)
     await utils.update_storage(ans.from_id, names_usage=not store["names_usage"])
     await ans(
         "Параметры изменены",
