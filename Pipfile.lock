@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "116802939877cee8cf83aad705e4ce9b123e14bf99096332d6106e61c4bb0b71"
+            "sha256": "d2a060f8449c4c589404010c4d4ff294e69defce8fd1ddbd91cc2699543449a5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -276,15 +276,13 @@
                 "sha256:49bfe482627cbb1e72b35b66ee9dab4d12727047a3b4f349611cb37b6a719699",
                 "sha256:967457aa1d4f7580d290af4349b307778635a02d6fe210f04f051f26f24b1fca"
             ],
-            "markers": "python_version >= '3.6' and python_version < '4.0'",
+            "markers": "python_version >= '3.6' and python_version < '4'",
             "version": "==0.5.93"
         },
         "vkbottle": {
-            "hashes": [
-                "sha256:ba6b687dfa2604e7d025542d5b5cb7df45059821b33d6516c3dae621f0ed6c17"
-            ],
-            "index": "pypi",
-            "version": "==2.7.6"
+            "editable": true,
+            "git": "https://github.com/timoniq/vkbottle.git",
+            "ref": "e4ee6d31537b65022ed519b64be3b9fa3c9b6267"
         },
         "watchgod": {
             "hashes": [

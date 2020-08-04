@@ -28,7 +28,7 @@ async def update_storage(user_id: int, **kwargs):
             if arg_no < len(kwargs):
                 query += ","
         arg_no += 1
-        args.append(user_id)
+        args.append(admin_id)
         query += f" WHERE id=${arg_no}"
         await db.query(query, *args)
     else:

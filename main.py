@@ -62,9 +62,9 @@ async def transliterate(ans: Message):
 
 @bot.on.message(ButtonRule("call"))
 async def open_call(ans: Message):
-    await utils.update_storage(
-        ans.from_id, state_id=await utils.get_id_of_state("wait_call_text")
-    )
+    state = await utils.get_id_of_state("wait_call_text")
+    await utils.update_storage(ans.from_id, state_id=state)
+    store = await utils.get_storage(ans.from_id)
     await ans(
         "Отправьте сообщение к призыву", keyboard=kbs.skip_call_message(),
     )
