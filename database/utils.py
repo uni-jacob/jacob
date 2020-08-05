@@ -89,6 +89,18 @@ def clear_admin_storage(admin_id: int) -> Storage:
     )
 
 
+def get_active_students(group_id: int) -> list:
+    """
+    Возвращает список активных (не отчисленных студентов) конкретной группы
+    Args:
+        group_id: идентфикатор группы
+
+    Returns:
+        list[Student]: набор активных студентов группы
+    """
+    return Student.get_or_none(group_id=group_id, academic_status__gt=0)
+
+
 def get_id_of_state(description: str = "main") -> int:
     """
     Возвращает идентификатор состояния бота по его описанию
