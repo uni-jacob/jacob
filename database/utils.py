@@ -1,11 +1,13 @@
 import os
 import urllib.parse as urlparse
 
+from database.models import Administrator
 from database.models import State
 from database.models import Storage
 from database.models import Student
 from utils.exceptions import BotStateNotFound
 from utils.exceptions import StudentNotFound
+from utils.exceptions import UserIsNotAnAdministrator
 
 
 def get_system_id_of_student(vk_id: int) -> int:
@@ -25,6 +27,21 @@ def get_system_id_of_student(vk_id: int) -> int:
     if student is not None:
         return student.id
     raise StudentNotFound(f"Студента с id ВКонтакте {vk_id} не существует в системе")
+
+
+def is_user_admin(admin_id: int) -> bool:
+    """
+    Проверяет, является ли студент администратором
+    Args:
+        admin_id: идентификатор студента в системе
+
+    Returns:
+        bool: статус администрирования студента
+    """
+    admin = Administrator.get_or_none(id=admin_id)
+    if admin is not None:
+        return True
+    raise UserIsNotAnAdministrator(f"Студент с {id=} не является администратором")
 
 
 def get_admin_storage(admin_id: int) -> Storage:
