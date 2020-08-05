@@ -2,6 +2,7 @@ import os
 import urllib.parse as urlparse
 
 from database.models import Administrator
+from database.models import CachedChat
 from database.models import State
 from database.models import Storage
 from database.models import Student
@@ -99,6 +100,18 @@ def get_active_students(group_id: int) -> list:
         list[Student]: набор активных студентов группы
     """
     return Student.get_or_none(group_id=group_id, academic_status__gt=0)
+
+
+def get_or_create_cached_chat(chat_id: int) -> CachedChat:
+    """
+    Возвращает кешированный чат (уже существовавщий или свжесозданный)
+    Args:
+        chat_id: идентификатор чата ВК
+
+    Returns:
+        CachedChat: объект кешированного чата
+    """
+    return CachedChat.get_or_create(chat_id=chat_id)[0]
 
 
 def get_id_of_state(description: str = "main") -> int:
