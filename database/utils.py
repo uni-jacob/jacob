@@ -3,7 +3,28 @@ import urllib.parse as urlparse
 
 from database.models import State
 from database.models import Storage
+from database.models import Student
 from utils.exceptions import BotStateNotFound
+from utils.exceptions import StudentNotFound
+
+
+def get_system_id_of_student(vk_id: int) -> int:
+    """
+    Возвращает идентификатор студента в системе
+    Args:
+        vk_id: идентификатор студента в ВКонтакте
+
+    Returns:
+        int: идентификатор студента в системе
+
+    Raises:
+        StudentNotFound: когда студент с указанным идентификатором ВК не найден
+        в системе
+    """
+    student = Student.get_or_none(vk_id=vk_id)
+    if student is not None:
+        return student.id
+    raise StudentNotFound(f"Студента с id ВКонтакте {vk_id} не существует в системе")
 
 
 def get_admin_storage(admin_id: int) -> Storage:
