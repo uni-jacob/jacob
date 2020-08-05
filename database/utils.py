@@ -1,7 +1,9 @@
 import os
 import urllib.parse as urlparse
 
+from database.models import State
 from database.models import Storage
+from utils.exceptions import BotStateNotFound
 
 
 def get_admin_storage(admin_id: int) -> Storage:
@@ -46,6 +48,25 @@ def clear_admin_storage(admin_id: int) -> Storage:
         text="",
         attaches="",
     )
+
+
+def get_id_of_state(description: str = "main") -> int:
+    """
+    Возвращает идентификатор состояния бота по его описанию
+    Если описание не передано - возвращает 1 (идентификатор статуса "main")
+    Args:
+        description: описание статуса бота
+
+    Returns:
+        int: идентфикатор статуса бота
+
+    Raises:
+        BotStateNotFound: если переданный статус бота не был найден в БД
+    """
+    state = State.get_or_none(description=description)
+    if state is not None:
+        return state.id
+    raise BotStateNotFound(f'Статус "{description}" не существует')
 
 
 def get_db_credentials() -> dict:
