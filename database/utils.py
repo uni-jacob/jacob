@@ -54,7 +54,7 @@ def get_admin_storage(admin_id: int) -> Storage:
         Storage: объект хранилища пользователя
     """
     if is_user_admin(admin_id):
-        return Storage.get_or_create(id=admin_id)
+        return Storage.get_or_create(id=admin_id)[0]
 
 
 def update_admin_storage(admin_id: int, **kwargs) -> Storage:
