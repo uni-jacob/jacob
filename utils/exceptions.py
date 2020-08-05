@@ -4,3 +4,7 @@ class UserIsNotAnAdministrator(Exception):
 
 class BotStateNotFound(Exception):
     pass
+
+
+class StudentNotFound(Exception):
+    pass
