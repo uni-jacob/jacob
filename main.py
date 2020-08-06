@@ -1,14 +1,13 @@
 import os
 
-from vkbottle import Bot
-from vkbottle import Message
+from vkwave.bots import SimpleLongPollBot
 
-bot = Bot(os.getenv("VK_TOKEN"))
-
-
-@bot.on.message(text=["начать", "привет", "старт", "start"])
-async def start(ans: Message):
-    await ans("Привет")
+bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
 
 
-bot.run_polling(skip_updates=False)
+@bot.message_handler()
+def handle(_) -> str:
+    return f"Hello world!"
+
+
+bot.run_forever()
