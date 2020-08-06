@@ -10,7 +10,7 @@ from peewee import PostgresqlDatabase
 from peewee import TextField
 from peewee import TimestampField
 
-from database.utils import get_db_credentials
+from utils.database import get_db_credentials
 
 db = PostgresqlDatabase(**get_db_credentials())
 
