@@ -96,8 +96,11 @@ def get_active_students(group_id: int) -> list:
     Returns:
         list[Student]: набор активных студентов группы
     """
-    students = Student.get_or_none(group_id=group_id, academic_status__gt=0)
-    if students is not None:
+    query = Student.select().where(
+        Student.group == group_id, Student.academic_status > 0
+    )
+    students = [student for student in query]
+    if students:
         return students
     raise StudentNotFound(f"В группе {group_id} нет активных студентов")
 
