@@ -1,6 +1,7 @@
 import pytest
 from pyshould import it
 
+from utils.exceptions import BotStateNotFound
 from utils.exceptions import UserIsNotAnAdministrator
 
 
@@ -64,3 +65,20 @@ class TestDatabaseUtils:
         test_group_id = 1
 
         get_active_students(test_group_id)
+
+    def test_get_id_of_state(self):
+        from database.utils import get_id_of_state
+
+        test_description = "wait_call_text"
+
+        state = get_id_of_state(test_description)
+
+        it(state).should.be_equal(2)
+
+    def test_get_id_of_non_existing_state(self):
+        from database.utils import get_id_of_state
+
+        test_description = "qwerty"
+
+        with pytest.raises(BotStateNotFound):
+            get_id_of_state(test_description)
