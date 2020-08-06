@@ -1,0 +1,41 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+aiohttp = "*"
+async-timeout = "*"
+attrs = "*"
+chardet = "*"
+contextvars = "*"
+hyperjson = "*"
+idna = "*"
+immutables = "*"
+iniconfig = "*"
+loguru = "*"
+more-itertools = "*"
+multidict = "*"
+peewee = "*"
+pluggy = "*"
+psycopg2-binary = "*"
+py = "*"
+pydantic = "*"
+pyparsing = "*"
+pyshould = "*"
+pytest = "*"
+python-dateutil = "*"
+pytz = "*"
+pyzbar = "*"
+requests = "*"
+six = "*"
+toml = "*"
+urllib3 = "*"
+vbml = "*"
+watchgod = "*"
+yarl = "*"
+
+[requires]
+python_version = "3.8"
