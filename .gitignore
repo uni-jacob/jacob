@@ -194,3 +194,5 @@ modules.xml
 .idea/**/markdown-navigator/
 
 # End of https://www.gitignore.io/api/django,direnv,python,pycharm
+
+polygon.py
