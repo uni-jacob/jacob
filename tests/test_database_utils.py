@@ -82,3 +82,24 @@ class TestDatabaseUtils:
 
         with pytest.raises(BotStateNotFound):
             get_id_of_state(test_description)
+
+    def test_get_unique_second_name_letters_in_a_group(self):
+        from database.utils import get_unique_second_name_letters_in_a_group
+
+        test_user_id = 549350532
+
+        snd_names = get_unique_second_name_letters_in_a_group(test_user_id)
+
+        it(snd_names).should.be_equal(["f", "Г"])
+
+    def test_get_list_of_students_by_letter(self):
+        from database.utils import get_list_of_students_by_letter
+        from database.models import Student
+
+        test_letter = "Г"
+        test_user_id = 549350532
+        test_student = Student.get(id=1)
+
+        students = get_list_of_students_by_letter(test_letter, test_user_id)
+
+        it(students).should.be_equal([test_student])
