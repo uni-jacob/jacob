@@ -156,17 +156,17 @@ def get_id_of_state(description: str = "main") -> int:
     raise BotStateNotFound(f'Статус "{description}" не существует')
 
 
-def get_unique_second_name_letters_in_a_group(user_id: int) -> list:
+def get_unique_second_name_letters_in_a_group(vk_id: int) -> list:
     """
-    Возвращает список первых букв фамилий в группе, в которой user_id является
+    Возвращает список первых букв фамилий в группе, в которой vk_id является
     администратором
     Args:
-        user_id: Идентификатор пользователя
+        vk_id: Идентификатор пользователя
 
     Returns:
         list: список первых букв фамилий
     """
-    admin_group = get_admin_feud(get_system_id_of_student(user_id))
+    admin_group = get_admin_feud(get_system_id_of_student(vk_id))
     query = (
         Student.select(Student.second_name)
         .where(Student.group == admin_group)
@@ -178,18 +178,18 @@ def get_unique_second_name_letters_in_a_group(user_id: int) -> list:
         return snd_names
 
 
-def get_list_of_students_by_letter(letter, user_id):
+def get_list_of_students_by_letter(letter, vk_id):
     """
-    Возвращает объекты студентов группы, в которой user_id администратор, фамилии
+    Возвращает объекты студентов группы, в которой vk_id администратор, фамилии
     которых начинаются на letter
     Args:
         letter: первая буква фамилий
-        user_id: идентификатор пользователся
+        vk_id: идентификатор пользователся
 
     Returns:
         list[Student]: список студентов
     """
-    admin_group = get_admin_feud(get_system_id_of_student(user_id))
+    admin_group = get_admin_feud(get_system_id_of_student(vk_id))
     query = (
         Student.select()
         .where(
