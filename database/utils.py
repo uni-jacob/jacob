@@ -8,6 +8,12 @@ from utils.exceptions import StudentNotFound
 from utils.exceptions import UserIsNotAnAdministrator
 
 
+def _generate_list(data) -> list:
+    items = [item for item in data]
+    if items:
+        return items
+
+
 def get_system_id_of_student(vk_id: int) -> int:
     """
     Возвращает идентификатор студента в системе
@@ -40,6 +46,20 @@ def is_user_admin(admin_id: int) -> bool:
     if admin is not None:
         return True
     raise UserIsNotAnAdministrator(f"Студент с {id=} не является администратором")
+
+
+def get_admin_feud(admin_id: int) -> int:
+    """
+    Возвращает идентификатор группы в которой пользователь является администратором
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        int: идентификатор группы
+    """
+    if is_user_admin(admin_id):
+        admin = Administrator.get_or_none(id=admin_id)
+        return admin.group_id
 
 
 def get_admin_storage(admin_id: int) -> Storage:
@@ -134,3 +154,47 @@ def get_id_of_state(description: str = "main") -> int:
     if state is not None:
         return state.id
     raise BotStateNotFound(f'Статус "{description}" не существует')
+
+
+def get_unique_second_name_letters_in_a_group(user_id: int) -> list:
+    """
+    Возвращает список первых букв фамилий в группе, в которой user_id является
+    администратором
+    Args:
+        user_id: Идентификатор пользователя
+
+    Returns:
+        list: список первых букв фамилий
+    """
+    admin_group = get_admin_feud(get_system_id_of_student(user_id))
+    query = (
+        Student.select(Student.second_name)
+        .where(Student.group == admin_group)
+        .order_by(Student.second_name)
+        .distinct()
+    )
+    snd_names = [name.second_name[0] for name in query]
+    if snd_names:
+        return snd_names
+
+
+def get_list_of_students_by_letter(letter, user_id):
+    """
+    Возвращает объекты студентов группы, в которой user_id администратор, фамилии
+    которых начинаются на letter
+    Args:
+        letter: первая буква фамилий
+        user_id: идентификатор пользователся
+
+    Returns:
+        list[Student]: список студентов
+    """
+    admin_group = get_admin_feud(get_system_id_of_student(user_id))
+    query = (
+        Student.select()
+        .where(
+            (Student.second_name.startswith(letter)) & (Student.group == admin_group)
+        )
+        .order_by(Student.second_name.asc())
+    )
+    return _generate_list(query)
