@@ -1,8 +1,8 @@
 import pytest
 from pyshould import it
 
-from utils.exceptions import BotStateNotFound
-from utils.exceptions import UserIsNotAnAdministrator
+from services.exceptions import BotStateNotFound
+from services.exceptions import UserIsNotAnAdministrator
 
 
 class TestDatabaseUtils:
@@ -17,7 +17,7 @@ class TestDatabaseUtils:
 
     def test_get_system_id_of_non_existing_student(self):
         from database.utils import get_system_id_of_student
-        from utils.exceptions import StudentNotFound
+        from services.exceptions import StudentNotFound
 
         test_student_id = 55774545
 

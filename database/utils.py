@@ -3,9 +3,9 @@ from database.models import CachedChat
 from database.models import State
 from database.models import Storage
 from database.models import Student
-from utils.exceptions import BotStateNotFound
-from utils.exceptions import StudentNotFound
-from utils.exceptions import UserIsNotAnAdministrator
+from services.exceptions import BotStateNotFound
+from services.exceptions import StudentNotFound
+from services.exceptions import UserIsNotAnAdministrator
 
 
 def _generate_list(data) -> list:
