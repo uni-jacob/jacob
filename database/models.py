@@ -11,7 +11,7 @@ from peewee import TextField
 from peewee import TimestampField
 from peewee import fn
 
-from utils.database import get_db_credentials
+from services.db import get_db_credentials
 
 db = PostgresqlDatabase(**get_db_credentials())
 
@@ -51,7 +51,7 @@ class Group(BaseModel):
 
 class Administrator(BaseModel):
     id = IntegerField(primary_key=True)
-    group = ForeignKeyField(
+    group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
 
@@ -78,7 +78,7 @@ class ChatType(BaseModel):
 class Chat(BaseModel):
     id = AutoField(primary_key=True,)
     chat_id = BigIntegerField(unique=True)
-    group = ForeignKeyField(
+    group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
     chat_type = ForeignKeyField(ChatType, backref="chattypes", on_delete="RESTRICT")
@@ -92,7 +92,7 @@ class FinancialCategory(BaseModel):
     id = AutoField(primary_key=True,)
     name = CharField()
     summ = IntegerField()
-    group = ForeignKeyField(
+    group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
 
@@ -105,7 +105,7 @@ class Student(BaseModel):
     vk_id = BigIntegerField(unique=True, constraints=[Check("vk_id > 0")])
     first_name = CharField()
     second_name = CharField()
-    group = ForeignKeyField(
+    group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
     academic_status = ForeignKeyField(
@@ -157,7 +157,7 @@ class FinancialExpences(BaseModel):
 class Mailing(BaseModel):
     id = AutoField(primary_key=True,)
     name = CharField()
-    group = ForeignKeyField(
+    group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
 
