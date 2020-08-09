@@ -118,7 +118,7 @@ def get_active_students(group_id: int) -> list:
         list[Student]: набор активных студентов группы
     """
     query = Student.select().where(
-        Student.group == group_id, Student.academic_status > 0
+        Student.group_id == group_id, Student.academic_status > 0
     )
     students = [student for student in query]
     if students:
@@ -170,7 +170,7 @@ def get_unique_second_name_letters_in_a_group(vk_id: int) -> list:
     admin_group = get_admin_feud(get_system_id_of_student(vk_id))
     query = (
         Student.select(Student.second_name)
-        .where(Student.group == admin_group)
+        .where(Student.group_id == admin_group)
         .order_by(Student.second_name)
         .distinct()
     )
@@ -194,7 +194,7 @@ def get_list_of_students_by_letter(letter, vk_id):
     query = (
         Student.select()
         .where(
-            (Student.second_name.startswith(letter)) & (Student.group == admin_group)
+            (Student.second_name.startswith(letter)) & (Student.group_id == admin_group)
         )
         .order_by(Student.second_name.asc())
     )
