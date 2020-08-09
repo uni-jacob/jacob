@@ -9,6 +9,7 @@ from peewee import Model
 from peewee import PostgresqlDatabase
 from peewee import TextField
 from peewee import TimestampField
+from peewee import fn
 
 from utils.database import get_db_credentials
 
@@ -49,7 +50,7 @@ class Group(BaseModel):
 
 
 class Administrator(BaseModel):
-    id = AutoField(primary_key=True)
+    id = IntegerField(primary_key=True)
     group = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
@@ -77,6 +78,11 @@ class ChatType(BaseModel):
 class Chat(BaseModel):
     id = AutoField(primary_key=True,)
     chat_id = BigIntegerField(unique=True)
+    group = ForeignKeyField(
+        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+    )
+    chat_type = ForeignKeyField(ChatType, backref="chattypes", on_delete="RESTRICT")
+    is_active = BooleanField(default=False)
 
     class Meta:
         table_name = "chats"
@@ -106,7 +112,7 @@ class Student(BaseModel):
         AcademicStatus,
         backref="academicstatuses",
         default=1,
-        on_delete="SET DEFAULT",
+        on_delete="RESTRICT",
         on_update="CASCADE",
     )
 
@@ -126,7 +132,7 @@ class FinancialDonate(BaseModel):
         Student, backref="students", on_delete="CASCADE", on_update="CASCADE"
     )
     summ = IntegerField()
-    create_date = TimestampField()
+    create_date = TimestampField(default=fn.NOW())
     update_date = TimestampField()
 
     class Meta:
@@ -142,7 +148,7 @@ class FinancialExpences(BaseModel):
         on_update="CASCADE",
     )
     summ = IntegerField()
-    create_date = TimestampField()
+    create_date = TimestampField(default=fn.NOW())
 
     class Meta:
         table_name = "financial_expences"
@@ -202,4 +208,4 @@ class Subscriptions(BaseModel):
         Student, backref="students", on_delete="CASCADE", on_update="CASCADE"
     )
     mailing_id = ForeignKeyField(Mailing, backref="mailings")
-    status = BooleanField()
+    status = BooleanField(default=True)
