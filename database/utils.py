@@ -1,5 +1,6 @@
 from database.models import Administrator
 from database.models import CachedChat
+from database.models import Chat
 from database.models import State
 from database.models import Storage
 from database.models import Student
@@ -197,4 +198,18 @@ def get_list_of_students_by_letter(letter, vk_id):
         )
         .order_by(Student.second_name.asc())
     )
+    return _generate_list(query)
+
+
+def get_list_of_chats_by_group(vk_id: int):
+    """
+    Возвращает список чатов группы, в которой vk_id администратор
+    Args:
+        vk_id: идентификатор пользователя
+
+    Returns:
+        list[Chat]: список объектов чатов
+    """
+    admin_group = get_admin_feud(get_system_id_of_student(vk_id))
+    query = Chat.select().where(group=admin_group)
     return _generate_list(query)
