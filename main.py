@@ -1,6 +1,7 @@
 import logging
 import os
 
+import hyperjson
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
@@ -65,6 +66,13 @@ async def register_call_message(ans: SimpleBotEvent):
         "Сообщение сохранено. Выберите призываемых студентов",
         keyboard=kbs.call_interface(ans.object.object.message.peer_id),
     )
+
+
+@bot.message_handler(filters.PLFilter({"button": "letter"}))
+async def select_letter(ans: SimpleBotEvent):
+    payload = ans.object.object.message.payload
+    letter = hyperjson.loads(payload)["value"]
+    await ans.answer(f"Список студентов на букву {letter}")
 
 
 bot.run_forever()
