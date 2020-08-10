@@ -8,7 +8,7 @@ bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_
 
 @bot.message_handler(TextFilter(["старт", "начать", "start"]))
 def handle(_) -> str:
-    return f"Привет!"
+    return "Привет!"
 
 
 bot.run_forever()
