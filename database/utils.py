@@ -176,7 +176,7 @@ def get_unique_second_name_letters_in_a_group(vk_id: int) -> list:
     )
     snd_names = [name.second_name[0] for name in query]
     if snd_names:
-        return snd_names
+        return list(dict.fromkeys(snd_names))
 
 
 def get_list_of_students_by_letter(letter, vk_id):
