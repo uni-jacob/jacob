@@ -6,6 +6,7 @@ from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
 
 from services import keyboard as kbs
+from database import utils as db
 from services import filters
 
 logging.basicConfig(level=logging.DEBUG)
@@ -21,7 +22,11 @@ async def start(ans: SimpleBotEvent):
 
 @bot.message_handler(filters.ButtonFilter("call"))
 async def start_call(ans: SimpleBotEvent):
-    await ans.answer("Здесь будет призыв")
+    db.update_admin_storage(
+        db.get_system_id_of_student(ans.object.object.message.peer_id),
+        state_id=db.get_id_of_state("wait_call_text"),
+    )
+    await ans.answer("Отправьте текст призыва", keyboard=kbs.skip_call_message())
 
 
 bot.run_forever()
