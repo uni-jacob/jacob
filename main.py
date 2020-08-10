@@ -37,7 +37,8 @@ async def skip_register_call_message(ans: SimpleBotEvent):
         db.get_system_id_of_student(ans.object.object.message.peer_id)
     )
     await ans.answer(
-        "Сохранение сообщения призыва пропущено. Выберите призываемых студентов"
+        "Сохранение сообщения призыва пропущено. Выберите призываемых студентов",
+        keyboard=kbs.call_interface(ans.object.object.message.peer_id),
     )
 
 
@@ -48,7 +49,10 @@ async def register_call_message(ans: SimpleBotEvent):
         state_id=db.get_id_of_state("main"),
         text=ans.object.object.message.text,
     )
-    await ans.answer("Сообщение сохранено. Выберите призываемых студентов")
+    await ans.answer(
+        "Сообщение сохранено. Выберите призываемых студентов",
+        keyboard=kbs.call_interface(ans.object.object.message.peer_id),
+    )
 
 
 bot.run_forever()
