@@ -1,3 +1,4 @@
+import logging
 from json import JSONDecoder
 from typing import Dict
 
@@ -48,5 +49,5 @@ class StateFilter(BaseFilter):
     async def check(self, event: BaseEvent):
         current_state = db.get_admin_storage(
             db.get_system_id_of_student(event.object.object.message.peer_id)
-        ).state_id
+        ).state_id.id
         return FilterResult(current_state == self.state)
