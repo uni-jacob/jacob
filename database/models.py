@@ -20,6 +20,9 @@ class BaseModel(Model):
     class Meta:
         database = db
 
+    def __str__(self):
+        return f"<{type(self).__name__}: {self._pk}>"
+
 
 class AcademicStatus(BaseModel):
     id = AutoField(primary_key=True,)
