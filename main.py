@@ -70,7 +70,10 @@ async def register_call_message(ans: SimpleBotEvent):
 async def select_letter(ans: SimpleBotEvent):
     payload = ans.object.object.message.payload
     letter = hyperjson.loads(payload)["value"]
-    await ans.answer(f"Список студентов на букву {letter}")
+    await ans.answer(
+        f"Список студентов на букву {letter}",
+        keyboard=kbs.list_of_students(letter, ans.object.object.message.peer_id),
+    )
 
 
 bot.run_forever()
