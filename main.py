@@ -20,7 +20,7 @@ async def start(ans: SimpleBotEvent):
     )
 
 
-@bot.message_handler(filters.ButtonFilter("call"))
+@bot.message_handler(filters.PLFilter({"button": "call"}))
 async def start_call(ans: SimpleBotEvent):
     db.update_admin_storage(
         db.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -29,7 +29,7 @@ async def start_call(ans: SimpleBotEvent):
     await ans.answer("Отправьте текст призыва", keyboard=kbs.skip_call_message())
 
 
-@bot.message_handler(filters.ButtonFilter("cancel_call"))
+@bot.message_handler(filters.PLFilter({"button": "cancel_call"}))
 async def cancel_call(ans: SimpleBotEvent):
     db.clear_admin_storage(
         db.get_system_id_of_student(ans.object.object.message.peer_id)
@@ -41,7 +41,8 @@ async def cancel_call(ans: SimpleBotEvent):
 
 
 @bot.message_handler(
-    filters.StateFilter("wait_call_text") & filters.ButtonFilter("skip_call_message")
+    filters.StateFilter("wait_call_text")
+    & filters.PLFilter({"button": "skip_call_message"})
 )
 async def skip_register_call_message(ans: SimpleBotEvent):
     db.clear_admin_storage(

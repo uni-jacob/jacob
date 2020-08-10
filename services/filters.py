@@ -1,4 +1,3 @@
-import logging
 from json import JSONDecoder
 from typing import Dict
 
@@ -11,7 +10,6 @@ from vkwave.bots.core.dispatching.filters.base import FilterResult
 from vkwave.bots.core.dispatching.filters.builtin import is_message_event
 
 from database import utils as db
-from database.models import Storage
 
 
 class PLFilter(PayloadFilter):
@@ -32,14 +30,8 @@ class PLFilter(PayloadFilter):
             return FilterResult(False)
         return FilterResult(
             self.json_loader(current_payload).items() <= self.payload.items()
+            or self.json_loader(current_payload).items() >= self.payload.items()
         )
-
-
-class ButtonFilter(PayloadFilter):
-    def __init__(self, payload: str, json_loader=hyperjson.loads):
-        super().__init__(payload, json_loader)
-        self.json_loader = json_loader
-        self.payload = {"button": payload}
 
 
 class StateFilter(BaseFilter):
