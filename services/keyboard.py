@@ -79,3 +79,32 @@ def call_interface(user_id: int):
     kb.add_text_button(text="🚫 Отмена", payload={"button": "cancel_call"})
 
     return kb.get_keyboard()
+
+
+def list_of_students(letter: str, user_id: int):
+    """
+    Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
+    Args:
+        letter: Первая буква фамилий
+        user_id: Идентификатор пользователя
+
+    Returns:
+        JSON-like str: Строка с клавиатурой
+    """
+    data = utils.get_list_of_students_by_letter(letter, user_id)
+    kb = Keyboard()
+    for item in data:
+        if len(kb.buttons[-1]) == 2:
+            kb.add_row()
+        kb.add_text_button(
+            text=f"{item.second_name} {item.first_name}",
+            payload={
+                "button": "student",
+                "student_id": item.id,
+                "name": f"{item.second_name} {item.first_name}",
+            },
+        )
+    if kb.buttons[-1]:
+        kb.add_row()
+    kb.add_text_button(text="Назад", payload={"button": "skip_call_message"})
+    return kb.get_keyboard()
