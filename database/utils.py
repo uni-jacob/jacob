@@ -1,3 +1,5 @@
+from playhouse.shortcuts import update_model_from_dict
+
 from database.models import Administrator
 from database.models import CachedChat
 from database.models import Chat
@@ -86,7 +88,7 @@ def update_admin_storage(admin_id: int, **kwargs) -> Storage:
     Returns:
         Storage: объект хранилища
     """
-    return get_admin_storage(admin_id).update(**kwargs)
+    return update_model_from_dict(get_admin_storage(admin_id), kwargs).save()
 
 
 def clear_admin_storage(admin_id: int) -> Storage:
