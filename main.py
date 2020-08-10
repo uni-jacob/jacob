@@ -76,4 +76,19 @@ async def select_letter(ans: SimpleBotEvent):
     )
 
 
+@bot.message_handler(filters.PLFilter({"button": "student"}))
+async def select_student(ans: SimpleBotEvent):
+    payload = ans.object.object.message.payload
+    student_id = hyperjson.loads(payload)["student_id"]
+    if student_id in db.get_list_of_calling_students(
+        db.get_system_id_of_student(ans.object.object.message.peer_id)
+    ):
+        # TODO: Добавить удаление студента из списка
+        pass
+    else:
+        # TODO: Добавить добавление студента в список
+        pass
+    # TODO: Добавить обновление клавиатуры с галочками возле имен добавленных студентов
+
+
 bot.run_forever()
