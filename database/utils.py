@@ -224,3 +224,23 @@ def get_cached_chats():
     """
     query = CachedChat.select()
     return _generate_list(query)
+
+
+def is_chat_registered(vk_id: int, chat_type: int):
+    """
+    Проверяет, был ли зарегистрирован чат типа chat_type в группе, в которой
+    пользователь с vk_id администратор
+    Args:
+        vk_id: идентификатор пользователя
+        chat_type: тип чата
+
+    Returns:
+        bool: флаг, указывающий на регистрацию чата
+    """
+    admin_group = get_admin_feud(get_system_id_of_student(vk_id))
+    query = Chat.select().where(
+        (Chat.group_id == admin_group) & (Chat.chat_type == chat_type)
+    )
+    if _generate_list(query):
+        return True
+    return False
