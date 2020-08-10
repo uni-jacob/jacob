@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+pytest = "*"
 
 [packages]
 aiohttp = "*"
@@ -26,7 +27,6 @@ py = "*"
 pydantic = "*"
 pyparsing = "*"
 pyshould = "*"
-pytest = "*"
 python-dateutil = "*"
 pytz = "*"
 pyzbar = "*"
