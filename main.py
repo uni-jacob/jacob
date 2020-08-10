@@ -39,4 +39,14 @@ async def skip_register_call_message(ans: SimpleBotEvent):
     await ans.answer("Сохранение сообщения призыва пропущено")
 
 
+@bot.message_handler(filters.StateFilter("wait_call_text"))
+async def register_call_message(ans: SimpleBotEvent):
+    db.update_admin_storage(
+        db.get_system_id_of_student(ans.object.object.message.peer_id),
+        state_id=db.get_id_of_state("main"),
+        text=ans.object.object.message.text,
+    )
+    await ans.answer("Сообщение сохранено. Выберите призываемых студентов")
+
+
 bot.run_forever()
