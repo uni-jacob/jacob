@@ -29,4 +29,14 @@ async def start_call(ans: SimpleBotEvent):
     await ans.answer("Отправьте текст призыва", keyboard=kbs.skip_call_message())
 
 
+@bot.message_handler(
+    filters.StateFilter("wait_call_text") & filters.ButtonFilter("skip_call_message")
+)
+async def skip_register_call_message(ans: SimpleBotEvent):
+    db.clear_admin_storage(
+        db.get_system_id_of_student(ans.object.object.message.peer_id)
+    )
+    await ans.answer("Сохранение сообщения призыва пропущено")
+
+
 bot.run_forever()
