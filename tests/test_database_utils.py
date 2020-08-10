@@ -112,3 +112,12 @@ class TestDatabaseUtils:
 
         cache = get_cached_chats()
         it(cache).should.be_equal([test_cached_chat])
+
+    def test_is_chat_registered(self):
+        from database.utils import is_chat_registered
+
+        test_user_id = 549350532
+
+        res = is_chat_registered(test_user_id, 1)
+
+        it(res).should.be_equal(True)
