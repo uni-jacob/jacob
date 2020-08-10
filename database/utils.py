@@ -246,3 +246,17 @@ def is_chat_registered(vk_id: int, chat_type: int):
     if _generate_list(query):
         return True
     return False
+
+
+def get_list_of_calling_students(admin_id: int):
+    """
+    Возвращает список призываемых студентов из хранилища администратора admin_id
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        list[int]: список призываемых
+    """
+    store = get_admin_storage(admin_id)
+    students = store.selected_students
+    return list(map(int, students.split(",")))
