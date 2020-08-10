@@ -46,7 +46,7 @@ def is_user_admin(admin_id: int) -> bool:
     admin = Administrator.get_or_none(id=admin_id)
     if admin is not None:
         return True
-    raise UserIsNotAnAdministrator(f"Студент с {id=} не является администратором")
+    raise UserIsNotAnAdministrator(f"Студент с {admin_id=} не является администратором")
 
 
 def get_admin_feud(admin_id: int) -> int:
