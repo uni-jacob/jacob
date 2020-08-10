@@ -41,16 +41,14 @@ async def cancel_call(ans: SimpleBotEvent):
     )
 
 
-@bot.message_handler(
-    filters.StateFilter("wait_call_text")
-    & filters.PLFilter({"button": "skip_call_message"})
-)
+@bot.message_handler(filters.PLFilter({"button": "skip_call_message"}))
 async def skip_register_call_message(ans: SimpleBotEvent):
-    db.clear_admin_storage(
-        db.get_system_id_of_student(ans.object.object.message.peer_id)
+    db.update_admin_storage(
+        db.get_system_id_of_student(ans.object.object.message.peer_id),
+        state_id=db.get_id_of_state("main"),
     )
     await ans.answer(
-        "Сохранение сообщения призыва пропущено. Выберите призываемых студентов",
+        "Выберите призываемых студентов",
         keyboard=kbs.call_interface(ans.object.object.message.peer_id),
     )
 
