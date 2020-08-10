@@ -37,7 +37,4 @@ jobs:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
         pytest
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v1.3
-      with:
-        projectBaseDir: .
+
