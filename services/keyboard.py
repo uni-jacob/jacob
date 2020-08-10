@@ -25,3 +25,16 @@ def main_menu(user_id: int) -> str:
         kb.add_text_button(text="⚙ Настройки", payload={"button": "settings"})
         kb.add_text_button(text="🌐 Веб", payload={"button": "web"})
     return kb.get_keyboard()
+
+
+def skip_call_message():
+    """
+    Генерирует клавиатуру для пропуска ввода сообщения призыва
+    Returns:
+        JSON-like str: Строка с клавиатурой
+    """
+    kb = Keyboard()
+    kb.add_text_button(text="👉🏻 Пропустить", payload={"button": "skip_call_message"})
+
+    kb.add_text_button(text="🚫 Отмена", payload={"button": "cancel_call"})
+    return kb.get_keyboard()
