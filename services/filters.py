@@ -5,8 +5,12 @@ import hyperjson
 from vkwave.bots import BaseEvent
 from vkwave.bots import BotType
 from vkwave.bots import PayloadFilter
+from vkwave.bots.core import BaseFilter
 from vkwave.bots.core.dispatching.filters.base import FilterResult
 from vkwave.bots.core.dispatching.filters.builtin import is_message_event
+
+from database import utils as db
+from database.models import Storage
 
 
 class PLFilter(PayloadFilter):
@@ -35,3 +39,14 @@ class ButtonFilter(PayloadFilter):
         super().__init__(payload, json_loader)
         self.json_loader = json_loader
         self.payload = {"button": payload}
+
+
+class StateFilter(BaseFilter):
+    def __init__(self, state):
+        self.state = db.get_id_of_state(state)
+
+    async def check(self, event: BaseEvent):
+        current_state = db.get_admin_storage(
+            db.get_system_id_of_student(event.object.object.message.peer_id)
+        ).state_id
+        return FilterResult(current_state == self.state)
