@@ -121,3 +121,12 @@ class TestDatabaseUtils:
         res = is_chat_registered(test_user_id, 1)
 
         it(res).should.be_equal(True)
+
+    def test_get_list_of_calling_students(self):
+        from database.utils import get_list_of_calling_students
+
+        test_admin_id = 1
+
+        res = get_list_of_calling_students(test_admin_id)
+
+        it(res).should.be_equal([1, 2, 3])
