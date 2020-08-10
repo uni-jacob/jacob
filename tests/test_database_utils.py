@@ -103,3 +103,12 @@ class TestDatabaseUtils:
         students = get_list_of_students_by_letter(test_letter, test_user_id)
 
         it(students).should.be_equal([test_student])
+
+    def test_get_cached_chats(self):
+        from database.utils import get_cached_chats
+        from database.models import CachedChat
+
+        test_cached_chat = CachedChat.get(id=1)
+
+        cache = get_cached_chats()
+        it(cache).should.be_equal([test_cached_chat])
