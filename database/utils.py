@@ -213,3 +213,14 @@ def get_list_of_chats_by_group(vk_id: int):
     admin_group = get_admin_feud(get_system_id_of_student(vk_id))
     query = Chat.select().where(group=admin_group)
     return _generate_list(query)
+
+
+def get_cached_chats():
+    """
+    Возвращает список кешированных чатов
+
+    Returns:
+        list[CachedChat]: список всех чатов, находящихся в кеше
+    """
+    query = CachedChat.select()
+    return _generate_list(query)
