@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
 
 
-@bot.message_handler(TextFilter(["старт", "начать", "start"]))
+@bot.message_handler(TextFilter(["старт", "начать", "start", "привет", "hi", "hello"]))
 async def handle(ans: SimpleBotEvent) -> str:
     await ans.answer(
         "Привет!", keyboard=kbs.main_menu(ans.object.object.message.peer_id)
