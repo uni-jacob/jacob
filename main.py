@@ -81,18 +81,21 @@ async def select_student(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     student_id = payload["student_id"]
     letter = payload["letter"]
+    name = payload["name"]
     if student_id in db.get_list_of_calling_students(
         db.get_system_id_of_student(ans.object.object.message.peer_id)
     ):
         db.pop_student_from_calling_list(
             db.get_system_id_of_student(ans.object.object.message.peer_id), student_id
         )
+        label = "удален из списка призыва"
     else:
         db.add_student_to_calling_list(
             db.get_system_id_of_student(ans.object.object.message.peer_id), student_id
         )
+        label = "добавлен в список призыва"
     await ans.answer(
-        "Список призываемых студентов обновлен",
+        f"{name} {label}",
         keyboard=kbs.list_of_students(letter, ans.object.object.message.peer_id),
     )
 
