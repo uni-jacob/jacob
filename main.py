@@ -83,11 +83,13 @@ async def select_student(ans: SimpleBotEvent):
     if student_id in db.get_list_of_calling_students(
         db.get_system_id_of_student(ans.object.object.message.peer_id)
     ):
-        # TODO: Добавить удаление студента из списка
-        pass
+        db.pop_student_from_calling_list(
+            db.get_system_id_of_student(ans.object.object.message.peer_id), student_id
+        )
     else:
-        # TODO: Добавить добавление студента в список
-        pass
+        db.add_student_to_calling_list(
+            db.get_system_id_of_student(ans.object.object.message.peer_id), student_id
+        )
     # TODO: Добавить обновление клавиатуры с галочками возле имен добавленных студентов
 
 
