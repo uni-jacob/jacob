@@ -6,9 +6,10 @@ from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
 
-from services import keyboard as kbs
 from database import utils as db
+from services import call
 from services import filters
+from services import keyboard as kbs
 
 logging.basicConfig(level=logging.DEBUG)
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
@@ -98,6 +99,14 @@ async def select_student(ans: SimpleBotEvent):
         f"{name} {label}",
         keyboard=kbs.list_of_students(letter, ans.object.object.message.peer_id),
     )
+
+
+@bot.message_handler(filters.PLFilter({"button": "save_selected"}))
+async def save_call(ans: SimpleBotEvent):
+    msg = call.generate_message(
+        db.get_system_id_of_student(ans.object.object.message.peer_id)
+    )
+    await ans.answer(msg)
 
 
 bot.run_forever()
