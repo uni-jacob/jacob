@@ -92,15 +92,22 @@ def list_of_students(letter: str, user_id: int):
         JSON-like str: Строка с клавиатурой
     """
     data = utils.get_list_of_students_by_letter(letter, user_id)
+    selected = utils.get_list_of_calling_students(
+        utils.get_system_id_of_student(user_id)
+    )
     kb = Keyboard()
     for item in data:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
+        label = " "
+        if item.id in selected:
+            label = "✅ "
         kb.add_text_button(
-            text=f"{item.second_name} {item.first_name}",
+            text=f"{label}{item.second_name} {item.first_name}",
             payload={
                 "button": "student",
                 "student_id": item.id,
+                "letter": letter,
                 "name": f"{item.second_name} {item.first_name}",
             },
         )
