@@ -106,7 +106,30 @@ async def save_call(ans: SimpleBotEvent):
     msg = call.generate_message(
         db.get_system_id_of_student(ans.object.object.message.peer_id)
     )
-    await ans.answer(msg)
+    db.update_admin_storage(
+        db.get_system_id_of_student(ans.object.object.message.peer_id),
+        state_id=db.get_id_of_state("confirm_call"),
+    )
+    await ans.answer(
+        msg,
+        keyboard=kbs.call_prompt(
+            db.get_system_id_of_student(ans.object.object.message.peer_id)
+        ),
+    )
+
+
+@bot.message_handler(
+    filters.StateFilter("confirm_call"), filters.PLFilter({"button": "confirm"})
+)
+async def send_call(ans: SimpleBotEvent):
+    await ans.answer("Сообщение отправлено")
+
+
+@bot.message_handler(
+    filters.StateFilter("confirm_call"), filters.PLFilter({"button": "deny"})
+)
+async def deny_call(ans: SimpleBotEvent):
+    await cancel_call(ans)
 
 
 bot.run_forever()
