@@ -115,3 +115,46 @@ def list_of_students(letter: str, user_id: int):
         kb.add_row()
     kb.add_text_button(text="Назад", payload={"button": "skip_call_message"})
     return kb.get_keyboard()
+
+
+def prompt():
+    """
+    Генерирует клавиатуру с подтверждением действия
+    Returns:
+        Keyboard: Объект клавиатуры
+    """
+    kb = Keyboard()
+    kb.add_text_button(text="✅ Подтвердить", payload={"button": "confirm"})
+    kb.add_text_button(text="🚫 Отменить", payload={"button": "deny"})
+    return kb
+
+
+def call_prompt(admin_id: int):
+    """
+    Генерирует клавиатуру с подтверждением отправки призыва и возможностью его
+    настройки
+
+    Args:
+        admin_id: идентфикатор администратора
+
+    Returns:
+        JSON-like str:  Клавиатура
+    """
+    kb = prompt()
+    kb.add_row()
+    store = utils.get_admin_storage(admin_id)
+    if store.names_usage:
+        names_emoji = "✅"
+    else:
+        names_emoji = "🚫"
+    if store.current_chat:
+        chat_emoji = "📡"
+    else:
+        chat_emoji = "🛠"
+    kb.add_text_button(
+        text=f"{names_emoji} Использовать имена", payload={"button": "names_usage"},
+    )
+    kb.add_text_button(
+        text=f"{chat_emoji} Переключить беседу", payload={"button": "chat_config"},
+    )
+    return kb.get_keyboard()
