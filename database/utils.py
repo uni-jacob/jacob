@@ -260,7 +260,7 @@ def get_list_of_calling_students(admin_id: int):
     """
     store = get_admin_storage(admin_id)
     students = store.selected_students
-    return list(map(int, students.split(",")))
+    return list(map(int, filter(bool, students.split(","))))
 
 
 def update_calling_list(admin_id: int, calling_list: list):
