@@ -78,8 +78,9 @@ async def select_letter(ans: SimpleBotEvent):
 
 @bot.message_handler(filters.PLFilter({"button": "student"}))
 async def select_student(ans: SimpleBotEvent):
-    payload = ans.object.object.message.payload
-    student_id = hyperjson.loads(payload)["student_id"]
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    student_id = payload["student_id"]
+    letter = payload["letter"]
     if student_id in db.get_list_of_calling_students(
         db.get_system_id_of_student(ans.object.object.message.peer_id)
     ):
@@ -90,7 +91,10 @@ async def select_student(ans: SimpleBotEvent):
         db.add_student_to_calling_list(
             db.get_system_id_of_student(ans.object.object.message.peer_id), student_id
         )
-    # TODO: Добавить обновление клавиатуры с галочками возле имен добавленных студентов
+    await ans.answer(
+        "Список призываемых студентов обновлен",
+        keyboard=kbs.list_of_students(letter, ans.object.object.message.peer_id),
+    )
 
 
 bot.run_forever()
