@@ -260,3 +260,46 @@ def get_list_of_calling_students(admin_id: int):
     store = get_admin_storage(admin_id)
     students = store.selected_students
     return list(map(int, students.split(",")))
+
+
+def update_calling_list(admin_id: int, calling_list: list):
+    """
+    Изменяет список призыва
+    Args:
+        admin_id: идентификатор администратора
+        calling_list: список призыва для замены
+
+    Returns:
+        Storage: хранилище администратора
+    """
+    return update_admin_storage(admin_id, selected_students=",".join(calling_list))
+
+
+def pop_student_from_calling_list(admin_id: int, student_id: int):
+    """
+    Удаляет студента из списка призываемых студентов
+    Args:
+        admin_id: идентификатор администратора
+        student_id: идентфикатор удаляемого студента
+
+    Returns:
+        Storage: хранилище администратора
+    """
+    cl = get_list_of_calling_students(admin_id)
+    cl.remove(student_id)
+    return update_calling_list(admin_id, cl)
+
+
+def add_student_to_calling_list(admin_id: int, student_id: int):
+    """
+    Добавляет студента в список призываемых студентов
+    Args:
+        admin_id: идентификатор администратора
+        student_id: идентфикатор добавляемого студента
+
+    Returns:
+        Storage: хранилище администратора
+    """
+    cl = get_list_of_calling_students(admin_id)
+    cl.append(student_id)
+    return update_calling_list(admin_id, cl)
