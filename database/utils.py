@@ -273,7 +273,9 @@ def update_calling_list(admin_id: int, calling_list: list):
     Returns:
         Storage: хранилище администратора
     """
-    return update_admin_storage(admin_id, selected_students=",".join(calling_list))
+    return update_admin_storage(
+        admin_id, selected_students=",".join(map(str, calling_list))
+    )
 
 
 def pop_student_from_calling_list(admin_id: int, student_id: int):
