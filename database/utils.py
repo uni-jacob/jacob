@@ -88,7 +88,8 @@ def update_admin_storage(admin_id: int, **kwargs) -> Storage:
     Returns:
         Storage: объект хранилища
     """
-    return update_model_from_dict(get_admin_storage(admin_id), kwargs).save()
+    a_id = update_model_from_dict(get_admin_storage(admin_id), kwargs).save()
+    return get_admin_storage(a_id)
 
 
 def clear_admin_storage(admin_id: int) -> Storage:
