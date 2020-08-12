@@ -131,7 +131,7 @@ async def send_call(ans: SimpleBotEvent):
     admin_id = db.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
     await api.messages.send(
-        peer_id=db.get_chat_id(admin_id).chat_id,
+        peer_id=db.get_active_chat(admin_id).chat_id,
         message=msg,
         random_id=random.getrandbits(64),
     )

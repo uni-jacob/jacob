@@ -334,7 +334,7 @@ def find_student(**kwargs):
     return Student.get(**kwargs)
 
 
-def get_chat_id(admin_id):
+def get_active_chat(admin_id):
     """
     Получает идентификатор активного чата конкретного администратора
     Args:
