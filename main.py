@@ -108,15 +108,16 @@ async def select_student(ans: SimpleBotEvent):
 
 @bot.message_handler(filters.PLFilter({"button": "save_selected"}))
 async def save_call(ans: SimpleBotEvent):
-    msg = call.generate_message(
-        db.get_system_id_of_student(ans.object.object.message.peer_id)
-    )
+    admin_id = db.get_system_id_of_student(ans.object.object.message.peer_id)
+    msg = call.generate_message(admin_id)
+    store = db.get_admin_storage(admin_id)
+    chat_type = "основной" if store.current_chat else "тестовый"
     db.update_admin_storage(
         db.get_system_id_of_student(ans.object.object.message.peer_id),
         state_id=db.get_id_of_state("confirm_call"),
     )
     await ans.answer(
-        msg,
+        f"Сообщение будет отправлено в {chat_type} чат:\n{msg}",
         keyboard=kbs.call_prompt(
             db.get_system_id_of_student(ans.object.object.message.peer_id)
         ),
