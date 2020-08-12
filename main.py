@@ -124,6 +124,15 @@ async def confirm_call(ans: SimpleBotEvent):
     )
 
 
+@bot.message_handler(filters.PLFilter({"button": "call_all"}))
+async def call_them_all(ans: SimpleBotEvent):
+    admin_id = db.get_system_id_of_student(ans.object.object.message.peer_id)
+    student = db.find_student(id=admin_id)
+    students = [st.id for st in db.get_active_students(student.group_id)]
+    db.update_calling_list(admin_id, students)
+    await confirm_call(ans)
+
+
 @bot.message_handler(
     filters.StateFilter("confirm_call"), filters.PLFilter({"button": "confirm"})
 )
