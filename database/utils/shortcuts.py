@@ -117,6 +117,6 @@ def invert_current_chat(admin_id):
         admin.update_admin_storage(admin_id, current_chat=another_type)
     else:
         raise ChatNotFound(
-            f"У группы {group_id} не зарегистрирован {ChatType.get(id=another_type)} "
-            f"чат"
+            f"У группы {group_id} не зарегистрирован"
+            f"{chats.find_chat_type(id=another_type)} чат"
         )
