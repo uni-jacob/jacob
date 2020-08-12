@@ -1,3 +1,5 @@
+import logging
+
 from playhouse.shortcuts import update_model_from_dict
 
 from database.models import Administrator
@@ -345,3 +347,17 @@ def get_chat_id(admin_id):
     return find_chat(
         chat_type=store.current_chat, group_id=find_student(id=store.id).group_id
     )
+
+
+def invert_names_usage(admin_id: int):
+    """
+    Изменяет использование имен у администратора
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        Storage: объект хранилища
+    """
+    store = get_admin_storage(admin_id)
+    state = not store.names_usage
+    return update_admin_storage(admin_id, names_usage=state)
