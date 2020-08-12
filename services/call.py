@@ -31,7 +31,7 @@ def generate_message(admin_id: int):
     Returns:
         str: Сообщение призыва
     """
-    store = db.get_admin_storage(admin_id)
+    store = db.admin.get_admin_storage(admin_id)
     message = store.text or ""
     students = store.selected_students or ""
     mentions = generate_mentions(store.names_usage, students)

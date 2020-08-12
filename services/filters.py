@@ -36,10 +36,10 @@ class PLFilter(PayloadFilter):
 
 class StateFilter(BaseFilter):
     def __init__(self, state):
-        self.state = db.get_id_of_state(state)
+        self.state = db.bot.get_id_of_state(state)
 
     async def check(self, event: BaseEvent):
-        current_state = db.get_admin_storage(
-            db.get_system_id_of_student(event.object.object.message.peer_id)
+        current_state = db.admin.get_admin_storage(
+            db.students.get_system_id_of_student(event.object.object.message.peer_id)
         ).state_id.id
         return FilterResult(current_state == self.state)

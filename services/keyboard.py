@@ -1,6 +1,6 @@
 from vkwave.bots.utils.keyboards import Keyboard
 
-from database import utils
+from database import utils as db
 
 
 def main_menu(user_id: int) -> str:
@@ -12,7 +12,9 @@ def main_menu(user_id: int) -> str:
         JSON-like str: Строка с клавиатурой
 
     """
-    is_admin = utils.is_user_admin(admin_id=utils.get_system_id_of_student(user_id))
+    is_admin = db.admin.is_user_admin(
+        admin_id=db.students.get_system_id_of_student(user_id)
+    )
     kb = Keyboard()
     if is_admin:
         kb.add_text_button(text="📢 Призыв", payload={"button": "call"})
@@ -51,7 +53,7 @@ def alphabet(user_id):
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
-    alphabet = utils.get_unique_second_name_letters_in_a_group(user_id)
+    alphabet = db.students.get_unique_second_name_letters_in_a_group(user_id)
     for letter in alphabet:
         if len(kb.buttons[-1]) == 4:
             kb.add_row()
@@ -91,9 +93,9 @@ def list_of_students(letter: str, user_id: int):
     Returns:
         JSON-like str: Строка с клавиатурой
     """
-    data = utils.get_list_of_students_by_letter(letter, user_id)
-    selected = utils.get_list_of_calling_students(
-        utils.get_system_id_of_student(user_id)
+    data = db.students.get_list_of_students_by_letter(letter, user_id)
+    selected = db.shortcuts.get_list_of_calling_students(
+        db.students.get_system_id_of_student(user_id)
     )
     kb = Keyboard()
     for item in data:
@@ -142,7 +144,7 @@ def call_prompt(admin_id: int):
     """
     kb = prompt()
     kb.add_row()
-    store = utils.get_admin_storage(admin_id)
+    store = db.admin.get_admin_storage(admin_id)
     if store.names_usage:
         names_emoji = "✅"
     else:
