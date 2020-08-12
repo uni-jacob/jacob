@@ -8,3 +8,7 @@ class BotStateNotFound(Exception):
 
 class StudentNotFound(Exception):
     pass
+
+
+class ChatNotFound(Exception):
+    pass
