@@ -107,7 +107,7 @@ async def select_student(ans: SimpleBotEvent):
 
 
 @bot.message_handler(filters.PLFilter({"button": "save_selected"}))
-async def save_call(ans: SimpleBotEvent):
+async def confirm_call(ans: SimpleBotEvent):
     admin_id = db.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
     store = db.get_admin_storage(admin_id)
