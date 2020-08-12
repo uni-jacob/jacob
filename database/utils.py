@@ -306,3 +306,42 @@ def add_student_to_calling_list(admin_id: int, student_id: int):
     cl = get_list_of_calling_students(admin_id)
     cl.append(student_id)
     return update_calling_list(admin_id, cl)
+
+
+def find_chat(**kwargs):
+    """
+    ищет зарегистрированный чат
+    Args:
+        **kwargs: параметры поиска
+
+    Returns:
+        Chat: объект чата
+    """
+    return Chat.get(**kwargs)
+
+
+def find_student(**kwargs):
+    """
+    ищет студента
+    Args:
+        **kwargs: параметры поиска
+
+    Returns:
+        Student: объект студента
+    """
+    return Student.get(**kwargs)
+
+
+def get_chat_id(admin_id):
+    """
+    Получает идентификатор активного чата конкретного администратора
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        Chat: объект активного чата
+    """
+    store = get_admin_storage(admin_id)
+    return find_chat(
+        chat_type=store.current_chat, group_id=find_student(id=store.id).group_id
+    )
