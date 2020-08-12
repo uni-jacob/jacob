@@ -1,10 +1,13 @@
 import logging
 import os
+import random
 
 import hyperjson
+from vkwave.api import API
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
+from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 from services import call
@@ -13,6 +16,8 @@ from services import keyboard as kbs
 
 logging.basicConfig(level=logging.DEBUG)
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
+api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
+api = api_session.get_context()
 
 
 @bot.message_handler(TextFilter(["старт", "начать", "start", "привет", "hi", "hello"]))
@@ -122,6 +127,13 @@ async def save_call(ans: SimpleBotEvent):
     filters.StateFilter("confirm_call"), filters.PLFilter({"button": "confirm"})
 )
 async def send_call(ans: SimpleBotEvent):
+    admin_id = db.get_system_id_of_student(ans.object.object.message.peer_id)
+    msg = call.generate_message(admin_id)
+    await api.messages.send(
+        peer_id=db.get_chat_id(admin_id).chat_id,
+        message=msg,
+        random_id=random.getrandbits(64),
+    )
     await ans.answer("Сообщение отправлено")
 
 
