@@ -173,7 +173,7 @@ async def change_names_usage(ans: SimpleBotEvent):
 @bot.message_handler(
     filters.StateFilter("confirm_call"), filters.PLFilter({"button": "chat_config"})
 )
-async def change_names_usage(ans: SimpleBotEvent):
+async def change_chat(ans: SimpleBotEvent):
     db.shortcuts.invert_current_chat(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     )
