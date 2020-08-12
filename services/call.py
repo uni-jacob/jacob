@@ -35,6 +35,5 @@ def generate_message(admin_id: int):
     message = store.text or ""
     students = store.selected_students or ""
     mentions = generate_mentions(store.names_usage, students)
-    chat_type = "основной" if store.current_chat else "тестовый"
-    message = f"Сообщение будет отправлено в {chat_type} чат:\n{mentions}\n{message}"
+    message = f"{mentions}\n{message}"
     return message
