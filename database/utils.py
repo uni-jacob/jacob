@@ -319,7 +319,7 @@ def find_chat(**kwargs):
     Returns:
         Chat: объект чата
     """
-    return Chat.get(**kwargs)
+    return Chat.get_or_none(**kwargs)
 
 
 def find_student(**kwargs):
@@ -331,7 +331,7 @@ def find_student(**kwargs):
     Returns:
         Student: объект студента
     """
-    return Student.get(**kwargs)
+    return Student.get_or_none(**kwargs)
 
 
 def get_active_chat(admin_id):
