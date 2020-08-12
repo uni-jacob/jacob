@@ -135,7 +135,10 @@ async def send_call(ans: SimpleBotEvent):
         message=msg,
         random_id=random.getrandbits(64),
     )
-    await ans.answer("Сообщение отправлено")
+    await ans.answer(
+        "Сообщение отправлено",
+        keyboard=kbs.main_menu(ans.object.object.message.peer_id),
+    )
 
 
 @bot.message_handler(
