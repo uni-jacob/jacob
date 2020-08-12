@@ -155,6 +155,6 @@ def call_prompt(admin_id: int):
         text=f"{names_emoji} Использовать имена", payload={"button": "names_usage"},
     )
     kb.add_text_button(
-        text=f"{chat_emoji} Переключить беседу", payload={"button": "chat_config"},
+        text=f"{chat_emoji} Переключить чат", payload={"button": "chat_config"},
     )
     return kb.get_keyboard()
