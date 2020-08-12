@@ -111,7 +111,7 @@ async def confirm_call(ans: SimpleBotEvent):
     admin_id = db.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
     store = db.get_admin_storage(admin_id)
-    chat_type = "основной" if store.current_chat else "тестовый"
+    chat_type = "основной" if store.current_chat.id else "тестовый"
     db.update_admin_storage(
         db.get_system_id_of_student(ans.object.object.message.peer_id),
         state_id=db.get_id_of_state("confirm_call"),

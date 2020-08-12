@@ -147,7 +147,7 @@ def call_prompt(admin_id: int):
         names_emoji = "✅"
     else:
         names_emoji = "🚫"
-    if store.current_chat:
+    if store.current_chat.id:
         chat_emoji = "📡"
     else:
         chat_emoji = "🛠"
