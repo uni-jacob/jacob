@@ -17,7 +17,7 @@ def generate_mentions(names_usage: bool, students: str):
     for student in students.split(","):
         if student:
             st = Student.get(id=int(student))
-            hint = st["first_name"] if names_usage else "!"
+            hint = st.first_name if names_usage else "!"
             mentions.append(f"@id{st.vk_id} ({hint})")
     return sep.join(mentions)
 
