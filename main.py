@@ -135,6 +135,7 @@ async def send_call(ans: SimpleBotEvent):
         message=msg,
         random_id=random.getrandbits(64),
     )
+    db.clear_admin_storage(admin_id)
     await ans.answer(
         "Сообщение отправлено",
         keyboard=kbs.main_menu(ans.object.object.message.peer_id),
@@ -146,6 +147,16 @@ async def send_call(ans: SimpleBotEvent):
 )
 async def deny_call(ans: SimpleBotEvent):
     await cancel_call(ans)
+
+
+@bot.message_handler(
+    filters.StateFilter("confirm_call"), filters.PLFilter({"button": "names_usage"})
+)
+async def change_names_usage(ans: SimpleBotEvent):
+    db.invert_names_usage(
+        db.get_system_id_of_student(ans.object.object.message.peer_id)
+    )
+    await confirm_call(ans)
 
 
 bot.run_forever()
