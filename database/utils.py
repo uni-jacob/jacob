@@ -1,14 +1,14 @@
-import logging
-
 from playhouse.shortcuts import update_model_from_dict
 
 from database.models import Administrator
 from database.models import CachedChat
 from database.models import Chat
+from database.models import ChatType
 from database.models import State
 from database.models import Storage
 from database.models import Student
 from services.exceptions import BotStateNotFound
+from services.exceptions import ChatNotFound
 from services.exceptions import StudentNotFound
 from services.exceptions import UserIsNotAnAdministrator
 
@@ -361,3 +361,26 @@ def invert_names_usage(admin_id: int):
     store = get_admin_storage(admin_id)
     state = not store.names_usage
     return update_admin_storage(admin_id, names_usage=state)
+
+
+def invert_current_chat(admin_id):
+    """
+    Изменяет активный чат администратора
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        Storage: объект хранилища
+    """
+    active_chat = get_active_chat(admin_id)
+    store = get_admin_storage(admin_id)
+    group_id = find_student(id=store.id).group_id
+    another_type = abs(active_chat.chat_type.id - 1)
+    another_chat = find_chat(group_id=group_id, chat_type=another_type)
+    if another_chat is not None:
+        update_admin_storage(admin_id, current_chat=another_type)
+    else:
+        raise ChatNotFound(
+            f"У группы {group_id} не зарегистрирован {ChatType.get(id=another_type)} "
+            f"чат"
+        )
