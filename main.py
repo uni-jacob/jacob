@@ -13,6 +13,7 @@ from database import utils as db
 from services import call
 from services import filters
 from services import keyboard as kbs
+from services import media
 
 logging.basicConfig(level=logging.DEBUG)
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
@@ -64,10 +65,16 @@ async def skip_register_call_message(ans: SimpleBotEvent):
 
 @bot.message_handler(filters.StateFilter("wait_call_text"))
 async def register_call_message(ans: SimpleBotEvent):
+    attachments = ""
+    if raw_attachments := ans.object.object.message.attachments:
+        attachments = await media.load_attachments(
+            api, raw_attachments, ans.object.object.message.peer_id
+        )
     db.admin.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         state_id=db.bot.get_id_of_state("main"),
         text=ans.object.object.message.text,
+        attaches=attachments,
     )
     await ans.answer(
         "Сообщение сохранено. Выберите призываемых студентов",
