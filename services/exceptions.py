@@ -16,3 +16,7 @@ class ChatNotFound(Exception):
 
 class AttachmentLimitExceeded(Exception):
     pass
+
+
+class EmptyCallMessage(Exception):
+    pass
