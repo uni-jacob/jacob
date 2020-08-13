@@ -33,7 +33,10 @@ async def start_call(ans: SimpleBotEvent):
         db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         state_id=db.bot.get_id_of_state("wait_call_text"),
     )
-    await ans.answer("Отправьте текст призыва", keyboard=kbs.skip_call_message())
+    await ans.answer(
+        "Отправьте сообщение к призыву. Поддерживаются фотографии и документы",
+        keyboard=kbs.skip_call_message(),
+    )
 
 
 @bot.message_handler(filters.PLFilter({"button": "cancel_call"}))
