@@ -35,5 +35,4 @@ def generate_message(admin_id: int):
     message = store.text or ""
     students = store.selected_students or ""
     mentions = generate_mentions(store.names_usage, students)
-    message = f"{mentions}\n{message}"
-    return message
+    return f"{mentions}\n{message}"
