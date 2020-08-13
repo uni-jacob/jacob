@@ -14,6 +14,7 @@ from services import call
 from services import filters
 from services import keyboard as kbs
 from services import media
+from services.exceptions import EmptyCallMessage
 
 logging.basicConfig(level=logging.DEBUG)
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
@@ -124,6 +125,8 @@ async def confirm_call(ans: SimpleBotEvent):
     msg = call.generate_message(admin_id)
     store = db.admin.get_admin_storage(admin_id)
     chat_type = "основной" if store.current_chat.id else "тестовый"
+    if not msg or store.attaches:
+        raise EmptyCallMessage("Сообщение призыва не может быть пустым")
     db.admin.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         state_id=db.bot.get_id_of_state("confirm_call"),
