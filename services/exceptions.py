@@ -12,3 +12,7 @@ class StudentNotFound(Exception):
 
 class ChatNotFound(Exception):
     pass
+
+
+class AttachmentLimitExceeded(Exception):
+    pass
