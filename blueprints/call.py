@@ -117,7 +117,7 @@ async def confirm_call(ans: SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
     store = db.admin.get_admin_storage(admin_id)
-    chat_type = "основной" if store.current_chat.id else "тестовый"
+    chat_type = store.current_chat.description.lower()
     if not msg or store.attaches:
         raise EmptyCallMessage("Сообщение призыва не может быть пустым")
     db.admin.update_admin_storage(
