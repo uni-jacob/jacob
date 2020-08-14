@@ -118,7 +118,7 @@ def invert_current_chat(admin_id: int) -> Storage:
     another_type = abs(active_chat.chat_type.id - 1)
     another_chat = chats.find_chat(group_id=group_id, chat_type=another_type)
     if another_chat is not None:
-        admin.update_admin_storage(admin_id, current_chat=another_type)
+        return admin.update_admin_storage(admin_id, current_chat=another_type)
     else:
         raise ChatNotFound(
             f"У группы {group_id} не зарегистрирован"
