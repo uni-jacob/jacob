@@ -1,3 +1,10 @@
+from vkwave.bots import Keyboard
+
+from database import utils as db
+
+JSONStr = str
+
+
 def main_menu(user_id: int) -> JSONStr:
     """
     Генерирует клавиатуру главного меню
