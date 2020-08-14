@@ -5,12 +5,14 @@ from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
 
-from services import keyboard as kbs
 from blueprints import call
+from blueprints import preferences
+from services import keyboard as kbs
 
 logging.basicConfig(level=logging.DEBUG)
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
 bot.dispatcher.add_router(call.call_router)
+bot.dispatcher.add_router(preferences.preferences_router)
 
 
 @bot.message_handler(TextFilter(["старт", "начать", "start", "привет", "hi", "hello"]))
