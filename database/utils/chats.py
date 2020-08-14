@@ -1,10 +1,11 @@
+import typing as t
+
 from database.models import CachedChat
 from database.models import Chat
 from database.models import ChatType
 from database.utils import admin
 from database.utils import shortcuts
 from database.utils import students
-import typing as t
 
 
 def get_or_create_cached_chat(chat_id: int) -> CachedChat:
