@@ -30,7 +30,7 @@ def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
         list[Chat]: список объектов чатов
     """
     admin_group = admin.get_admin_feud(students.get_system_id_of_student(vk_id))
-    query = Chat.select().where(group=admin_group)
+    query = Chat.select().where(Chat.group_id == admin_group)
     return shortcuts.generate_list(query)
 
 
