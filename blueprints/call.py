@@ -28,7 +28,7 @@ async def start_call(ans: SimpleBotEvent):
     )
     await ans.answer(
         "Отправьте сообщение к призыву. Поддерживаются фотографии и документы",
-        keyboard=kbs.skip_call_message(),
+        keyboard=kbs.call.skip_call_message(),
     )
 
 
@@ -39,7 +39,7 @@ async def cancel_call(ans: SimpleBotEvent):
     )
     await ans.answer(
         "Призыв отменён. Возврат на главную.",
-        keyboard=kbs.main_menu(ans.object.object.message.peer_id),
+        keyboard=kbs.main.main_menu(ans.object.object.message.peer_id),
     )
 
 
@@ -53,7 +53,7 @@ async def skip_register_call_message(ans: SimpleBotEvent):
     )
     await ans.answer(
         "Выберите призываемых студентов",
-        keyboard=kbs.call_interface(ans.object.object.message.peer_id),
+        keyboard=kbs.call.call_interface(ans.object.object.message.peer_id),
     )
 
 
@@ -72,7 +72,7 @@ async def register_call_message(ans: SimpleBotEvent):
     )
     await ans.answer(
         "Сообщение сохранено. Выберите призываемых студентов",
-        keyboard=kbs.call_interface(ans.object.object.message.peer_id),
+        keyboard=kbs.call.call_interface(ans.object.object.message.peer_id),
     )
 
 
@@ -82,7 +82,7 @@ async def select_letter(ans: SimpleBotEvent):
     letter = hyperjson.loads(payload)["value"]
     await ans.answer(
         f"Список студентов на букву {letter}",
-        keyboard=kbs.list_of_students(letter, ans.object.object.message.peer_id),
+        keyboard=kbs.call.list_of_students(letter, ans.object.object.message.peer_id),
     )
 
 
@@ -108,7 +108,7 @@ async def select_student(ans: SimpleBotEvent):
         label = "добавлен в список призыва"
     await ans.answer(
         f"{name} {label}",
-        keyboard=kbs.list_of_students(letter, ans.object.object.message.peer_id),
+        keyboard=kbs.call.list_of_students(letter, ans.object.object.message.peer_id),
     )
 
 
@@ -126,7 +126,7 @@ async def confirm_call(ans: SimpleBotEvent):
     )
     await ans.answer(
         f"Сообщение будет отправлено в {chat_type} чат:\n{msg}",
-        keyboard=kbs.call_prompt(
+        keyboard=kbs.call.call_prompt(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id)
         ),
     )
@@ -157,7 +157,7 @@ async def send_call(ans: SimpleBotEvent):
     db.admin.clear_admin_storage(admin_id)
     await ans.answer(
         "Сообщение отправлено",
-        keyboard=kbs.main_menu(ans.object.object.message.peer_id),
+        keyboard=kbs.main.main_menu(ans.object.object.message.peer_id),
     )
 
 

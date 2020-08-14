@@ -18,7 +18,7 @@ bot.dispatcher.add_router(preferences.preferences_router)
 @bot.message_handler(TextFilter(["старт", "начать", "start", "привет", "hi", "hello"]))
 async def start(ans: SimpleBotEvent):
     await ans.answer(
-        "Привет!", keyboard=kbs.main_menu(ans.object.object.message.peer_id)
+        "Привет!", keyboard=kbs.main.main_menu(ans.object.object.message.peer_id)
     )
 
 
