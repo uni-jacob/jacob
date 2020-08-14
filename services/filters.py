@@ -28,9 +28,12 @@ class PLFilter(PayloadFilter):
             current_payload = event.object.object.message.payload
         if current_payload is None:
             return FilterResult(False)
+        current_payload = self.json_loader(current_payload)
         return FilterResult(
-            self.json_loader(current_payload).items() <= self.payload.items()
-            or self.json_loader(current_payload).items() >= self.payload.items()
+            any(
+                self.payload.get(key, None) == val
+                for key, val in current_payload.items()
+            )
         )
 
 
