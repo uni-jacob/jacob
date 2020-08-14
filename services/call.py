@@ -2,7 +2,7 @@ from database.models import Student
 from database import utils as db
 
 
-def generate_mentions(names_usage: bool, students: str):
+def generate_mentions(names_usage: bool, students: str) -> str:
     """
     Генерирует призыв студентов
     Args:
@@ -22,7 +22,7 @@ def generate_mentions(names_usage: bool, students: str):
     return sep.join(mentions)
 
 
-def generate_message(admin_id: int):
+def generate_message(admin_id: int) -> str:
     """
     Генерирует сообщение для призыва
     Args:

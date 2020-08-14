@@ -1,11 +1,18 @@
+from vkwave.api import APIOptionsRequestContext
 from vkwave.bots import DocUploader
 from vkwave.bots import PhotoUploader
 from vkwave.bots import VoiceUploader
+from vkwave.types.objects import MessagesMessageAttachment
 
 from services.exceptions import AttachmentLimitExceeded
+import typing as t
 
 
-async def load_attachments(api, attachments, from_id) -> str:
+async def load_attachments(
+    api: APIOptionsRequestContext,
+    attachments: t.List["MessagesMessageAttachment"],
+    from_id: int,
+) -> str:
     """
     Загружает вложения на сервера ВК
     Args:
@@ -45,8 +52,15 @@ async def load_attachments(api, attachments, from_id) -> str:
     return ",".join(atchs)
 
 
-def translate_string(s: str):
-    """Переводит строку с английской раскладки на русскую и обратно"""
+def translate_string(s: str) -> str:
+    """
+        Переводит строку с английской раскладки на русскую и обратно
+
+        Args:
+            s: Исходная строка
+        Returns:
+            str: Переведенная строка
+    """
     # TODO: ГОВНОКОД!
     en = [
         "q",

@@ -2,6 +2,7 @@ from database.models import Student
 from database.utils import admin
 from database.utils import shortcuts
 from services.exceptions import StudentNotFound
+import typing as t
 
 
 def get_system_id_of_student(vk_id: int) -> int:
@@ -63,7 +64,7 @@ def get_unique_second_name_letters_in_a_group(vk_id: int) -> list:
         return list(dict.fromkeys(snd_names))
 
 
-def get_list_of_students_by_letter(letter, vk_id):
+def get_list_of_students_by_letter(letter: str, vk_id: int) -> t.List[Student]:
     """
     Возвращает объекты студентов группы, в которой vk_id администратор, фамилии
     которых начинаются на letter
@@ -85,7 +86,7 @@ def get_list_of_students_by_letter(letter, vk_id):
     return shortcuts.generate_list(query)
 
 
-def find_student(**kwargs):
+def find_student(**kwargs) -> Student:
     """
     ищет студента
     Args:

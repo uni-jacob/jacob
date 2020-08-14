@@ -4,6 +4,7 @@ from database.models import ChatType
 from database.utils import admin
 from database.utils import shortcuts
 from database.utils import students
+import typing as t
 
 
 def get_or_create_cached_chat(chat_id: int) -> CachedChat:
@@ -32,7 +33,7 @@ def get_list_of_chats_by_group(vk_id: int):
     return shortcuts.generate_list(query)
 
 
-def get_cached_chats():
+def get_cached_chats() -> t.List[CachedChat]:
     """
     Возвращает список кешированных чатов
 
@@ -43,7 +44,7 @@ def get_cached_chats():
     return shortcuts.generate_list(query)
 
 
-def is_chat_registered(vk_id: int, chat_type: int):
+def is_chat_registered(vk_id: int, chat_type: int) -> bool:
     """
     Проверяет, был ли зарегистрирован чат типа chat_type в группе, в которой
     пользователь с vk_id администратор
@@ -63,7 +64,7 @@ def is_chat_registered(vk_id: int, chat_type: int):
     return False
 
 
-def find_chat(**kwargs):
+def find_chat(**kwargs) -> Chat:
     """
     ищет зарегистрированный чат
     Args:
@@ -75,7 +76,7 @@ def find_chat(**kwargs):
     return Chat.get_or_none(**kwargs)
 
 
-def find_chat_type(**kwargs):
+def find_chat_type(**kwargs) -> Chat:
     """
     ищет тип чата
     Args:

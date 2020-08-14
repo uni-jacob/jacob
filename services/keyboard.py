@@ -2,14 +2,16 @@ from vkwave.bots.utils.keyboards import Keyboard
 
 from database import utils as db
 
+JSONStr = str
 
-def main_menu(user_id: int) -> str:
+
+def main_menu(user_id: int) -> JSONStr:
     """
     Генерирует клавиатуру главного меню
     Args:
         user_id: Идентификатор пользователя
     Returns:
-        JSON-like str: Строка с клавиатурой
+        JSONStr: Строка с клавиатурой
 
     """
     is_admin = db.admin.is_user_admin(
@@ -29,11 +31,11 @@ def main_menu(user_id: int) -> str:
     return kb.get_keyboard()
 
 
-def skip_call_message():
+def skip_call_message() -> JSONStr:
     """
     Генерирует клавиатуру для пропуска ввода сообщения призыва
     Returns:
-        JSON-like str: Строка с клавиатурой
+        JSONStr: Строка с клавиатурой
     """
     kb = Keyboard()
     kb.add_text_button(text="👉🏻 Пропустить", payload={"button": "skip_call_message"})
@@ -42,7 +44,7 @@ def skip_call_message():
     return kb.get_keyboard()
 
 
-def alphabet(user_id):
+def alphabet(user_id: int) -> Keyboard:
     """
     Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов
 
@@ -62,7 +64,7 @@ def alphabet(user_id):
     return kb
 
 
-def call_interface(user_id: int):
+def call_interface(user_id: int) -> JSONStr:
     """
     Генерирует клавиатуру для выбора призываемых
 
@@ -70,7 +72,7 @@ def call_interface(user_id: int):
         user_id: Идентификатор пользователя
 
     Returns:
-        JSON-like str: Строка с клавиатурой
+        JSONStr: Строка с клавиатурой
     """
     kb = alphabet(user_id)
     if len(kb.buttons[-1]):
@@ -83,7 +85,7 @@ def call_interface(user_id: int):
     return kb.get_keyboard()
 
 
-def list_of_students(letter: str, user_id: int):
+def list_of_students(letter: str, user_id: int) -> JSONStr:
     """
     Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
     Args:
@@ -91,7 +93,7 @@ def list_of_students(letter: str, user_id: int):
         user_id: Идентификатор пользователя
 
     Returns:
-        JSON-like str: Строка с клавиатурой
+        JSONStr: Строка с клавиатурой
     """
     data = db.students.get_list_of_students_by_letter(letter, user_id)
     selected = db.shortcuts.get_list_of_calling_students(
@@ -119,7 +121,7 @@ def list_of_students(letter: str, user_id: int):
     return kb.get_keyboard()
 
 
-def prompt():
+def prompt() -> Keyboard:
     """
     Генерирует клавиатуру с подтверждением действия
     Returns:
@@ -131,7 +133,7 @@ def prompt():
     return kb
 
 
-def call_prompt(admin_id: int):
+def call_prompt(admin_id: int) -> JSONStr:
     """
     Генерирует клавиатуру с подтверждением отправки призыва и возможностью его
     настройки
@@ -140,7 +142,7 @@ def call_prompt(admin_id: int):
         admin_id: идентфикатор администратора
 
     Returns:
-        JSON-like str:  Клавиатура
+        JSONStr:  Клавиатура
     """
     kb = prompt()
     kb.add_row()

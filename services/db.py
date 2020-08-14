@@ -1,8 +1,12 @@
 import os
+import typing as t
 import urllib.parse as urlparse
 
 
-def get_db_credentials() -> dict:
+StrInt = t.TypeVar("StrInt", str, int)
+
+
+def get_db_credentials() -> t.Dict[str, StrInt]:
     """
     Создает словарь с учетными данными базы данных из переменной окружения DATABASE_URL
     Returns:

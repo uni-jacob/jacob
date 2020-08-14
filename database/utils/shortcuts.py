@@ -1,3 +1,7 @@
+import typing as t
+
+from database.models import Chat
+from database.models import Storage
 from database.utils import admin
 from database.utils import chats
 from database.utils import students
@@ -10,7 +14,7 @@ def generate_list(data) -> list:
         return items
 
 
-def get_list_of_calling_students(admin_id: int):
+def get_list_of_calling_students(admin_id: int) -> t.List[int]:
     """
     Возвращает список призываемых студентов из хранилища администратора admin_id
     Args:
@@ -24,7 +28,7 @@ def get_list_of_calling_students(admin_id: int):
     return list(map(int, filter(bool, students.split(","))))
 
 
-def update_calling_list(admin_id: int, calling_list: list):
+def update_calling_list(admin_id: int, calling_list: list) -> Storage:
     """
     Изменяет список призыва
     Args:
@@ -39,7 +43,7 @@ def update_calling_list(admin_id: int, calling_list: list):
     )
 
 
-def pop_student_from_calling_list(admin_id: int, student_id: int):
+def pop_student_from_calling_list(admin_id: int, student_id: int) -> Storage:
     """
     Удаляет студента из списка призываемых студентов
     Args:
@@ -54,7 +58,7 @@ def pop_student_from_calling_list(admin_id: int, student_id: int):
     return update_calling_list(admin_id, cl)
 
 
-def add_student_to_calling_list(admin_id: int, student_id: int):
+def add_student_to_calling_list(admin_id: int, student_id: int) -> Storage:
     """
     Добавляет студента в список призываемых студентов
     Args:
@@ -69,7 +73,7 @@ def add_student_to_calling_list(admin_id: int, student_id: int):
     return update_calling_list(admin_id, cl)
 
 
-def get_active_chat(admin_id):
+def get_active_chat(admin_id: int) -> Chat:
     """
     Получает идентификатор активного чата конкретного администратора
     Args:
@@ -85,7 +89,7 @@ def get_active_chat(admin_id):
     )
 
 
-def invert_names_usage(admin_id: int):
+def invert_names_usage(admin_id: int) -> Storage:
     """
     Изменяет использование имен у администратора
     Args:
@@ -99,7 +103,7 @@ def invert_names_usage(admin_id: int):
     return admin.update_admin_storage(admin_id, names_usage=state)
 
 
-def invert_current_chat(admin_id):
+def invert_current_chat(admin_id: int) -> Storage:
     """
     Изменяет активный чат администратора
     Args:
