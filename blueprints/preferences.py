@@ -4,6 +4,7 @@ from vkwave.bots import simple_bot_message_handler
 
 from services import filters
 from database import utils as db
+from services import keyboard as kbs
 
 preferences_router = DefaultRouter()
 
@@ -16,4 +17,7 @@ async def open_preferences(ans: SimpleBotEvent):
         db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     )
     group = db.groups.find_group(id=group_id)
-    await ans.answer(f"Настройки группы {group.group_num} ({group.specialty})")
+    await ans.answer(
+        f"Настройки группы {group.group_num} ({group.specialty})",
+        keyboard=kbs.preferences.preferences(),
+    )
