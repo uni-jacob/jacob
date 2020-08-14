@@ -19,7 +19,7 @@ def get_or_create_cached_chat(chat_id: int) -> CachedChat:
     return CachedChat.get_or_create(chat_id=chat_id)[0]
 
 
-def get_list_of_chats_by_group(vk_id: int):
+def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
     """
     Возвращает список чатов группы, в которой vk_id администратор
     Args:
@@ -64,25 +64,25 @@ def is_chat_registered(vk_id: int, chat_type: int) -> bool:
     return False
 
 
-def find_chat(**kwargs) -> Chat:
+def find_chat(**kwargs) -> t.Optional[Chat]:
     """
     ищет зарегистрированный чат
     Args:
         **kwargs: параметры поиска
 
     Returns:
-        Chat: объект чата
+        Optional[Chat]: объект чата
     """
     return Chat.get_or_none(**kwargs)
 
 
-def find_chat_type(**kwargs) -> Chat:
+def find_chat_type(**kwargs) -> t.Optional[ChatType]:
     """
     ищет тип чата
     Args:
         **kwargs: параметры поиска
 
     Returns:
-        Chat: объект типа чата
+        Optional[ChatType]: объект типа чата
     """
     return ChatType.get_or_none(**kwargs)
