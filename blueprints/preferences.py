@@ -21,3 +21,15 @@ async def open_preferences(ans: SimpleBotEvent):
         f"Настройки группы {group.group_num} ({group.specialty})",
         keyboard=kbs.preferences.preferences(),
     )
+
+
+@simple_bot_message_handler(
+    preferences_router, filters.PLFilter({"button": "configure_chats"})
+)
+async def list_of_chats(ans: SimpleBotEvent):
+    await ans.answer(
+        "Список подключенных чатов",
+        keyboard=await kbs.preferences.connected_chats(
+            ans.object.object.message.peer_id
+        ),
+    )
