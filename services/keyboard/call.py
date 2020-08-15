@@ -13,7 +13,7 @@ def skip_call_message() -> JSONStr:
         JSONStr: Строка с клавиатурой
     """
     kb = Keyboard()
-    kb.add_text_button(text="👉🏻 Пропустить", payload={"button": "skip_call_message"})
+    kb.add_text_button(text="⏩ Пропустить", payload={"button": "skip_call_message"})
 
     kb.add_text_button(text="🚫 Отмена", payload={"button": "cancel_call"})
     return kb.get_keyboard()

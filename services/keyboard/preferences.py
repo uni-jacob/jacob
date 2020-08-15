@@ -12,6 +12,6 @@ def preferences() -> JSONStr:
     kb = Keyboard()
     kb.add_text_button("💬 Настроить чаты", payload={"button": "configure_chats"})
     kb.add_row()
-    kb.add_text_button("👈🏻 Назад", payload={"button": "main_menu"})
+    kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
