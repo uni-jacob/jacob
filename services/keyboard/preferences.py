@@ -41,7 +41,7 @@ async def connected_chats(vk_id: int) -> JSONStr:
         )
         try:
             chat_title = chat_object.response.items[0].chat_settings.title
-        except AttributeError:
+        except (AttributeError, IndexError):
             chat_title = "???"
         kb.add_text_button(
             chat_title,
