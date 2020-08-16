@@ -1,4 +1,5 @@
 import os
+import typing as t
 
 from vkwave.api import API
 from vkwave.bots import Keyboard
@@ -56,4 +57,59 @@ async def connected_chats(vk_id: int) -> JSONStr:
         kb.add_text_button("➕ Зарегистрировать чат", payload={"button": "reg_chat"})
         kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "settings"})
+    return kb.get_keyboard()
+
+
+def configure_chat(chat_id: int):
+    """
+    Меню настройки чата
+
+    Args:
+        chat_id: Идентфикатор чата
+
+    Returns:
+        JSONStr: клавиатура
+    """
+    kb = Keyboard()
+    kb.add_text_button(
+        "🗑 Отключить чат", payload={"button": "remove_chat", "chat": chat_id}
+    )
+    kb.add_text_button(
+        "📝 Редактировать чат", payload={"button": "edit_chat", "chat": chat_id}
+    )
+    kb.add_row()
+    kb.add_text_button(
+        "🗂 Индексировать чат", payload={"button": "index_chat", "chat": chat_id}
+    )
+    kb.add_row()
+    kb.add_text_button("◀️ Назад", payload={"button": "configure_chats"})
+    return kb.get_keyboard()
+
+
+def index_chat(group_id: int, students: t.List[int], chat_type: int) -> JSONStr:
+    """
+    Меню индексации чата
+
+    Args:
+        group_id: Номер группы, в которую нужно добавить студентов
+        students: Список студентов
+        chat_type: Тип чата (используется для возврата на уровень выше)
+    Returns:
+        JSONStr: Клавиатура
+    """
+    kb = Keyboard()
+    if students:
+        kb.add_text_button(
+            "➕ Зарегистрировать студентов",
+            payload={
+                "button": "register_students",
+                "group": group_id,
+                "students": students,
+            },
+        )
+        kb.add_row()
+    kb.add_text_button(
+        "◀️ Назад",
+        payload={"button": "chat", "group": group_id, "chat_type": chat_type},
+    )
     return kb.get_keyboard()
