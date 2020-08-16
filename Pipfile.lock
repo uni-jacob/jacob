@@ -280,11 +280,11 @@
         },
         "vkwave": {
             "hashes": [
-                "sha256:33c780b816df50c4955a7dbad1c29d75095e38a2b57dd47fb521dcfb0434af13",
-                "sha256:acb569c6c7964d5195d2e94c07876a1b2d692919425f7d048fda3d86ebd44729"
+                "sha256:6982543253010ba10acec5712ab4dd84f1a59d880e137f2b62bb08c77e2b537e",
+                "sha256:71e498c564da871fc20aab9f2083c53ec23271ebbc3183f4da8ebe7f694463a6"
             ],
             "index": "pypi",
-            "version": "==0.2.7"
+            "version": "==0.2.8"
         },
         "yarl": {
             "hashes": [
