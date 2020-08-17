@@ -63,6 +63,20 @@ async def configure_chat(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
+    preferences_router, filters.PLFilter({"button": "remove_chat"}),
+)
+async def delete_chat(ans: SimpleBotEvent):
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    db.chats.delete_chat(payload["chat"])
+    await ans.answer(
+        "Чат удален",
+        keyboard=await kbs.preferences.connected_chats(
+            ans.object.object.message.from_id
+        ),
+    )
+
+
+@simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "index_chat"}),
 )
 async def index_chat(ans: SimpleBotEvent):
