@@ -7,6 +7,7 @@ from vkwave.bots import BotType
 from vkwave.bots import PayloadFilter
 from vkwave.bots.core import BaseFilter
 from vkwave.bots.core.dispatching.filters.base import FilterResult
+from vkwave.bots.core.dispatching.filters.builtin import has_payload
 from vkwave.types.bot_events import BotEventType
 
 from database import utils as db
@@ -20,20 +21,17 @@ class PLFilter(PayloadFilter):
         super().__init__(payload, json_loader)
 
     async def check(self, event: BaseEvent) -> FilterResult:
+        if not has_payload(event):
+            return FilterResult(False)
         if event.bot_type is BotType.USER:
-            current_payload = event.object.object.message_data.payload
+            current_payload = self.json_loader(event.object.object.message_data.payload)
         else:
-            if event.object.object.dict().get("message") is None:
-                if event.object.type == BotEventType.MESSAGE_EVENT:
-                    current_payload = event.object.object.payload
-                else:
-                    return FilterResult(False)
+            if event.object.type == BotEventType.MESSAGE_EVENT.value:
+                current_payload = event.object.object.payload
             else:
-                current_payload = event.object.object.message.payload
+                current_payload = self.json_loader(event.object.object.message.payload)
         if current_payload is None:
             return FilterResult(False)
-        if not isinstance(current_payload, dict):
-            current_payload = self.json_loader(current_payload)
         return FilterResult(
             any(
                 self.payload.get(key, None) == val
