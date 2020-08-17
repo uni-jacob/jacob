@@ -87,3 +87,15 @@ def find_chat_type(**kwargs) -> t.Optional[ChatType]:
         Optional[ChatType]: объект типа чата
     """
     return ChatType.get_or_none(**kwargs)
+
+
+def delete_chat(chat_id: int) -> int:
+    """
+    удаляет чат из зарегистрированных
+
+    Args:
+        chat_id: идентфикатор чата
+    Returns:
+        int: количество удаленных записей
+    """
+    return Chat.delete().where(Chat.id == chat_id).execute()

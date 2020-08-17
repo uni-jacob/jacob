@@ -52,7 +52,10 @@ async def configure_chat(ans: SimpleBotEvent):
     chat_object = await api.messages.get_conversations_by_id(
         peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
     )
-    chat_title = chat_object.response.items[0].chat_settings.title or "???"
+    try:
+        chat_title = chat_object.response.items[0].chat_settings.title
+    except IndexError:
+        chat_title = "???"
     await ans.answer(
         f"Настройки чата {chat_title}",
         keyboard=kbs.preferences.configure_chat(chat.id),
