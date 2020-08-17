@@ -10,6 +10,7 @@ from vkwave.bots.core.dispatching.filters.base import FilterResult
 from vkwave.types.bot_events import BotEventType
 
 from database import utils as db
+from services.exceptions import StudentNotFound
 
 
 class PLFilter(PayloadFilter):
@@ -46,7 +47,11 @@ class StateFilter(BaseFilter):
         self.state = db.bot.get_id_of_state(state)
 
     async def check(self, event: BaseEvent) -> FilterResult:
-        current_state = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(event.object.object.message.peer_id)
-        ).state_id.id
+        try:
+            admin_id = db.students.get_system_id_of_student(
+                event.object.object.message.from_id
+            )
+        except StudentNotFound:
+            return FilterResult(False)
+        current_state = db.admin.get_admin_storage(admin_id).state_id.id
         return FilterResult(current_state == self.state)
