@@ -45,7 +45,7 @@ async def load_attachments(
         if attach.audio_message:
             # TODO: не работает!
             atch = await am_uploader.get_attachment_from_link(
-                from_id, attach.audio_message.link_mp3
+                from_id, attach.audio_message.link_ogg
             )
             atchs += atch.split(",")
 
