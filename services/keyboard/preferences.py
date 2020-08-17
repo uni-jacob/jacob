@@ -86,25 +86,40 @@ def configure_chat(chat_id: int):
     return kb.get_keyboard()
 
 
-def index_chat(group_id: int, students: t.List[int], chat_type: int) -> JSONStr:
+def index_chat(
+    group_id: int, vk_students: t.List[int], db_students: t.List[int], chat_type: int
+) -> JSONStr:
     """
     Меню индексации чата
 
     Args:
         group_id: Номер группы, в которую нужно добавить студентов
-        students: Список студентов
+        vk_students: Список студентов, присутствующих в чате
+        db_students: Список студентов, присутствующих в БД
         chat_type: Тип чата (используется для возврата на уровень выше)
     Returns:
         JSONStr: Клавиатура
     """
     kb = Keyboard()
-    if students:
+    if vk_students:
         kb.add_text_button(
             "➕ Зарегистрировать студентов",
             payload={
                 "button": "register_students",
                 "group": group_id,
-                "students": students,
+                "chat_type": chat_type,
+                "students": vk_students,
+            },
+        )
+        kb.add_row()
+    if db_students:
+        kb.add_text_button(
+            "➖ Удалить студентов",
+            payload={
+                "button": "purge_students",
+                "group": group_id,
+                "chat_type": chat_type,
+                "students": db_students,
             },
         )
         kb.add_row()

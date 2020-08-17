@@ -94,7 +94,7 @@ async def index_chat(ans: SimpleBotEvent):
 вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)
     """,
         keyboard=kbs.preferences.index_chat(
-            chat.group_id.id, list(diff_vk_db), chat.chat_type.id
+            chat.group_id.id, list(diff_vk_db), list(diff_db_vk), chat.chat_type.id
         ),
     )
 
@@ -119,5 +119,31 @@ async def register_students(ans: SimpleBotEvent):
                 "academic_status": 1,
             }
         )
-    Student.insert_many(data).execute()
-    await ans.answer("Студенты зарегистрированы")
+    query = Student.insert_many(data).execute()
+
+    await ans.answer(
+        f"{len(query)} студент(ов) зарегистрировано",
+        keyboard=kbs.preferences.configure_chat(
+            db.chats.find_chat(
+                group_id=payload["group"], chat_type=payload["chat_type"]
+            ).id
+        ),
+    )
+
+
+@simple_bot_message_handler(
+    preferences_router, filters.PLFilter({"button": "purge_students"}),
+)
+async def register_students(ans: SimpleBotEvent):
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    query = 0
+    for st in payload["students"]:
+        query += Student.delete().where(Student.vk_id == st).execute()
+    await ans.answer(
+        f"{query} студент(ов) удалено",
+        keyboard=kbs.preferences.configure_chat(
+            db.chats.find_chat(
+                group_id=payload["group"], chat_type=payload["chat_type"]
+            ).id
+        ),
+    )
