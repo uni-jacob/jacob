@@ -129,6 +129,7 @@ async def confirm_call(ans: SimpleBotEvent):
         keyboard=kbs.call.call_prompt(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id)
         ),
+        attachment=store.attaches or "",
     )
 
 
@@ -148,11 +149,13 @@ async def call_them_all(ans: SimpleBotEvent):
 )
 async def send_call(ans: SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+    store = db.admin.get_admin_storage(admin_id)
     msg = call.generate_message(admin_id)
     await api.messages.send(
         peer_id=db.shortcuts.get_active_chat(admin_id).chat_id,
         message=msg,
         random_id=random.getrandbits(64),
+        attachment=store.attaches or "",
     )
     db.admin.clear_admin_storage(admin_id)
     await ans.answer(
