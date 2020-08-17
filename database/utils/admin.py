@@ -1,6 +1,7 @@
 from playhouse import shortcuts
 
 from database.models import Administrator
+from database.models import Group
 from database.models import Storage
 from services.exceptions import UserIsNotAnAdministrator
 
@@ -20,14 +21,14 @@ def is_user_admin(admin_id: int) -> bool:
     raise UserIsNotAnAdministrator(f"Студент с {admin_id=} не является администратором")
 
 
-def get_admin_feud(admin_id: int) -> int:
+def get_admin_feud(admin_id: int) -> Group:
     """
     Возвращает идентификатор группы в которой пользователь является администратором
     Args:
         admin_id: идентификатор администратора
 
     Returns:
-        int: идентификатор группы
+        Group: объект группы
     """
     if is_user_admin(admin_id):
         admin = Administrator.get_or_none(id=admin_id)
