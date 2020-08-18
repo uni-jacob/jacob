@@ -23,7 +23,6 @@ def main_menu(user_id: int) -> JSONStr:
         kb.add_text_button(text="💰 Финансы", payload={"button": "finances"})
         kb.add_row()
     kb.add_text_button(text="📅 Расписание", payload={"button": "schedule"})
-    kb.add_text_button(text="📨 Рассылки", payload={"button": "mailings"})
     if is_admin:
         kb.add_row()
         kb.add_text_button(text="⚙ Настройки", payload={"button": "settings"})
