@@ -15,10 +15,12 @@ from services import filters
 from services import keyboard as kbs
 from services import media
 from services.exceptions import EmptyCallMessage
+from services.logger.config import config
 
 call_router = DefaultRouter()
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
 api = api_session.get_context()
+logger.configure(**config)
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "call"}))

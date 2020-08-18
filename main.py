@@ -10,11 +10,14 @@ from blueprints import chats
 from blueprints import preferences
 from services import keyboard as kbs
 from services.filters import PLFilter
+from services.logger.config import config
 
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
 bot.dispatcher.add_router(call.call_router)
 bot.dispatcher.add_router(preferences.preferences_router)
 bot.dispatcher.add_router(chats.chats_router)
+
+logger.configure(**config)
 
 
 @bot.message_handler(

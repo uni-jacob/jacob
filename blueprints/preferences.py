@@ -15,9 +15,12 @@ from services.chats import prepare_set_from_db
 from services.chats import prepare_set_from_vk
 from loguru import logger
 
+from services.logger.config import config
+
 preferences_router = DefaultRouter()
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
 api = api_session.get_context()
+logger.configure(**config)
 
 
 @simple_bot_message_handler(
