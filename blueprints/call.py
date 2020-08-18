@@ -2,6 +2,7 @@ import os
 import random
 
 import hyperjson
+from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
 from vkwave.bots import SimpleBotEvent
@@ -21,6 +22,7 @@ api = api_session.get_context()
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "call"}))
+@logger.catch()
 async def start_call(ans: SimpleBotEvent):
     db.admin.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -33,6 +35,7 @@ async def start_call(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "cancel_call"}))
+@logger.catch()
 async def cancel_call(ans: SimpleBotEvent):
     db.admin.clear_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id)
@@ -46,6 +49,7 @@ async def cancel_call(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     call_router, filters.PLFilter({"button": "skip_call_message"})
 )
+@logger.catch()
 async def skip_register_call_message(ans: SimpleBotEvent):
     db.admin.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -58,6 +62,7 @@ async def skip_register_call_message(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(call_router, filters.StateFilter("wait_call_text"))
+@logger.catch()
 async def register_call_message(ans: SimpleBotEvent):
     attachments = ""
     if raw_attachments := ans.object.object.message.attachments:
@@ -77,6 +82,7 @@ async def register_call_message(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "letter"}))
+@logger.catch()
 async def select_letter(ans: SimpleBotEvent):
     payload = ans.object.object.message.payload
     letter = hyperjson.loads(payload)["value"]
@@ -87,6 +93,7 @@ async def select_letter(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "student"}))
+@logger.catch()
 async def select_student(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     student_id = payload["student_id"]
@@ -113,6 +120,7 @@ async def select_student(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "save_selected"}))
+@logger.catch()
 async def confirm_call(ans: SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
@@ -134,6 +142,7 @@ async def confirm_call(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(call_router, filters.PLFilter({"button": "call_all"}))
+@logger.catch()
 async def call_them_all(ans: SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     student = db.students.find_student(id=admin_id)
@@ -147,6 +156,7 @@ async def call_them_all(ans: SimpleBotEvent):
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "confirm"}),
 )
+@logger.catch()
 async def send_call(ans: SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     store = db.admin.get_admin_storage(admin_id)
@@ -169,6 +179,7 @@ async def send_call(ans: SimpleBotEvent):
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "deny"}),
 )
+@logger.catch()
 async def deny_call(ans: SimpleBotEvent):
     await cancel_call(ans)
 
@@ -178,6 +189,7 @@ async def deny_call(ans: SimpleBotEvent):
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "names_usage"}),
 )
+@logger.catch()
 async def change_names_usage(ans: SimpleBotEvent):
     db.shortcuts.invert_names_usage(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id)
@@ -190,6 +202,7 @@ async def change_names_usage(ans: SimpleBotEvent):
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "chat_config"}),
 )
+@logger.catch()
 async def change_chat(ans: SimpleBotEvent):
     db.shortcuts.invert_current_chat(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id)

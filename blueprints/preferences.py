@@ -13,6 +13,7 @@ from services import filters
 from services import keyboard as kbs
 from services.chats import prepare_set_from_db
 from services.chats import prepare_set_from_vk
+from loguru import logger
 
 preferences_router = DefaultRouter()
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -22,6 +23,7 @@ api = api_session.get_context()
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "settings"})
 )
+@logger.catch()
 async def open_preferences(ans: SimpleBotEvent):
     group_id = db.admin.get_admin_feud(
         db.students.get_system_id_of_student(ans.object.object.message.peer_id)
@@ -36,6 +38,7 @@ async def open_preferences(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "configure_chats"})
 )
+@logger.catch()
 async def list_of_chats(ans: SimpleBotEvent):
     await ans.answer(
         "Список подключенных чатов",
@@ -46,6 +49,7 @@ async def list_of_chats(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(preferences_router, filters.PLFilter({"button": "chat"}))
+@logger.catch()
 async def configure_chat(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     chat = db.chats.find_chat(group_id=payload["group"], chat_type=payload["chat_type"])
@@ -65,6 +69,7 @@ async def configure_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "remove_chat"}),
 )
+@logger.catch()
 async def delete_chat(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     db.chats.delete_chat(payload["chat"])
@@ -80,6 +85,7 @@ async def delete_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "reg_chat"}),
 )
+@logger.catch()
 async def show_available_chats(ans: SimpleBotEvent):
     await ans.answer("Выберите чат", keyboard=await kbs.preferences.cached_chats())
 
@@ -100,6 +106,7 @@ async def select_chat_type(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "register_chat"}),
 )
+@logger.catch()
 async def register_chat(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     db.chats.register_chat(payload["chat"], payload["chat_type"], payload["group"])
@@ -115,6 +122,7 @@ async def register_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "index_chat"}),
 )
+@logger.catch()
 async def index_chat(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     chat = db.chats.find_chat(id=payload["chat"])
@@ -155,6 +163,7 @@ async def index_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "register_students"}),
 )
+@logger.catch()
 async def register_students(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     data = []
@@ -187,6 +196,7 @@ async def register_students(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "purge_students"}),
 )
+@logger.catch()
 async def register_students(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     query = 0
