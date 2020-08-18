@@ -77,9 +77,6 @@ def configure_chat(chat_id: int):
     kb.add_text_button(
         "🗑 Отключить чат", payload={"button": "remove_chat", "chat": chat_id}
     )
-    kb.add_text_button(
-        "📝 Редактировать чат", payload={"button": "edit_chat", "chat": chat_id}
-    )
     kb.add_row()
     kb.add_text_button(
         "🗂 Индексировать чат", payload={"button": "index_chat", "chat": chat_id}
