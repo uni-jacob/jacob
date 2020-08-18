@@ -20,7 +20,7 @@ def get_or_create_cached_chat(chat_id: int) -> CachedChat:
     return CachedChat.get_or_create(chat_id=chat_id)[0]
 
 
-def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
+def get_list_of_chats_by_group(vk_id: int) -> t.Optional[t.List[Chat]]:
     """
     Возвращает список чатов группы, в которой vk_id администратор
     Args:
