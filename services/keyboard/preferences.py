@@ -6,6 +6,7 @@ from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
+from database.models import ChatType
 
 JSONStr = str
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -129,4 +130,54 @@ def index_chat(
         "◀️ Назад",
         payload={"button": "chat", "group": group_id, "chat_type": chat_type},
     )
+    return kb.get_keyboard()
+
+
+async def cached_chats():
+    kb = Keyboard()
+    chats = db.chats.get_cached_chats()
+    if chats is None:
+        chats = []
+    for chat in chats:
+        chat_object = await api.messages.get_conversations_by_id(peer_ids=chat.chat_id)
+        try:
+            chat_title = chat_object.response.items[0].chat_settings.title
+        except (IndexError, AttributeError):
+            chat_title = "???"
+        if len(kb.buttons[-1]) == 2:
+            kb.add_row()
+        kb.add_text_button(
+            chat_title, payload={"button": "select_chat_type", "chat": chat.chat_id}
+        )
+    if kb.buttons[-1]:
+        kb.add_row()
+    kb.add_text_button("◀️ Назад", payload={"button": "configure_chats"})
+    return kb.get_keyboard()
+
+
+def available_chat_types(vk_id: int, chat: int):
+    kb = Keyboard()
+    chats = db.chats.get_list_of_chats_by_group(vk_id)
+    all_chat_types = db.chats.get_chat_types()
+    registered_chat_types = [chat.chat_type for chat in chats]
+
+    free_chat_types = [i.id for i in all_chat_types if i not in registered_chat_types]
+
+    group_id = db.admin.get_admin_feud(db.students.get_system_id_of_student(vk_id)).id
+    for chat_type in free_chat_types:
+        if len(kb.buttons[-1]) == 2:
+            kb.add_row()
+        obj = ChatType.get(id=chat_type)
+        kb.add_text_button(
+            obj.description,
+            payload={
+                "button": "register_chat",
+                "chat_type": chat_type,
+                "chat": chat,
+                "group": group_id,
+            },
+        )
+    if kb.buttons[-1]:
+        kb.add_row()
+    kb.add_text_button("◀️ Назад", payload={"button": "reg_chat"})
     return kb.get_keyboard()

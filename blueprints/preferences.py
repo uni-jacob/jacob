@@ -78,6 +78,41 @@ async def delete_chat(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
+    preferences_router, filters.PLFilter({"button": "reg_chat"}),
+)
+async def show_available_chats(ans: SimpleBotEvent):
+    await ans.answer("Выберите чат", keyboard=await kbs.preferences.cached_chats())
+
+
+@simple_bot_message_handler(
+    preferences_router, filters.PLFilter({"button": "select_chat_type"}),
+)
+async def select_chat_type(ans: SimpleBotEvent):
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    await ans.answer(
+        "Выберите тип чата",
+        keyboard=kbs.preferences.available_chat_types(
+            ans.object.object.message.from_id, payload["chat"]
+        ),
+    )
+
+
+@simple_bot_message_handler(
+    preferences_router, filters.PLFilter({"button": "register_chat"}),
+)
+async def register_chat(ans: SimpleBotEvent):
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    db.chats.register_chat(payload["chat"], payload["chat_type"], payload["group"])
+    db.chats.delete_cached_chat(payload["chat"])
+    await ans.answer(
+        "Чат зарегистрирован",
+        keyboard=await kbs.preferences.connected_chats(
+            ans.object.object.message.from_id
+        ),
+    )
+
+
+@simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "index_chat"}),
 )
 async def index_chat(ans: SimpleBotEvent):

@@ -99,3 +99,38 @@ def delete_chat(chat_id: int) -> int:
         int: количество удаленных записей
     """
     return Chat.delete().where(Chat.id == chat_id).execute()
+
+
+def get_chat_types() -> t.List[ChatType]:
+    """
+    Получить список типов чатов
+    Returns:
+        list[ChatType]
+    """
+    return shortcuts.generate_list(ChatType.select())
+
+
+def register_chat(chat_id: int, chat_type: int, group: int) -> Chat:
+    """
+    Зарегистрировать чат
+    Args:
+        chat_id: идентификатор чата
+        chat_type: тип чата
+        group: идентификатор группы
+
+    Returns:
+        Chat: объект чата
+    """
+    return Chat.create(chat_id=chat_id, chat_type=chat_type, group_id=group)
+
+
+def delete_cached_chat(chat_id):
+    """
+        удаляет чат из кеша
+
+        Args:
+            chat_id: идентфикатор чата
+        Returns:
+            int: количество удаленных записей
+        """
+    return CachedChat.delete().where(CachedChat.chat_id == chat_id).execute()
