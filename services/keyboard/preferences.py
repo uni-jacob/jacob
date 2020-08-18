@@ -136,8 +136,6 @@ def index_chat(
 async def cached_chats():
     kb = Keyboard()
     chats = db.chats.get_cached_chats()
-    if chats is None:
-        chats = []
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(peer_ids=chat.chat_id)
         try:
