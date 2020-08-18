@@ -68,6 +68,7 @@ async def configure_chat(ans: SimpleBotEvent):
 async def delete_chat(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     db.chats.delete_chat(payload["chat"])
+    db.chats.get_or_create_cached_chat(payload["chat"])
     await ans.answer(
         "Чат удален",
         keyboard=await kbs.preferences.connected_chats(
