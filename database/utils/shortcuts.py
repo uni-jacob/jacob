@@ -1,5 +1,6 @@
 import typing as t
 
+from database.models import BaseModel
 from database.models import Chat
 from database.models import Storage
 from database.utils import admin
@@ -8,10 +9,8 @@ from database.utils import students
 from services.exceptions import ChatNotFound
 
 
-def generate_list(data) -> list:
-    items = [item for item in data]
-    if items:
-        return items
+def generate_list(data) -> t.List[BaseModel]:
+    return [item for item in data]
 
 
 def get_list_of_calling_students(admin_id: int) -> t.List[int]:
