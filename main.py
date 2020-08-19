@@ -13,6 +13,8 @@ from services import keyboard as kbs
 from services.filters import PLFilter
 from services.logger.config import config
 
+__version__ = "2.5.0"
+
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
 bot.dispatcher.add_router(call.call_router)
 bot.dispatcher.add_router(preferences.preferences_router)
