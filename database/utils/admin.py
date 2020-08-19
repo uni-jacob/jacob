@@ -1,9 +1,13 @@
+from loguru import logger
 from playhouse import shortcuts
 
 from database.models import Administrator
 from database.models import Group
 from database.models import Storage
 from services.exceptions import UserIsNotAnAdministrator
+from services.logger.config import config
+
+logger.configure(**config)
 
 
 def is_user_admin(admin_id: int) -> bool:
@@ -32,6 +36,7 @@ def get_admin_feud(admin_id: int) -> Group:
     """
     if is_user_admin(admin_id):
         admin = Administrator.get_or_none(id=admin_id)
+        logger.debug(f"{admin.group_id}")
         return admin.group_id
 
 
