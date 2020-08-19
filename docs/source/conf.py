@@ -73,7 +73,7 @@ html_theme_options = {
     "heroes": {"index": "Универсальный бот-помощник для студенческих бесед"},
     "nav_links": [
         {"href": "index", "internal": True, "title": "Главная"},
-        {"href": "https://vk.com/jacob_bot", "internal": False, "title": "Бот",},
+        {"href": "https://vk.com/jacob_bot", "internal": False, "title": "Бот"},
     ],
 }
 

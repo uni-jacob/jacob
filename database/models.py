@@ -1,142 +1,214 @@
-from tortoise.models import Model
-from tortoise import fields
+from peewee import AutoField
+from peewee import BigIntegerField
+from peewee import BooleanField
+from peewee import CharField
+from peewee import Check
+from peewee import ForeignKeyField
+from peewee import IntegerField
+from peewee import Model
+from peewee import PostgresqlDatabase
+from peewee import TextField
+from peewee import TimestampField
+from peewee import fn
+
+from services.db import get_db_credentials
+
+db = PostgresqlDatabase(**get_db_credentials())
 
 
-class AcademicStatus(Model):
-    id = fields.IntField(pk=True)
-    description = fields.CharField(max_length=50)
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+    def __str__(self):
+        return f"<{type(self).__name__}: {self._pk}>"
+
+
+class AcademicStatus(BaseModel):
+    id = AutoField(primary_key=True,)
+    description = CharField()
 
     class Meta:
-        table = "academic_statuses"
+        table_name = "academic_statuses"
 
 
-class Administrator(Model):
-    id = fields.IntField(pk=True)
-
-    class Meta:
-        table = "administrators"
-
-
-class AlmaMater(Model):
-    id = fields.IntField(pk=True)
-    name = fields.CharField(max_length=300)
+class AlmaMater(BaseModel):
+    id = AutoField(primary_key=True)
+    name = CharField()
 
     class Meta:
-        table = "alma_maters"
+        table_name = "alma_maters"
 
 
-class CachedChat(Model):
-    id = fields.IntField(pk=True)
-    chat_id = fields.BigIntField()
-
-    class Meta:
-        table = "cached_chats"
-
-
-class Chat(Model):
-    id = fields.IntField(pk=True)
-    chat_id = fields.BigIntField()
-    alma_mater = fields.ForeignKeyField("models.AlmaMater")
-    group = fields.ForeignKeyField("models.Group")
-    chat_type = fields.IntField()
-    active = fields.IntField()
+class Group(BaseModel):
+    id = AutoField(primary_key=True,)
+    group_num = CharField()
+    specialty = TextField()
+    alma_mater = ForeignKeyField(
+        AlmaMater, backref="almamater", on_delete="CASCADE", on_update="CASCADE"
+    )
 
     class Meta:
-        table = "chats"
+        table_name = "groups"
 
 
-class FinancialCategory(Model):
-    id = fields.IntField(pk=True)
-    name = fields.CharField(max_length=35)
-    summ = fields.IntField()
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
-    group_id = fields.ForeignKeyField("models.Group")
-
-    class Meta:
-        table = "financial_categories"
-
-
-class FinancialDonate(Model):
-    id = fields.IntField(pk=True)
-    category_id = fields.IntField()
-    student_id = fields.IntField()
-    summ = fields.IntField()
-    create_date = fields.DatetimeField(auto_now=True)
-    update_date = fields.DatetimeField()
+class Administrator(BaseModel):
+    id = IntegerField(primary_key=True)
+    group_id = ForeignKeyField(
+        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+    )
 
     class Meta:
-        table = "financial_donates"
+        table_name = "administrators"
 
 
-class FinancialExpense(Model):
-    id = fields.IntField(pk=True)
-    category_id = fields.IntField()
-    summ = fields.IntField()
-    create_date = fields.DatetimeField(auto_now=True)
+class CachedChat(BaseModel):
+    id = AutoField(primary_key=True)
+    chat_id = IntegerField(unique=True)
 
     class Meta:
-        table = "financial_expences"
+        table_name = "cached_chats"
 
 
-class Group(Model):
-    id = fields.IntField(pk=True)
-    group_num = fields.CharField(max_length=20)
-    speciality = fields.TextField()
-    alma_mater_id = fields.IntField()
+class ChatType(BaseModel):
+    id = AutoField(primary_key=True,)
+    description = CharField(unique=True)
 
     class Meta:
-        table = "groups"
+        table_name = "chat_types"
 
 
-class Mailing(Model):
-    id = fields.IntField(pk=True)
-    name = fields.CharField(max_length=30)
-    alma_mater_id = fields.ForeignKeyField("models.AlmaMater")
-    group_id = fields.ForeignKeyField("models.Group")
-
-    class Meta:
-        table = "mailings"
-
-
-class State(Model):
-    id = fields.IntField(pk=True)
-    description = fields.CharField(max_length=30)
+class Chat(BaseModel):
+    id = AutoField(primary_key=True,)
+    chat_id = BigIntegerField(unique=True)
+    group_id = ForeignKeyField(
+        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+    )
+    chat_type = ForeignKeyField(ChatType, backref="chattypes", on_delete="RESTRICT")
+    is_active = BooleanField(default=False)
 
     class Meta:
-        table = "states"
+        table_name = "chats"
 
 
-class Storage(Model):
-    id = fields.IntField(pk=True)
-    state_id = fields.IntField()
-    current_chat = fields.IntField()
-    names_usage = fields.BooleanField()
-    selected_students = fields.TextField()
-    text = fields.TextField()
-    attaches = fields.TextField()
-    mailing_id = fields.TextField()
+class FinancialCategory(BaseModel):
+    id = AutoField(primary_key=True,)
+    name = CharField()
+    summ = IntegerField()
+    group_id = ForeignKeyField(
+        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+    )
 
     class Meta:
-        table = "storage"
+        table_name = "financial_categories"
 
 
-class Student(Model):
-    id = fields.IntField(pk=True)
-    vk_id = fields.BigIntField(unique=True)
-    first_name = fields.CharField(max_length=50)
-    second_name = fields.CharField(max_length=50)
-    alma_mater = fields.ForeignKeyField("models.AlmaMater")
-    group = fields.ForeignKeyField("models.Group")
-    academic_status = fields.IntField()
-
-    class Meta:
-        table = "students"
-
-
-class Subscription(Model):
-    student_id = fields.IntField()
-    mailing_id = fields.IntField()
-    status = fields.BooleanField()
+class Student(BaseModel):
+    id = AutoField(primary_key=True,)
+    vk_id = BigIntegerField(unique=True, constraints=[Check("vk_id > 0")])
+    first_name = CharField()
+    second_name = CharField()
+    group_id = ForeignKeyField(
+        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+    )
+    academic_status = ForeignKeyField(
+        AcademicStatus,
+        backref="academicstatuses",
+        default=1,
+        on_delete="RESTRICT",
+        on_update="CASCADE",
+    )
 
     class Meta:
-        table = "subscriptions"
+        table_name = "students"
+
+
+class FinancialDonate(BaseModel):
+    id = AutoField(primary_key=True,)
+    category = ForeignKeyField(
+        FinancialCategory,
+        backref="categories",
+        on_delete="CASCADE",
+        on_update="CASCADE",
+    )
+    student = ForeignKeyField(
+        Student, backref="students", on_delete="CASCADE", on_update="CASCADE"
+    )
+    summ = IntegerField()
+    create_date = TimestampField(default=fn.NOW())
+    update_date = TimestampField()
+
+    class Meta:
+        table_name = "financial_donates"
+
+
+class FinancialExpences(BaseModel):
+    id = AutoField(primary_key=True,)
+    category = ForeignKeyField(
+        FinancialCategory,
+        backref="categories",
+        on_delete="CASCADE",
+        on_update="CASCADE",
+    )
+    summ = IntegerField()
+    create_date = TimestampField(default=fn.NOW())
+
+    class Meta:
+        table_name = "financial_expences"
+
+
+class Mailing(BaseModel):
+    id = AutoField(primary_key=True,)
+    name = CharField()
+    group_id = ForeignKeyField(
+        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+    )
+
+    class Meta:
+        table_name = "mailings"
+
+
+class State(BaseModel):
+    id = AutoField(primary_key=True,)
+    description = CharField()
+
+    class Meta:
+        table_name = "states"
+
+
+class Storage(BaseModel):
+    id = AutoField(primary_key=True,)
+    state_id = ForeignKeyField(
+        State, backref="states", default=1, on_delete="SET DEFAULT", on_update="CASCADE"
+    )
+    current_chat = ForeignKeyField(
+        ChatType,
+        backref="chattypes",
+        default=0,
+        on_delete="SET DEFAULT",
+        on_update="CASCADE",
+    )
+    mailing_id = ForeignKeyField(
+        Mailing,
+        backref="mailings",
+        null=True,
+        default=None,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+    )
+    names_usage = BooleanField(default=False)
+    selected_students = TextField(default="")
+    text = TextField(default="")
+    attaches = TextField(default="")
+
+    class Meta:
+        table_name = "storages"
+
+
+class Subscriptions(BaseModel):
+    id = AutoField(primary_key=True,)
+    student_id = ForeignKeyField(
+        Student, backref="students", on_delete="CASCADE", on_update="CASCADE"
+    )
+    mailing_id = ForeignKeyField(Mailing, backref="mailings")
+    status = BooleanField(default=True)

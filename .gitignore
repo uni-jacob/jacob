@@ -46,6 +46,7 @@ parts/
 sdist/
 var/
 wheels/
+venv/
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
@@ -132,30 +133,7 @@ dmypy.json
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff
-.idea/**/sqldialects.xml
-.idea/**/watcherTasks.xml
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-
-# Generated files
-.idea/**/contentModel.xml
-
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/dataSources.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
+.idea/
 
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
@@ -169,9 +147,6 @@ dmypy.json
 
 # CMake
 cmake-build-*/
-
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
 
 # File-based project format
 *.iws
@@ -218,51 +193,7 @@ modules.xml
 .idea/**/markdown-navigator.xml
 .idea/**/markdown-navigator/
 
-### Python ###
-# Byte-compiled / optimized / DLL files
-
-# C extensions
-
-# Distribution / packaging
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-
-# Installer logs
-
-# Unit test / coverage reports
-
-# Translations
-
-# Scrapy stuff:
-
-# Sphinx documentation
-
-# PyBuilder
-
-# pyenv
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-
-# celery beat schedule file
-
-# SageMath parsed files
-
-# Spyder project settings
-
-# Rope project settings
-
-# Mr Developer
-
-# mkdocs documentation
-
-# mypy
-
-# Pyre type checker
-
 # End of https://www.gitignore.io/api/django,direnv,python,pycharm
+
+polygon.py
+services/old_*.py
