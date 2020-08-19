@@ -1,6 +1,7 @@
-from loguru import logger
+import logging
 import os
 
+from loguru import logger
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
@@ -18,6 +19,7 @@ bot.dispatcher.add_router(preferences.preferences_router)
 bot.dispatcher.add_router(chats.chats_router)
 
 logger.configure(**config)
+logging.basicConfig(level=logging.DEBUG)
 
 
 @bot.message_handler(
