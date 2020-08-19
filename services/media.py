@@ -61,164 +61,27 @@ def translate_string(s: str) -> str:
         Returns:
             str: Переведенная строка
     """
-    # TODO: ГОВНОКОД!
-    en = [
-        "q",
-        "w",
-        "e",
-        "r",
-        "t",
-        "y",
-        "u",
-        "i",
-        "o",
-        "p",
-        "[",
-        "]",
-        "a",
-        "s",
-        "d",
-        "f",
-        "g",
-        "h",
-        "j",
-        "k",
-        "l",
-        ";",
-        "'",
-        "\\",
-        "z",
-        "x",
-        "c",
-        "v",
-        "b",
-        "n",
-        "m",
-        ",",
-        ".",
-        "/",
-        "Q",
-        "W",
-        "E",
-        "R",
-        "T",
-        "Y",
-        "U",
-        "I",
-        "O",
-        "P",
-        "{",
-        "}",
-        "A",
-        "S",
-        "D",
-        "F",
-        "G",
-        "H",
-        "J",
-        "K",
-        "L",
-        ":",
-        '"',
-        "|",
-        "Z",
-        "X",
-        "C",
-        "V",
-        "B",
-        "N",
-        "M",
-        "<",
-        ">",
-        "?",
-    ]
-    ru = [
-        "й",
-        "ц",
-        "у",
-        "к",
-        "е",
-        "н",
-        "г",
-        "ш",
-        "щ",
-        "з",
-        "х",
-        "ъ",
-        "ф",
-        "ы",
-        "в",
-        "а",
-        "п",
-        "р",
-        "о",
-        "л",
-        "д",
-        "ж",
-        "э",
-        "\\",
-        "я",
-        "ч",
-        "с",
-        "м",
-        "и",
-        "т",
-        "ь",
-        "б",
-        "ю",
-        ".",
-        "Й",
-        "Ц",
-        "У",
-        "К",
-        "Е",
-        "Н",
-        "Г",
-        "Ш",
-        "Щ",
-        "З",
-        "Х",
-        "Ъ",
-        "Ф",
-        "Ы",
-        "В",
-        "А",
-        "П",
-        "Р",
-        "О",
-        "Л",
-        "Д",
-        "Ж",
-        "Э",
-        "/",
-        "Я",
-        "Ч",
-        "С",
-        "М",
-        "И",
-        "Т",
-        "Ь",
-        "Б",
-        "Ю",
-        ",",
-    ]
-
-    result = ""
-
-    for i in range(len(s)):
-        try:
-            ind = en.index(s[i])
-        except ValueError:
-            pass
-        else:
-            result += ru[ind]
-            continue
-
-        try:
-            ind = ru.index(s[i])
-        except ValueError:
-            result += s[i]
-        else:
-            result += en[ind]
-
-    return result
+    layout = dict(
+        zip(
+            map(
+                ord,
+                "qwertyuiop[]asdfghjkl;'zxcvbnm,./`"
+                'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~',
+            ),
+            "йцукенгшщзхъфывапролджэячсмитьбю.ё" "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,Ё",
+        )
+    )
+    en_layout = dict(
+        zip(
+            map(
+                ord,
+                "йцукенгшщзхъфывапролджэячсмитьбю.ё"
+                "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,Ё",
+            ),
+            "qwertyuiop[]asdfghjkl;'zxcvbnm,./`" 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~',
+        )
+    )
+    tr = s.translate(layout)
+    if tr == s:
+        tr = s.translate(en_layout)
+    return tr
