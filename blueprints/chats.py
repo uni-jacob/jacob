@@ -20,5 +20,6 @@ logger.configure(**config)
 @simple_bot_message_handler(chats_router, ChatActionFilter("chat_invite_user"))
 @logger.catch()
 async def greeting(ans: SimpleBotEvent):
-    db.chats.get_or_create_cached_chat(ans.object.object.message.peer_id)
-    await ans.answer("Привет!")
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        db.chats.get_or_create_cached_chat(ans.object.object.message.peer_id)
+        await ans.answer("Привет!")

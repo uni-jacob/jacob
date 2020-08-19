@@ -26,9 +26,10 @@ logger.configure(**config)
 )
 @logger.catch()
 async def start(ans: SimpleBotEvent):
-    await ans.answer(
-        "Привет!", keyboard=kbs.main.main_menu(ans.object.object.message.peer_id)
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        await ans.answer(
+            "Привет!", keyboard=kbs.main.main_menu(ans.object.object.message.peer_id)
+        )
 
 
 bot.run_forever()

@@ -28,14 +28,15 @@ logger.configure(**config)
 )
 @logger.catch()
 async def open_preferences(ans: SimpleBotEvent):
-    group_id = db.admin.get_admin_feud(
-        db.students.get_system_id_of_student(ans.object.object.message.peer_id)
-    )
-    group = db.groups.find_group(id=group_id)
-    await ans.answer(
-        f"Настройки группы {group.group_num} ({group.specialty})",
-        keyboard=kbs.preferences.preferences(),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        group_id = db.admin.get_admin_feud(
+            db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+        )
+        group = db.groups.find_group(id=group_id)
+        await ans.answer(
+            f"Настройки группы {group.group_num} ({group.specialty})",
+            keyboard=kbs.preferences.preferences(),
+        )
 
 
 @simple_bot_message_handler(
@@ -43,30 +44,34 @@ async def open_preferences(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def list_of_chats(ans: SimpleBotEvent):
-    await ans.answer(
-        "Список подключенных чатов",
-        keyboard=await kbs.preferences.connected_chats(
-            ans.object.object.message.peer_id
-        ),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        await ans.answer(
+            "Список подключенных чатов",
+            keyboard=await kbs.preferences.connected_chats(
+                ans.object.object.message.peer_id
+            ),
+        )
 
 
 @simple_bot_message_handler(preferences_router, filters.PLFilter({"button": "chat"}))
 @logger.catch()
 async def configure_chat(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    chat = db.chats.find_chat(group_id=payload["group"], chat_type=payload["chat_type"])
-    chat_object = await api.messages.get_conversations_by_id(
-        peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
-    )
-    try:
-        chat_title = chat_object.response.items[0].chat_settings.title
-    except IndexError:
-        chat_title = "???"
-    await ans.answer(
-        f"Настройки чата {chat_title}",
-        keyboard=kbs.preferences.configure_chat(chat.id),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        chat = db.chats.find_chat(
+            group_id=payload["group"], chat_type=payload["chat_type"]
+        )
+        chat_object = await api.messages.get_conversations_by_id(
+            peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
+        )
+        try:
+            chat_title = chat_object.response.items[0].chat_settings.title
+        except IndexError:
+            chat_title = "???"
+        await ans.answer(
+            f"Настройки чата {chat_title}",
+            keyboard=kbs.preferences.configure_chat(chat.id),
+        )
 
 
 @simple_bot_message_handler(
@@ -74,15 +79,16 @@ async def configure_chat(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def delete_chat(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    db.chats.delete_chat(payload["chat"])
-    db.chats.get_or_create_cached_chat(payload["chat"])
-    await ans.answer(
-        "Чат удален",
-        keyboard=await kbs.preferences.connected_chats(
-            ans.object.object.message.from_id
-        ),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        db.chats.delete_chat(payload["chat"])
+        db.chats.get_or_create_cached_chat(payload["chat"])
+        await ans.answer(
+            "Чат удален",
+            keyboard=await kbs.preferences.connected_chats(
+                ans.object.object.message.from_id
+            ),
+        )
 
 
 @simple_bot_message_handler(
@@ -90,20 +96,22 @@ async def delete_chat(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def show_available_chats(ans: SimpleBotEvent):
-    await ans.answer("Выберите чат", keyboard=await kbs.preferences.cached_chats())
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        await ans.answer("Выберите чат", keyboard=await kbs.preferences.cached_chats())
 
 
 @simple_bot_message_handler(
     preferences_router, filters.PLFilter({"button": "select_chat_type"}),
 )
 async def select_chat_type(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    await ans.answer(
-        "Выберите тип чата",
-        keyboard=kbs.preferences.available_chat_types(
-            ans.object.object.message.from_id, payload["chat"]
-        ),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        await ans.answer(
+            "Выберите тип чата",
+            keyboard=kbs.preferences.available_chat_types(
+                ans.object.object.message.from_id, payload["chat"]
+            ),
+        )
 
 
 @simple_bot_message_handler(
@@ -111,15 +119,16 @@ async def select_chat_type(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def register_chat(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    db.chats.register_chat(payload["chat"], payload["chat_type"], payload["group"])
-    db.chats.delete_cached_chat(payload["chat"])
-    await ans.answer(
-        "Чат зарегистрирован",
-        keyboard=await kbs.preferences.connected_chats(
-            ans.object.object.message.from_id
-        ),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        db.chats.register_chat(payload["chat"], payload["chat_type"], payload["group"])
+        db.chats.delete_cached_chat(payload["chat"])
+        await ans.answer(
+            "Чат зарегистрирован",
+            keyboard=await kbs.preferences.connected_chats(
+                ans.object.object.message.from_id
+            ),
+        )
 
 
 @simple_bot_message_handler(
@@ -127,40 +136,43 @@ async def register_chat(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def index_chat(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    chat = db.chats.find_chat(id=payload["chat"])
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        chat = db.chats.find_chat(id=payload["chat"])
 
-    chat_members = await api.messages.get_conversation_members(chat.chat_id)
-    group_members = db.students.get_active_students(chat.group_id)
+        chat_members = await api.messages.get_conversation_members(chat.chat_id)
+        group_members = db.students.get_active_students(chat.group_id)
 
-    vk_ = prepare_set_from_vk(chat_members.response.items)
-    db_ = prepare_set_from_db(group_members)
+        vk_ = prepare_set_from_vk(chat_members.response.items)
+        db_ = prepare_set_from_db(group_members)
 
-    diff_vk_db = vk_.difference(db_)  # есть в вк, нет в бд
-    diff_db_vk = db_.difference(vk_)  # есть в бд, нет в вк
+        diff_vk_db = vk_.difference(db_)  # есть в вк, нет в бд
+        diff_db_vk = db_.difference(vk_)  # есть в бд, нет в вк
 
-    query = await api.users.get(user_ids=list(diff_vk_db),)
-    students = [db.students.find_student(vk_id=st) for st in diff_db_vk]
+        query = await api.users.get(user_ids=list(diff_vk_db),)
+        students = [db.students.find_student(vk_id=st) for st in diff_db_vk]
 
-    vk_list = [
-        f"- @id{st.id} ({st.first_name} {st.last_name})" for st in query.response
-    ]
-    db_list = [f"- @id{st.vk_id} ({st.first_name} {st.second_name})" for st in students]
+        vk_list = [
+            f"- @id{st.id} ({st.first_name} {st.last_name})" for st in query.response
+        ]
+        db_list = [
+            f"- @id{st.vk_id} ({st.first_name} {st.second_name})" for st in students
+        ]
 
-    sep = "\n"
+        sep = "\n"
 
-    await ans.answer(
-        f"""
-    Добавлены в чат, но не зарегистрированы в системе:\n{sep.join(vk_list) or "⸻"}
-Зарегистрированы в системе, но не добавлены в чат:\n{sep.join(db_list) or "⸻"}
-Вы можете зарегистрировать студентов в системе в автоматическом режиме, 
-нажав соответствующую кнопку на клавиатуре. Студенты появятся в базе данных, 
-вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)
-    """,
-        keyboard=kbs.preferences.index_chat(
-            chat.group_id.id, list(diff_vk_db), list(diff_db_vk), chat.chat_type.id
-        ),
-    )
+        await ans.answer(
+            f"""
+        Добавлены в чат, но не зарегистрированы в системе:\n{sep.join(vk_list) or "⸻"}
+    Зарегистрированы в системе, но не добавлены в чат:\n{sep.join(db_list) or "⸻"}
+    Вы можете зарегистрировать студентов в системе в автоматическом режиме, 
+    нажав соответствующую кнопку на клавиатуре. Студенты появятся в базе данных, 
+    вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)
+        """,
+            keyboard=kbs.preferences.index_chat(
+                chat.group_id.id, list(diff_vk_db), list(diff_db_vk), chat.chat_type.id
+            ),
+        )
 
 
 @simple_bot_message_handler(
@@ -168,32 +180,33 @@ async def index_chat(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def register_students(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    data = []
-    students = await api.users.get(user_ids=payload["students"])
-    student_last_id = Student.select().order_by(Student.id.desc()).get().id
-    for student in students.response:
-        student_last_id += 1
-        data.append(
-            {
-                "id": student_last_id,
-                "first_name": student.first_name,
-                "second_name": student.last_name,
-                "vk_id": student.id,
-                "group_id": payload["group"],
-                "academic_status": 1,
-            }
-        )
-    query = Student.insert_many(data).execute()
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        data = []
+        students = await api.users.get(user_ids=payload["students"])
+        student_last_id = Student.select().order_by(Student.id.desc()).get().id
+        for student in students.response:
+            student_last_id += 1
+            data.append(
+                {
+                    "id": student_last_id,
+                    "first_name": student.first_name,
+                    "second_name": student.last_name,
+                    "vk_id": student.id,
+                    "group_id": payload["group"],
+                    "academic_status": 1,
+                }
+            )
+        query = Student.insert_many(data).execute()
 
-    await ans.answer(
-        f"{len(query)} студент(ов) зарегистрировано",
-        keyboard=kbs.preferences.configure_chat(
-            db.chats.find_chat(
-                group_id=payload["group"], chat_type=payload["chat_type"]
-            ).id
-        ),
-    )
+        await ans.answer(
+            f"{len(query)} студент(ов) зарегистрировано",
+            keyboard=kbs.preferences.configure_chat(
+                db.chats.find_chat(
+                    group_id=payload["group"], chat_type=payload["chat_type"]
+                ).id
+            ),
+        )
 
 
 @simple_bot_message_handler(
@@ -201,15 +214,16 @@ async def register_students(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def register_students(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    query = 0
-    for st in payload["students"]:
-        query += Student.delete().where(Student.vk_id == st).execute()
-    await ans.answer(
-        f"{query} студент(ов) удалено",
-        keyboard=kbs.preferences.configure_chat(
-            db.chats.find_chat(
-                group_id=payload["group"], chat_type=payload["chat_type"]
-            ).id
-        ),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        query = 0
+        for st in payload["students"]:
+            query += Student.delete().where(Student.vk_id == st).execute()
+        await ans.answer(
+            f"{query} студент(ов) удалено",
+            keyboard=kbs.preferences.configure_chat(
+                db.chats.find_chat(
+                    group_id=payload["group"], chat_type=payload["chat_type"]
+                ).id
+            ),
+        )

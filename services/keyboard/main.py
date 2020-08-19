@@ -1,6 +1,7 @@
 from vkwave.bots import Keyboard
 
 from database import utils as db
+from loguru import logger
 
 JSONStr = str
 
@@ -17,6 +18,7 @@ def main_menu(user_id: int) -> JSONStr:
     is_admin = db.admin.is_user_admin(
         admin_id=db.students.get_system_id_of_student(user_id)
     )
+    logger.debug(f"{is_admin=}")
     kb = Keyboard()
     if is_admin:
         kb.add_text_button(text="📢 Призыв", payload={"button": "call"})
