@@ -28,6 +28,13 @@ class TestStudents:
 
         students.get_active_students(test_group_id)
 
+    def test_get_active_students_in_empty_group(self):
+
+        test_group_id = 2
+
+        with pytest.raises(StudentNotFound):
+            students.get_active_students(test_group_id)
+
     def test_get_unique_second_name_letters_in_a_group(self):
 
         test_user_id = 549350532
