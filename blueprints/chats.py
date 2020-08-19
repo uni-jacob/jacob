@@ -30,12 +30,13 @@ async def greeting(ans: SimpleBotEvent):
 @simple_bot_message_handler(chats_router, CommandsFilter("tr"))
 @logger.catch()
 async def tr_command(ans: SimpleBotEvent):
-    if msg := ans.object.object.message.reply_message:
-        await ans.answer(translate_string(msg.text),)
-    for msg in ans.object.object.message.fwd_messages:
-        await ans.answer(translate_string(msg.text))
-    if (
-        not ans.object.object.message.reply_message
-        and not ans.object.object.message.fwd_messages
-    ):
-        await ans.answer("Команда используется в ответ на сообщение")
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        if msg := ans.object.object.message.reply_message:
+            await ans.answer(translate_string(msg.text),)
+        for msg in ans.object.object.message.fwd_messages:
+            await ans.answer(translate_string(msg.text))
+        if (
+            not ans.object.object.message.reply_message
+            and not ans.object.object.message.fwd_messages
+        ):
+            await ans.answer("Команда используется в ответ на сообщение")
