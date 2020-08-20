@@ -36,7 +36,7 @@ def get_admin_feud(admin_id: int) -> Group:
     """
     if is_user_admin(admin_id):
         admin = Administrator.get_or_none(id=admin_id)
-        logger.debug(f"{admin.group_id}")
+        logger.debug(f"Администрируемое: {admin.group_id}")
         return admin.group_id
 
 
@@ -64,6 +64,7 @@ def update_admin_storage(admin_id: int, **kwargs) -> Storage:
         Storage: объект хранилища
     """
     a_id = shortcuts.update_model_from_dict(get_admin_storage(admin_id), kwargs).save()
+    logger.debug(f"Хранилище id{admin_id} обновлено с {kwargs}")
     return get_admin_storage(a_id)
 
 
