@@ -2,13 +2,13 @@ site_name: Jacob
 repo_url: https://github.com/dadyarri/jacob
 repo_name: dadyarri/jacob
 edit_uri: ""
-collapse_single_pages: true
+copyright: Copyright &copy; 2019 - 2020 Даниил Голубев
 plugins:
+  - search
   - git-revision-date-localized:
       type: timeago
-    plugins:
-      - search
-      - awesome-pages
+  - awesome-pages:
+      collapse_single_pages: true
 markdown_extensions:
   - admonition
   - pymdownx.tasklist
@@ -41,3 +41,9 @@ extra:
     - icon: fontawesome/brands/telegram
       link: https://t.me/dadyarri
       name: Связь с автором
+
+nav:
+  - Главная: index.md
+  - Возможности:
+      - Призыв: functions/call.md
+      - Настройки: functions/settings.md
