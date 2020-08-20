@@ -85,7 +85,6 @@ class Chat(BaseModel):
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
     chat_type = ForeignKeyField(ChatType, backref="chattypes", on_delete="RESTRICT")
-    is_active = BooleanField(default=False)
 
     class Meta:
         table_name = "chats"
@@ -157,17 +156,6 @@ class FinancialExpences(BaseModel):
         table_name = "financial_expences"
 
 
-class Mailing(BaseModel):
-    id = AutoField(primary_key=True,)
-    name = CharField()
-    group_id = ForeignKeyField(
-        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
-    )
-
-    class Meta:
-        table_name = "mailings"
-
-
 class State(BaseModel):
     id = AutoField(primary_key=True,)
     description = CharField()
@@ -188,14 +176,6 @@ class Storage(BaseModel):
         on_delete="SET DEFAULT",
         on_update="CASCADE",
     )
-    mailing_id = ForeignKeyField(
-        Mailing,
-        backref="mailings",
-        null=True,
-        default=None,
-        on_delete="SET NULL",
-        on_update="CASCADE",
-    )
     names_usage = BooleanField(default=False)
     selected_students = TextField(default="")
     text = TextField(default="")
@@ -203,12 +183,3 @@ class Storage(BaseModel):
 
     class Meta:
         table_name = "storages"
-
-
-class Subscriptions(BaseModel):
-    id = AutoField(primary_key=True,)
-    student_id = ForeignKeyField(
-        Student, backref="students", on_delete="CASCADE", on_update="CASCADE"
-    )
-    mailing_id = ForeignKeyField(Mailing, backref="mailings")
-    status = BooleanField(default=True)
