@@ -6,6 +6,9 @@ collapse_single_pages: true
 plugins:
   - git-revision-date-localized:
       type: timeago
+    plugins:
+      - search
+      - awesome-pages
 markdown_extensions:
   - admonition
   - pymdownx.tasklist
