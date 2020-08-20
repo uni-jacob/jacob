@@ -14,6 +14,7 @@ mkdocs-redirects = "*"
 mkdocs-git-revision-date-localized-plugin = "*"
 mkdocs-awesome-pages-plugin = "*"
 markdown = "*"
+pymdown-extensions = "*"
 
 [packages]
 aiohttp = "*"
