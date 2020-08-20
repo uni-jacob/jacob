@@ -33,7 +33,6 @@ urllib3 = "*"
 yarl = "*"
 vkwave = "*"
 typing-extensions = "*"
-notifiers = "*"
 
 [requires]
 python_version = "3.8"
