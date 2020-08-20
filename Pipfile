@@ -8,6 +8,12 @@ flake8 = "*"
 pytest = "*"
 pyshould = "*"
 coverage = "*"
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocs-redirects = "*"
+mkdocs-git-revision-date-localized-plugin = "*"
+mkdocs-awesome-pages-plugin = "*"
+markdown = "*"
 
 [packages]
 aiohttp = "*"
