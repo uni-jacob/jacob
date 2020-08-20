@@ -1,1 +1,40 @@
-site_name: My Docs
+site_name: Jacob
+repo_url: https://github.com/dadyarri/jacob
+repo_name: dadyarri/jacob
+edit_uri: ""
+collapse_single_pages: true
+plugins:
+  - git-revision-date-localized:
+      type: timeago
+markdown_extensions:
+  - admonition
+  - pymdownx.tasklist
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: blue grey
+  font:
+    code: Fira Code
+  language: ru
+  logo: assets/logo/jacob.svg
+  favicon: assets/logo/jacob.svg
+  features:
+    - instant
+    - tabs
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/vk
+      link: https://vk.com/jacob_bot
+      name: Страница бота в ВК
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/dadyarri
+      name: Связь с автором
