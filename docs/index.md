@@ -1,17 +1,29 @@
-# Welcome to MkDocs
+---
+title: Главная
+---
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+# Jacob | Студенческий бот
 
-## Commands
+Универсальный бот-помощник на платформе ВКонтакте для студенческих групп
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+## Функционал
 
-## Project layout
+- :material-exclamation: Призыв (отправление в беседу сообщения с упомнинанием выбранных студентов)
+    - :material-check-all: Призыв всех студентов группы
+    - :material-check: Призыв только выбранных
+    - :material-attachment: Поддерживаются вложения:
+        - :material-camera: Фото
+        - :material-file-document: Документы
+        - :material-microphone: Голосовые сообщения
+        
+- :material-cog: Настройки
+    - :material-plus: Подключение чатов к боту
+    - :material-minus: Отключение чатов
+    - :material-database-edit: Индексация чатов
+        
+## Планы
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+- [ ] Переезд в Docker
+- [ ] Блок функций Финансы
+- [ ] Веб-интерфейс с авторизацией ВКонтакте для управления группами
+- [ ] Блок функций Расписание
