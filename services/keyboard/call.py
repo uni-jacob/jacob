@@ -72,7 +72,7 @@ def list_of_students(letter: str, user_id: int) -> JSONStr:
         )
     if kb.buttons[-1]:
         kb.add_row()
-    kb.add_text_button(text="Назад", payload={"button": "skip_call_message"})
+    kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
     return kb.get_keyboard()
 
 
