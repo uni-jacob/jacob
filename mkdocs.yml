@@ -48,3 +48,8 @@ nav:
   - Возможности:
       - Призыв: functions/call.md
       - Настройки: functions/settings.md
+  - Настройка:
+      - Создание группы: configure/mkgroup.md
+      - Настройка бота: configure/bot.md
+      - Добавление бота в чаты: configure/chats.md
+
