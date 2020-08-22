@@ -1,3 +1,5 @@
+import typing as t
+
 from vkwave.bots import Keyboard
 
 from database import utils as db
@@ -40,12 +42,38 @@ def call_interface(user_id: int) -> JSONStr:
     return kb.get_keyboard()
 
 
-def list_of_students(letter: str, user_id: int) -> JSONStr:
+def list_of_letters(letters: list) -> JSONStr:
+    """
+    Генерирует подменю с буквами алфавита
+    Args:
+        letters: список букв
+
+    Returns:
+        JSONStr: клавиатура
+    """
+    kb = Keyboard()
+    for letter in letters:
+        if len(kb.buttons[-1]) == 4:
+            kb.add_row()
+        kb.add_text_button(
+            letter, payload={"button": "letter", "value": letter, "letters": letters}
+        )
+    if kb.buttons[-1]:
+        kb.add_row()
+    kb.add_text_button("◀️ Назад", payload={"button": "skip_call_message"})
+    return kb.get_keyboard()
+
+
+def list_of_students(
+    letter: str, user_id: int, letters: t.Optional[t.List[str]] = None
+) -> JSONStr:
     """
     Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
     Args:
         letter: Первая буква фамилий
         user_id: Идентификатор пользователя
+        letters: Список букв (передается когда существует подменю из диапазонов букв,
+            используется для возврата назад)
 
     Returns:
         JSONStr: Строка с клавиатурой
@@ -72,7 +100,10 @@ def list_of_students(letter: str, user_id: int) -> JSONStr:
         )
     if kb.buttons[-1]:
         kb.add_row()
-    kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
+    if letters:
+        kb.add_text_button(text="◀️ Назад", payload={"button": "half", "half": letters})
+    else:
+        kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
     return kb.get_keyboard()
 
 
