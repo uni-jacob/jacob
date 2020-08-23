@@ -16,3 +16,15 @@ def get_list_of_fin_categories(group_id: int) -> t.List[FinancialCategory]:
 
     query = FinancialCategory.select().where(FinancialCategory.group_id == group_id)
     return db.shortcuts.generate_list(query)
+
+
+def find_fin_category(**kwargs) -> t.Optional[FinancialCategory]:
+    """
+    Ищет категорию финансов
+    Args:
+        **kwargs: Критерии поиска
+
+    Returns:
+        FinancialCategory or None: объект категории
+    """
+    return FinancialCategory.get_or_none(**kwargs)
