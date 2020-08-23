@@ -31,3 +31,33 @@ def list_of_fin_categories(vk_id: int) -> JSONStr:
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
+
+
+def fin_category(category_id: int) -> JSONStr:
+    """
+    клавиатура меню категории финансов
+    Args:
+        category_id: идентификатор клавиатуры
+
+    Returns:
+        JSONStr: клавиатура
+    """
+    kb = Keyboard()
+
+    kb.add_text_button(
+        "Доход", payload={"button": "add_income", "category": category_id}
+    )
+    kb.add_text_button(
+        "Расход", payload={"button": "add_expense", "category": category_id}
+    )
+    kb.add_row()
+    kb.add_text_button(
+        "Должники", payload={"button": "show_debtors", "category": category_id}
+    )
+    kb.add_text_button(
+        "Статистика", payload={"button": "show_stats", "category": category_id}
+    )
+    kb.add_row()
+    kb.add_text_button("◀️ Назад", payload={"button": "finances"})
+
+    return kb.get_keyboard()
