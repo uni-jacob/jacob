@@ -45,17 +45,17 @@ def fin_category(category_id: int) -> JSONStr:
     kb = Keyboard()
 
     kb.add_text_button(
-        "Доход", payload={"button": "add_income", "category": category_id}
+        "📈 Доход", payload={"button": "add_income", "category": category_id}
     )
     kb.add_text_button(
-        "Расход", payload={"button": "add_expense", "category": category_id}
+        "📉 Расход", payload={"button": "add_expense", "category": category_id}
     )
     kb.add_row()
     kb.add_text_button(
-        "Должники", payload={"button": "show_debtors", "category": category_id}
+        "💸 Должники", payload={"button": "show_debtors", "category": category_id}
     )
     kb.add_text_button(
-        "Статистика", payload={"button": "show_stats", "category": category_id}
+        "📊 Статистика", payload={"button": "show_stats", "category": category_id}
     )
     kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "finances"})
