@@ -1,6 +1,7 @@
 import os
 
 import hyperjson
+from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
 from vkwave.bots import SimpleBotEvent
@@ -13,8 +14,6 @@ from services import filters
 from services import keyboard as kbs
 from services.chats import prepare_set_from_db
 from services.chats import prepare_set_from_vk
-from loguru import logger
-
 from services.logger.config import config
 
 preferences_router = DefaultRouter()
@@ -97,7 +96,12 @@ async def delete_chat(ans: SimpleBotEvent):
 @logger.catch()
 async def show_available_chats(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        await ans.answer("Выберите чат", keyboard=await kbs.preferences.cached_chats())
+        await ans.answer(
+            "Выберите чат",
+            keyboard=await kbs.preferences.cached_chats(
+                ans.object.object.message.from_id
+            ),
+        )
 
 
 @simple_bot_message_handler(
