@@ -3,6 +3,7 @@ import logging
 import os
 
 import requests
+from loguru import logger
 
 
 class TelegramHandler(logging.Handler):
@@ -30,3 +31,22 @@ class TelegramHandler(logging.Handler):
         record.message = record.getMessage()
         msg = record.message.split("\n")
         return msg[0], "\n".join(msg[1:])
+
+
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Get corresponding Loguru level if it exists
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Find caller from where originated the logged message
+        frame, depth = logging.currentframe(), 2
+        while frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )

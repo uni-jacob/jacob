@@ -15,13 +15,15 @@ from services.logger.config import config
 
 __version__ = "2.5.3"
 
+from services.logger.handlers import InterceptHandler
+
 bot = SimpleLongPollBot(tokens=os.getenv("VK_TOKEN"), group_id=os.getenv("GROUP_ID"))
 bot.dispatcher.add_router(call.call_router)
 bot.dispatcher.add_router(preferences.preferences_router)
 bot.dispatcher.add_router(chats.chats_router)
 
 logger.configure(**config)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
 
 
 @bot.message_handler(
