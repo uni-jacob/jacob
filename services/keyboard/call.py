@@ -42,11 +42,16 @@ def call_interface(user_id: int) -> JSONStr:
     return kb.get_keyboard()
 
 
-def list_of_letters(letters: list) -> JSONStr:
+def list_of_letters(
+    letters: list, return_to: str = "skip_call_message", category_id: int = None
+) -> JSONStr:
     """
     Генерирует подменю с буквами алфавита
     Args:
         letters: список букв
+        return_to: Пейлоад с указанием места возврата
+        category_id: идшник категории финансов (используется для возврата назад в
+            добавление дохода)
 
     Returns:
         JSONStr: клавиатура
@@ -60,7 +65,10 @@ def list_of_letters(letters: list) -> JSONStr:
         )
     if kb.buttons[-1]:
         kb.add_row()
-    kb.add_text_button("◀️ Назад", payload={"button": "skip_call_message"})
+    payload = {"button": return_to}
+    if category_id:
+        payload["category"] = category_id
+    kb.add_text_button("◀️ Назад", payload=payload)
     return kb.get_keyboard()
 
 
