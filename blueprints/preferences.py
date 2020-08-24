@@ -217,7 +217,7 @@ async def register_students(ans: SimpleBotEvent):
     preferences_router, filters.PLFilter({"button": "purge_students"}),
 )
 @logger.catch()
-async def register_students(ans: SimpleBotEvent):
+async def delete_students(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         query = 0
