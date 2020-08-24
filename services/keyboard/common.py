@@ -1,14 +1,17 @@
+import typing as t
+
 from vkwave.bots import Keyboard
 
 from database import utils as db
 
 
-def alphabet(user_id: int) -> Keyboard:
+def alphabet(user_id: int, category_id: t.Optional[int]) -> Keyboard:
     """
     Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов
 
     Args:
         user_id: Идентификатор администратора
+        category_id: идентификатор категории (для возврата назад)
 
     Returns:
         Keyboard: Фрагмент клавиатуры
@@ -22,14 +25,18 @@ def alphabet(user_id: int) -> Keyboard:
         f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
         for half in (f_alphabet, s_alphabet):
             title = f"{half[0]}..{half[-1]}"
-            kb.add_text_button(title, payload={"button": "half", "half": half})
+            payload = {"button": "half", "half": half}
+            if category_id:
+                payload["category"] = category_id
+            kb.add_text_button(title, payload=payload)
     else:
         for letter in alphabet:
             if len(kb.buttons[-1]) == 4:
                 kb.add_row()
-            kb.add_text_button(
-                text=letter, payload={"button": "letter", "value": letter}
-            )
+            payload = {"button": "half", "value": letter}
+            if category_id:
+                payload["category"] = category_id
+            kb.add_text_button(text=letter, payload=payload)
 
     return kb
 
