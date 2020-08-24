@@ -87,7 +87,10 @@ async def register_call_message(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "half"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "half"}) & ~filters.StateFilter("select_donater"),
+)
 @logger.catch()
 async def select_half(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
