@@ -98,7 +98,10 @@ async def select_half(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "letter"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "letter"}) & ~filters.StateFilter("select_donater"),
+)
 @logger.catch()
 async def select_letter(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -120,7 +123,10 @@ async def select_letter(ans: SimpleBotEvent):
             )
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "student"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "student"}) & ~filters.StateFilter("select_donater"),
+)
 @logger.catch()
 async def select_student(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
