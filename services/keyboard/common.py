@@ -5,7 +5,7 @@ from vkwave.bots import Keyboard
 from database import utils as db
 
 
-def alphabet(user_id: int, category_id: t.Optional[int]) -> Keyboard:
+def alphabet(user_id: int, category_id: t.Optional[int] = None) -> Keyboard:
     """
     Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов
 
