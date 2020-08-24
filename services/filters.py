@@ -7,6 +7,7 @@ from vkwave.bots import BotType
 from vkwave.bots import PayloadFilter
 from vkwave.bots.core import BaseFilter
 from vkwave.bots.core.dispatching.filters.base import FilterResult
+from vkwave.bots.core.dispatching.filters.base import NotFilter
 from vkwave.bots.core.dispatching.filters.builtin import has_payload
 from vkwave.types.bot_events import BotEventType
 
@@ -43,6 +44,9 @@ class PLFilter(PayloadFilter):
 class StateFilter(BaseFilter):
     def __init__(self, state):
         self.state = db.bot.get_id_of_state(state)
+
+    def __invert__(self):
+        return NotFilter(self)
 
     async def check(self, event: BaseEvent) -> FilterResult:
         try:
