@@ -180,6 +180,7 @@ class Storage(BaseModel):
     selected_students = TextField(default="")
     text = TextField(default="")
     attaches = TextField(default="")
+    category_id = IntegerField(null=True)
 
     class Meta:
         table_name = "storages"
