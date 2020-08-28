@@ -12,6 +12,7 @@ from vkwave.client import AIOHTTPClient
 from database import utils as db
 from services import filters
 from services import keyboard as kbs
+from services.finances import generate_debtors_call
 from services.logger.config import config
 
 finances_router = DefaultRouter()
@@ -143,3 +144,19 @@ async def save_donate(ans: SimpleBotEvent):
             await ans.answer("Доход сохранен", keyboard=kbs.finances.fin_category())
         else:
             await ans.answer("Введите только число")
+
+
+@simple_bot_message_handler(
+    finances_router, filters.PLFilter({"button": "show_debtors"})
+)
+@logger.catch()
+async def call_debtors(ans: SimpleBotEvent):
+    # TODO:
+    #   - придумать, как распилить сообщение на несколько частей, если длина
+    #       сообщения больше 4096
+    #   - прикрепить подтверждение отправки призыва
+    await ans.answer(
+        generate_debtors_call(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        )
+    )
