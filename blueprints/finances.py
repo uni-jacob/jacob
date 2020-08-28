@@ -130,7 +130,7 @@ async def select_student(ans: SimpleBotEvent):
 async def save_donate(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         text = ans.object.object.message.text
-        if re.match("^\d+$", text):
+        if re.match(r"^\d+$", text):
             store = db.admin.get_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
             )
