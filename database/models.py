@@ -135,7 +135,7 @@ class FinancialDonate(BaseModel):
     )
     summ = IntegerField()
     create_date = TimestampField(default=fn.NOW())
-    update_date = TimestampField()
+    update_date = TimestampField(null=True)
 
     class Meta:
         table_name = "financial_donates"
