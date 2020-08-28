@@ -21,48 +21,58 @@ logger.configure(**config)
 
 
 @simple_bot_message_handler(finances_router, filters.PLFilter({"button": "finances"}))
+@logger.catch()
 async def finances(ans: SimpleBotEvent):
-    await ans.answer(
-        "Список финансовых категорий",
-        keyboard=kbs.finances.list_of_fin_categories(ans.object.object.message.from_id),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        await ans.answer(
+            "Список финансовых категорий",
+            keyboard=kbs.finances.list_of_fin_categories(
+                ans.object.object.message.from_id
+            ),
+        )
 
 
 @simple_bot_message_handler(
     finances_router, filters.PLFilter({"button": "fin_category"})
 )
+@logger.catch()
 async def fin_category_menu(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
-    db.admin.update_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        category_id=payload.get("category"),
-    )
-
-    if payload.get("category"):
-        category_object = db.finances.find_fin_category(id=payload["category"])
-    else:
-        store = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        payload = hyperjson.loads(ans.object.object.message.payload)
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            category_id=payload.get("category"),
         )
-        category_object = db.finances.find_fin_category(id=store.category_id)
 
-    category_name = category_object.name
+        if payload.get("category"):
+            category_object = db.finances.find_fin_category(id=payload["category"])
+        else:
+            store = db.admin.get_admin_storage(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            )
+            category_object = db.finances.find_fin_category(id=store.category_id)
 
-    await ans.answer(
-        f'Меню категории "{category_name}"', keyboard=kbs.finances.fin_category(),
-    )
+        category_name = category_object.name
+
+        await ans.answer(
+            f'Меню категории "{category_name}"', keyboard=kbs.finances.fin_category(),
+        )
 
 
 @simple_bot_message_handler(finances_router, filters.PLFilter({"button": "add_income"}))
+@logger.catch()
 async def add_income(ans: SimpleBotEvent):
-    db.admin.update_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        state_id=db.bot.get_id_of_state("select_donater"),
-    )
-    await ans.answer(
-        "Выберите студента, сдавшего деньги",
-        keyboard=kbs.finances.fin_list_of_letters(ans.object.object.message.from_id),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("select_donater"),
+        )
+        await ans.answer(
+            "Выберите студента, сдавшего деньги",
+            keyboard=kbs.finances.fin_list_of_letters(
+                ans.object.object.message.from_id
+            ),
+        )
 
 
 @simple_bot_message_handler(
