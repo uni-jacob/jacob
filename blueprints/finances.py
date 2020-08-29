@@ -155,8 +155,9 @@ async def call_debtors(ans: SimpleBotEvent):
     #   - придумать, как распилить сообщение на несколько частей, если длина
     #       сообщения больше 4096
     #   - прикрепить подтверждение отправки призыва
-    await ans.answer(
-        generate_debtors_call(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
-        )
-    )
+    msg = generate_debtors_call(db.students.get_system_id_of_student(ans.object.object.message.from_id))
+    if len(msg) > 4096:
+        # Располовинить сообщение
+    else:
+        await ans.answer(msg)
+
