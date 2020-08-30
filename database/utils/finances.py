@@ -5,6 +5,7 @@ from peewee import fn
 from database import utils as db
 from database.models import FinancialCategory
 from database.models import FinancialDonate
+from database.models import FinancialExpense
 from database.utils.students import get_active_students
 
 
@@ -86,3 +87,17 @@ def get_debtors(category_id: int) -> t.List[int]:
             debtors.append(student.id)
 
     return debtors
+
+
+def add_expense(category_id, summ) -> FinancialExpense:
+    """
+    Создает новый расход
+
+    Args:
+        category_id: идентификатор категории
+        summ: сумма расхода
+
+    Returns:
+        FinancialExpense: объект расхода
+    """
+    return FinancialExpense.create(category_id=category_id, summ=summ,)
