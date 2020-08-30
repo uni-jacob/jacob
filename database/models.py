@@ -141,7 +141,7 @@ class FinancialDonate(BaseModel):
         table_name = "financial_donates"
 
 
-class FinancialExpences(BaseModel):
+class FinancialExpense(BaseModel):
     id = AutoField(primary_key=True,)
     category = ForeignKeyField(
         FinancialCategory,
@@ -153,7 +153,7 @@ class FinancialExpences(BaseModel):
     create_date = TimestampField(default=fn.NOW())
 
     class Meta:
-        table_name = "financial_expences"
+        table_name = "financial_expenses"
 
 
 class State(BaseModel):
