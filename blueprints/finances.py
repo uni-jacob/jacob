@@ -158,6 +158,7 @@ async def call_debtors(ans: SimpleBotEvent):
     msg = generate_debtors_call(db.students.get_system_id_of_student(ans.object.object.message.from_id))
     if len(msg) > 4096:
         # Располовинить сообщение
+        pass
     else:
         await ans.answer(msg)
 
