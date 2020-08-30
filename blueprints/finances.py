@@ -185,6 +185,10 @@ async def confirm_call_debtors(ans: SimpleBotEvent):
         chat = db.shortcuts.get_active_chat(
             db.students.get_system_id_of_student(ans.object.object.message.from_id)
         ).chat_id
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("main"),
+        )
         for msg in msgs:
             await api.messages.send(peer_id=chat, message=msg, random_id=0)
         await ans.answer("Призыв отправлен", keyboard=kbs.finances.fin_category())
@@ -198,4 +202,8 @@ async def confirm_call_debtors(ans: SimpleBotEvent):
 @logger.catch()
 async def deny_call_debtors(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("main"),
+        )
         await ans.answer("Отправка отменена", keyboard=kbs.finances.fin_category())
