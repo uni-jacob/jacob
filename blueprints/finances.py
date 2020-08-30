@@ -223,7 +223,7 @@ async def add_expense(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    finances_router, filters.PLFilter({"button": "add_expense"}),
+    finances_router, filters.StateFilter("enter_expense_summ"),
 )
 @logger.catch()
 async def save_expense(ans: SimpleBotEvent):
