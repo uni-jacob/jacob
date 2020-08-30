@@ -207,3 +207,16 @@ async def deny_call_debtors(ans: SimpleBotEvent):
             state_id=db.bot.get_id_of_state("main"),
         )
         await ans.answer("Отправка отменена", keyboard=kbs.finances.fin_category())
+
+
+@simple_bot_message_handler(
+    finances_router, filters.PLFilter({"button": "add_expense"}),
+)
+@logger.catch()
+async def add_expense(ans: SimpleBotEvent):
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("enter_expense_summ"),
+        )
+        await ans.answer("Введите сумму расхода")
