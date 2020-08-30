@@ -14,7 +14,7 @@ def prepare_set_from_vk(data: t.List[MessagesConversationMember]) -> t.Set[int]:
     Returns:
         set: идентификаторы ВК студентов
     """
-    return set([student.member_id for student in data if student.member_id > 0])
+    return {student.member_id for student in data if student.member_id > 0}
 
 
 def prepare_set_from_db(data: t.List[Student]) -> t.Set[int]:
@@ -26,4 +26,4 @@ def prepare_set_from_db(data: t.List[Student]) -> t.Set[int]:
         Returns:
             set: идентификаторы ВК студентов
         """
-    return set([student.vk_id for student in data])
+    return {student.vk_id for student in data}
