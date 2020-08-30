@@ -128,6 +128,7 @@ async def select_student(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router, filters.StateFilter("enter_donate_sum"),
 )
+@logger.catch()
 async def save_donate(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         text = ans.object.object.message.text
@@ -151,22 +152,23 @@ async def save_donate(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def call_debtors(ans: SimpleBotEvent):
-    msgs = generate_debtors_call(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    )
-    db.admin.update_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        state_id=db.bot.get_id_of_state("confirm_debtors_call"),
-    )
-    for msg in msgs:
-        await ans.answer(msg)
-    if len(msgs) > 1:
-        text = ("Сообщения будут отправлены в ваш активный чат",)
-    else:
-        text = ("Сообщение будет отправлено в ваш активный чат",)
-    await ans.answer(
-        text, keyboard=kbs.common.prompt().get_keyboard(),
-    )
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        msgs = generate_debtors_call(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        )
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("confirm_debtors_call"),
+        )
+        for msg in msgs:
+            await ans.answer(msg)
+        if len(msgs) > 1:
+            text = ("Сообщения будут отправлены в ваш активный чат",)
+        else:
+            text = ("Сообщение будет отправлено в ваш активный чат",)
+        await ans.answer(
+            text, keyboard=kbs.common.prompt().get_keyboard(),
+        )
 
 
 @simple_bot_message_handler(
@@ -174,16 +176,18 @@ async def call_debtors(ans: SimpleBotEvent):
     filters.StateFilter("confirm_debtors_call"),
     filters.PLFilter({"button": "confirm"}),
 )
+@logger.catch()
 async def confirm_call_debtors(ans: SimpleBotEvent):
-    msgs = generate_debtors_call(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    )
-    chat = db.shortcuts.get_active_chat(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    ).chat_id
-    for msg in msgs:
-        await api.messages.send(peer_id=chat, message=msg, random_id=0)
-    await ans.answer("Призыв отправлен", keyboard=kbs.finances.fin_category())
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        msgs = generate_debtors_call(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        )
+        chat = db.shortcuts.get_active_chat(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        ).chat_id
+        for msg in msgs:
+            await api.messages.send(peer_id=chat, message=msg, random_id=0)
+        await ans.answer("Призыв отправлен", keyboard=kbs.finances.fin_category())
 
 
 @simple_bot_message_handler(
@@ -193,4 +197,5 @@ async def confirm_call_debtors(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def deny_call_debtors(ans: SimpleBotEvent):
-    await ans.answer("Отправка отменена", keyboard=kbs.finances.fin_category())
+    with logger.contextualize(user_id=ans.object.object.message.from_id):
+        await ans.answer("Отправка отменена", keyboard=kbs.finances.fin_category())
