@@ -110,6 +110,9 @@ class Student(BaseModel):
     group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
+    email = CharField(null=True)
+    phone_number = BigIntegerField(constraints=[Check("phone_number < 99999999999")])
+    subgroup = IntegerField(null=True)
     academic_status = ForeignKeyField(
         AcademicStatus,
         backref="academicstatuses",
