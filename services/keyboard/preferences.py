@@ -2,11 +2,13 @@ import os
 import typing as t
 
 from vkwave.api import API
+from vkwave.api.methods._error import APIError
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 from database.models import ChatType
+from services.exceptions import BotIsNotAChatAdministrator
 
 JSONStr = str
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -135,9 +137,14 @@ async def cached_chats(user_id: int):
     chats = db.chats.get_cached_chats()
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(peer_ids=chat.chat_id)
-        chat_members_request = await api.messages.get_conversation_members(
-            peer_id=chat.chat_id
-        )
+        try:
+            chat_members_request = await api.messages.get_conversation_members(
+                peer_id=chat.chat_id
+            )
+        except APIError:
+            raise BotIsNotAChatAdministrator(
+                "Бот не является администратором в указанном чате"
+            )
         chat_members = [
             member.member_id for member in chat_members_request.response.items
         ]
