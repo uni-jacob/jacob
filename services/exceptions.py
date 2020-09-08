@@ -45,3 +45,11 @@ class EmptyCallMessage(Exception):
     """
 
     pass
+
+
+class BotIsNotAChatAdministrator(Exception):
+    """
+    Вызывается при попытке доступа к чату, в котором бот не является администратором
+    """
+
+    pass
