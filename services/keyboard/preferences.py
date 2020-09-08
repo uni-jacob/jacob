@@ -138,6 +138,9 @@ async def cached_chats(user_id: int):
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(peer_ids=chat.chat_id)
         try:
+            # TODO: Что делать, когда бот не администратор чата?
+            #   Валится всегда, если есть чат, в котором бот не админ, даже если этот
+            #   чат не касается текущего пользователя
             chat_members_request = await api.messages.get_conversation_members(
                 peer_id=chat.chat_id
             )
