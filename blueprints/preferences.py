@@ -74,7 +74,8 @@ async def configure_chat(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "remove_chat"}),
+    preferences_router,
+    filters.PLFilter({"button": "remove_chat"}),
 )
 @logger.catch()
 async def delete_chat(ans: SimpleBotEvent):
@@ -91,7 +92,8 @@ async def delete_chat(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "reg_chat"}),
+    preferences_router,
+    filters.PLFilter({"button": "reg_chat"}),
 )
 @logger.catch()
 async def show_available_chats(ans: SimpleBotEvent):
@@ -105,7 +107,8 @@ async def show_available_chats(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "select_chat_type"}),
+    preferences_router,
+    filters.PLFilter({"button": "select_chat_type"}),
 )
 async def select_chat_type(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -119,7 +122,8 @@ async def select_chat_type(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "register_chat"}),
+    preferences_router,
+    filters.PLFilter({"button": "register_chat"}),
 )
 @logger.catch()
 async def register_chat(ans: SimpleBotEvent):
@@ -136,7 +140,8 @@ async def register_chat(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "index_chat"}),
+    preferences_router,
+    filters.PLFilter({"button": "index_chat"}),
 )
 @logger.catch()
 async def index_chat(ans: SimpleBotEvent):
@@ -153,7 +158,9 @@ async def index_chat(ans: SimpleBotEvent):
         diff_vk_db = vk_.difference(db_)  # есть в вк, нет в бд
         diff_db_vk = db_.difference(vk_)  # есть в бд, нет в вк
 
-        query = await api.users.get(user_ids=list(diff_vk_db),)
+        query = await api.users.get(
+            user_ids=list(diff_vk_db),
+        )
         students = [db.students.find_student(vk_id=st) for st in diff_db_vk]
 
         vk_list = [
@@ -180,7 +187,8 @@ async def index_chat(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "register_students"}),
+    preferences_router,
+    filters.PLFilter({"button": "register_students"}),
 )
 @logger.catch()
 async def register_students(ans: SimpleBotEvent):
@@ -214,7 +222,8 @@ async def register_students(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "purge_students"}),
+    preferences_router,
+    filters.PLFilter({"button": "purge_students"}),
 )
 @logger.catch()
 async def delete_students(ans: SimpleBotEvent):
