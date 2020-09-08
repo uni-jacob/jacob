@@ -25,7 +25,9 @@ class BaseModel(Model):
 
 
 class AcademicStatus(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     description = CharField()
 
     class Meta:
@@ -41,7 +43,9 @@ class AlmaMater(BaseModel):
 
 
 class Group(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     group_num = CharField()
     specialty = TextField()
     alma_mater = ForeignKeyField(
@@ -71,7 +75,9 @@ class CachedChat(BaseModel):
 
 
 class ChatType(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     description = CharField(unique=True)
 
     class Meta:
@@ -79,7 +85,9 @@ class ChatType(BaseModel):
 
 
 class Chat(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     chat_id = BigIntegerField(unique=True)
     group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
@@ -91,7 +99,9 @@ class Chat(BaseModel):
 
 
 class FinancialCategory(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     name = CharField()
     summ = IntegerField()
     group_id = ForeignKeyField(
@@ -103,7 +113,9 @@ class FinancialCategory(BaseModel):
 
 
 class Student(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     vk_id = BigIntegerField(unique=True, constraints=[Check("vk_id > 0")])
     first_name = CharField()
     second_name = CharField()
@@ -111,7 +123,9 @@ class Student(BaseModel):
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
     email = CharField(null=True)
-    phone_number = BigIntegerField(constraints=[Check("phone_number < 99999999999")])
+    phone_number = BigIntegerField(
+        null=True, constraints=[Check("phone_number < 99999999999")]
+    )
     subgroup = IntegerField(null=True)
     academic_status = ForeignKeyField(
         AcademicStatus,
@@ -126,7 +140,9 @@ class Student(BaseModel):
 
 
 class FinancialDonate(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     category = ForeignKeyField(
         FinancialCategory,
         backref="categories",
@@ -145,7 +161,9 @@ class FinancialDonate(BaseModel):
 
 
 class FinancialExpense(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     category = ForeignKeyField(
         FinancialCategory,
         backref="categories",
@@ -160,7 +178,9 @@ class FinancialExpense(BaseModel):
 
 
 class State(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     description = CharField()
 
     class Meta:
@@ -168,7 +188,9 @@ class State(BaseModel):
 
 
 class Storage(BaseModel):
-    id = AutoField(primary_key=True,)
+    id = AutoField(
+        primary_key=True,
+    )
     state_id = ForeignKeyField(
         State, backref="states", default=1, on_delete="SET DEFAULT", on_update="CASCADE"
     )
