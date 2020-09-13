@@ -29,7 +29,9 @@ def alphabet(user_id: int) -> Keyboard:
         for letter in alphabet:
             if len(kb.buttons[-1]) == 4:
                 kb.add_row()
-            kb.add_text_button(text=letter, payload={"button": "half", "value": letter})
+            kb.add_text_button(
+                text=letter, payload={"button": "letter", "value": letter}
+            )
 
     return kb
 
