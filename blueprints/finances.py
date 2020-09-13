@@ -56,7 +56,8 @@ async def fin_category_menu(ans: SimpleBotEvent):
         category_name = category_object.name
 
         await ans.answer(
-            f'Меню категории "{category_name}"', keyboard=kbs.finances.fin_category(),
+            f'Меню категории "{category_name}"',
+            keyboard=kbs.finances.fin_category(),
         )
 
 
@@ -118,7 +119,9 @@ async def select_student(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         db.admin.update_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id,),
+            db.students.get_system_id_of_student(
+                ans.object.object.message.from_id,
+            ),
             selected_students=str(payload["student_id"]),
             state_id=db.bot.get_id_of_state("enter_donate_sum"),
         )
@@ -126,7 +129,8 @@ async def select_student(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    finances_router, filters.StateFilter("enter_donate_sum"),
+    finances_router,
+    filters.StateFilter("enter_donate_sum"),
 )
 @logger.catch()
 async def save_donate(ans: SimpleBotEvent):
@@ -167,7 +171,8 @@ async def call_debtors(ans: SimpleBotEvent):
         else:
             text = ("Сообщение будет отправлено в ваш активный чат",)
         await ans.answer(
-            text, keyboard=kbs.common.prompt().get_keyboard(),
+            text,
+            keyboard=kbs.common.prompt().get_keyboard(),
         )
 
 
@@ -210,7 +215,8 @@ async def deny_call_debtors(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    finances_router, filters.PLFilter({"button": "add_expense"}),
+    finances_router,
+    filters.PLFilter({"button": "add_expense"}),
 )
 @logger.catch()
 async def add_expense(ans: SimpleBotEvent):
@@ -223,7 +229,8 @@ async def add_expense(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    finances_router, filters.StateFilter("enter_expense_summ"),
+    finances_router,
+    filters.StateFilter("enter_expense_summ"),
 )
 @logger.catch()
 async def save_expense(ans: SimpleBotEvent):
