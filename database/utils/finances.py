@@ -100,4 +100,46 @@ def add_expense(category_id, summ) -> FinancialExpense:
     Returns:
         FinancialExpense: объект расхода
     """
-    return FinancialExpense.create(category_id=category_id, summ=summ,)
+    return FinancialExpense.create(
+        category_id=category_id,
+        summ=summ,
+    )
+
+
+def calculate_donates_in_category(category_id: int) -> int:
+    """
+    Вычисляет сумму собранных в категории денег
+
+    Args:
+        category_id: идентификатор категории
+
+    Returns:
+        int: Сумма сборов
+    """
+    summ = 0
+    donates = FinancialDonate.select(FinancialDonate.summ).where(
+        FinancialDonate.category == category_id
+    )
+    for donate in donates:
+        summ += donate.summ
+
+    return summ
+
+
+def calculate_expenses_in_category(category_id: int) -> int:
+    """
+    Вычисляет сумму расходов в категории
+    Args:
+        category_id: идентификатор категории
+
+    Returns:
+        int: сумма расходов
+    """
+    summ = 0
+    donates = FinancialExpense.select(FinancialExpense.summ).where(
+        FinancialExpense.category == category_id
+    )
+    for donate in donates:
+        summ += donate.summ
+
+    return summ
