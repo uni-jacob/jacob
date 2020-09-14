@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
+from vkwave.bots import MessageFromConversationTypeFilter
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
@@ -25,7 +26,9 @@ logger.configure(**config)
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "settings"})
+    preferences_router,
+    filters.PLFilter({"button": "settings"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def open_preferences(ans: SimpleBotEvent):
@@ -41,7 +44,9 @@ async def open_preferences(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    preferences_router, filters.PLFilter({"button": "configure_chats"})
+    preferences_router,
+    filters.PLFilter({"button": "configure_chats"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def list_of_chats(ans: SimpleBotEvent):
@@ -54,7 +59,11 @@ async def list_of_chats(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(preferences_router, filters.PLFilter({"button": "chat"}))
+@simple_bot_message_handler(
+    preferences_router,
+    filters.PLFilter({"button": "chat"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def configure_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -78,6 +87,7 @@ async def configure_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "remove_chat"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def delete_chat(ans: SimpleBotEvent):
@@ -96,6 +106,7 @@ async def delete_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "reg_chat"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def show_available_chats(ans: SimpleBotEvent):
@@ -111,6 +122,7 @@ async def show_available_chats(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "select_chat_type"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 async def select_chat_type(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -126,6 +138,7 @@ async def select_chat_type(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "register_chat"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def register_chat(ans: SimpleBotEvent):
@@ -144,6 +157,7 @@ async def register_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "index_chat"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def index_chat(ans: SimpleBotEvent):
@@ -191,6 +205,7 @@ async def index_chat(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "register_students"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def register_students(ans: SimpleBotEvent):
@@ -229,6 +244,7 @@ async def register_students(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "purge_students"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def delete_students(ans: SimpleBotEvent):

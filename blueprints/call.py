@@ -5,6 +5,7 @@ import hyperjson
 from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
+from vkwave.bots import MessageFromConversationTypeFilter
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
@@ -23,7 +24,11 @@ api = api_session.get_context()
 logger.configure(**config)
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "call"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "call"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def start_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -37,7 +42,11 @@ async def start_call(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "cancel_call"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "cancel_call"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def cancel_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -51,7 +60,9 @@ async def cancel_call(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    call_router, filters.PLFilter({"button": "skip_call_message"})
+    call_router,
+    filters.PLFilter({"button": "skip_call_message"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def skip_register_call_message(ans: SimpleBotEvent):
@@ -66,7 +77,11 @@ async def skip_register_call_message(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(call_router, filters.StateFilter("wait_call_text"))
+@simple_bot_message_handler(
+    call_router,
+    filters.StateFilter("wait_call_text"),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def register_call_message(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -90,6 +105,7 @@ async def register_call_message(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "half"}) & ~filters.StateFilter("select_donater"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def select_half(ans: SimpleBotEvent):
@@ -104,6 +120,7 @@ async def select_half(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "letter"}) & ~filters.StateFilter("select_donater"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def select_letter(ans: SimpleBotEvent):
@@ -129,6 +146,7 @@ async def select_letter(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "student"}) & ~filters.StateFilter("select_donater"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def select_student(ans: SimpleBotEvent):
@@ -159,7 +177,11 @@ async def select_student(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "save_selected"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "save_selected"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def confirm_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -184,7 +206,11 @@ async def confirm_call(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(call_router, filters.PLFilter({"button": "call_all"}))
+@simple_bot_message_handler(
+    call_router,
+    filters.PLFilter({"button": "call_all"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def call_them_all(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -201,6 +227,7 @@ async def call_them_all(ans: SimpleBotEvent):
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "confirm"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def send_call(ans: SimpleBotEvent):
@@ -227,6 +254,7 @@ async def send_call(ans: SimpleBotEvent):
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "deny"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def deny_call(ans: SimpleBotEvent):
@@ -238,6 +266,7 @@ async def deny_call(ans: SimpleBotEvent):
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "names_usage"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def change_names_usage(ans: SimpleBotEvent):
@@ -252,6 +281,7 @@ async def change_names_usage(ans: SimpleBotEvent):
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "chat_config"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def change_chat(ans: SimpleBotEvent):

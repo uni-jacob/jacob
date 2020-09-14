@@ -5,6 +5,7 @@ import hyperjson
 from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
+from vkwave.bots import MessageFromConversationTypeFilter
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
@@ -21,7 +22,11 @@ api = api_session.get_context()
 logger.configure(**config)
 
 
-@simple_bot_message_handler(finances_router, filters.PLFilter({"button": "finances"}))
+@simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "finances"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def finances(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -34,7 +39,9 @@ async def finances(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    finances_router, filters.PLFilter({"button": "fin_category"})
+    finances_router,
+    filters.PLFilter({"button": "fin_category"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def fin_category_menu(ans: SimpleBotEvent):
@@ -61,7 +68,11 @@ async def fin_category_menu(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(finances_router, filters.PLFilter({"button": "add_income"}))
+@simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "add_income"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def add_income(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -80,6 +91,7 @@ async def add_income(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.PLFilter({"button": "half"}) & filters.StateFilter("select_donater"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def select_half(ans: SimpleBotEvent):
@@ -98,6 +110,7 @@ async def select_half(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.PLFilter({"button": "letter"}) & filters.StateFilter("select_donater"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 async def select_letter(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -114,6 +127,7 @@ async def select_letter(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.PLFilter({"button": "student"}) & filters.StateFilter("select_donater"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 async def select_student(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -131,6 +145,7 @@ async def select_student(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.StateFilter("enter_donate_sum"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def save_donate(ans: SimpleBotEvent):
@@ -152,7 +167,9 @@ async def save_donate(ans: SimpleBotEvent):
 
 
 @simple_bot_message_handler(
-    finances_router, filters.PLFilter({"button": "show_debtors"})
+    finances_router,
+    filters.PLFilter({"button": "show_debtors"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def call_debtors(ans: SimpleBotEvent):
@@ -180,6 +197,7 @@ async def call_debtors(ans: SimpleBotEvent):
     finances_router,
     filters.StateFilter("confirm_debtors_call"),
     filters.PLFilter({"button": "confirm"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def confirm_call_debtors(ans: SimpleBotEvent):
@@ -203,6 +221,7 @@ async def confirm_call_debtors(ans: SimpleBotEvent):
     finances_router,
     filters.StateFilter("confirm_debtors_call"),
     filters.PLFilter({"button": "deny"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def deny_call_debtors(ans: SimpleBotEvent):
@@ -217,6 +236,7 @@ async def deny_call_debtors(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.PLFilter({"button": "add_expense"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def add_expense(ans: SimpleBotEvent):
@@ -231,6 +251,7 @@ async def add_expense(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.StateFilter("enter_expense_summ"),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def save_expense(ans: SimpleBotEvent):
@@ -249,7 +270,11 @@ async def save_expense(ans: SimpleBotEvent):
             await ans.answer("Введите только число")
 
 
-@simple_bot_message_handler(finances_router, filters.PLFilter({"button": "show_stats"}))
+@simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "show_stats"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
 @logger.catch()
 async def get_statistics(ans: SimpleBotEvent):
     store = db.admin.get_admin_storage(
