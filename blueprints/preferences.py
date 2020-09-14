@@ -235,7 +235,10 @@ async def delete_students(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         query = 0
-        for st in payload["students"]:
+        raw_html = requests.get(payload["students"])
+        soup = BeautifulSoup(raw_html.text, "html.parser")
+        students_ids = list(map(int, soup.find_all("pre")[1].text.split(",")))
+        for st in students_ids:
             query += Student.delete().where(Student.vk_id == st).execute()
         await ans.answer(
             f"{query} студент(ов) удалено",
