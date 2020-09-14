@@ -40,6 +40,7 @@ urllib3 = "*"
 yarl = "*"
 vkwave = "*"
 typing-extensions = "*"
+beautifulsoup4 = "*"
 
 [requires]
 python_version = "3.8"
