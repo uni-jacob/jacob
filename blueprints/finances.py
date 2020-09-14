@@ -252,4 +252,11 @@ async def save_expense(ans: SimpleBotEvent):
 @simple_bot_message_handler(finances_router, filters.PLFilter({"button": "show_stats"}))
 @logger.catch()
 async def get_statistics(ans: SimpleBotEvent):
-    await ans.answer("Статистика")
+    store = db.admin.get_admin_storage(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
+    donates_summ = db.finances.calculate_donates_in_category(store.category_id)
+    expenses_summ = db.finances.calculate_expenses_in_category(store.category_id)
+    await ans.answer(
+        f"Статистика\nСобрано: {donates_summ} руб.\nПотрачено: {expenses_summ} руб."
+    )
