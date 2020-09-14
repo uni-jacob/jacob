@@ -247,3 +247,9 @@ async def save_expense(ans: SimpleBotEvent):
             await ans.answer("Расход сохранен", keyboard=kbs.finances.fin_category())
         else:
             await ans.answer("Введите только число")
+
+
+@simple_bot_message_handler(finances_router, filters.PLFilter({"button": "show_stats"}))
+@logger.catch()
+async def get_statistics(ans: SimpleBotEvent):
+    await ans.answer("Статистика")
