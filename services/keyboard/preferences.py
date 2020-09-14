@@ -1,6 +1,7 @@
 import os
 import typing as t
 
+import requests
 from vkwave.api import API
 from vkwave.api.methods._error import APIError
 from vkwave.bots import Keyboard
@@ -104,24 +105,40 @@ def index_chat(
     """
     kb = Keyboard()
     if vk_students:
+        query = requests.post(
+            "https://dpaste.com/api/v2/",
+            data={
+                "content": ",".join(map(str, vk_students)),
+                "syntax": {"text": "Plain " "text"},
+            },
+        )
+        link = query.text.strip("\n")
         kb.add_text_button(
             "➕ Зарегистрировать студентов",
             payload={
                 "button": "register_students",
                 "group": group_id,
                 "chat_type": chat_type,
-                "students": vk_students,
+                "students": link,
             },
         )
         kb.add_row()
     if db_students:
+        query = requests.post(
+            "https://dpaste.com/api/v2/",
+            data={
+                "content": ",".join(map(str, db_students)),
+                "syntax": {"text": "Plain text"},
+            },
+        )
+        link = query.text.strip("\n")
         kb.add_text_button(
             "➖ Удалить студентов",
             payload={
                 "button": "purge_students",
                 "group": group_id,
                 "chat_type": chat_type,
-                "students": db_students,
+                "students": link,
             },
         )
         kb.add_row()
