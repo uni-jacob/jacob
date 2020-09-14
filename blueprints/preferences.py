@@ -1,6 +1,8 @@
 import os
 
 import hyperjson
+import requests
+from bs4 import BeautifulSoup
 from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
@@ -195,7 +197,10 @@ async def register_students(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         data = []
-        students = await api.users.get(user_ids=payload["students"])
+        raw_html = requests.get(payload["students"])
+        soup = BeautifulSoup(raw_html.text, "html.parser")
+        students_ids = list(map(int, soup.find_all("pre")[1].text.split(",")))
+        students = await api.users.get(user_ids=students_ids)
         student_last_id = Student.select().order_by(Student.id.desc()).get().id
         for student in students.response:
             student_last_id += 1
