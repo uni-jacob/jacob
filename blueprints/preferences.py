@@ -15,6 +15,7 @@ from database import utils as db
 from database.models import Student
 from services import filters
 from services import keyboard as kbs
+from services.chats import get_confirm_message
 from services.chats import prepare_set_from_db
 from services.chats import prepare_set_from_vk
 from services.logger.config import config
@@ -109,19 +110,21 @@ async def delete_chat(ans: SimpleBotEvent):
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def show_available_chats(ans: SimpleBotEvent):
+async def generate_confirm_message(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
+        confirm_message = get_confirm_message()
+        db.admin.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            confirm_message=confirm_message,
+        )
         await ans.answer(
-            "Выберите чат",
-            keyboard=await kbs.preferences.cached_chats(
-                ans.object.object.message.from_id
-            ),
+            f'Отправьте сообщение с кодовой фразой "{confirm_message}" в чат, который нужно зарегистрировать',
         )
 
 
 @simple_bot_message_handler(
     preferences_router,
-    filters.PLFilter({"button": "select_chat_type"}),
+    filters.StateFilter("wait_for_message_from_chat"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 async def select_chat_type(ans: SimpleBotEvent):
