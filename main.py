@@ -2,6 +2,7 @@ import logging
 import os
 
 from loguru import logger
+from vkwave.bots import MessageFromConversationTypeFilter
 from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
@@ -30,7 +31,8 @@ logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
 
 @bot.message_handler(
     TextFilter(["старт", "начать", "start", "привет", "hi", "hello"])
-    | PLFilter({"button": "main_menu"})
+    | PLFilter({"button": "main_menu"}),
+    MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 async def start(ans: SimpleBotEvent):
