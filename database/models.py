@@ -206,6 +206,7 @@ class Storage(BaseModel):
     text = TextField(default="")
     attaches = TextField(default="")
     category_id = IntegerField(null=True)
+    confirm_message = TextField(null=True)
 
     class Meta:
         table_name = "storages"
