@@ -124,18 +124,27 @@ async def generate_confirm_message(ans: SimpleBotEvent):
 
 @simple_bot_message_handler(
     preferences_router,
-    filters.StateFilter("wait_for_message_from_chat"),
-    MessageFromConversationTypeFilter("from_pm"),
+    MessageFromConversationTypeFilter("from_chat"),
 )
+@logger.catch()
 async def select_chat_type(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
-        await ans.answer(
-            "Выберите тип чата",
-            keyboard=kbs.preferences.available_chat_types(
-                ans.object.object.message.from_id, payload["chat"]
-            ),
+        store = db.admin.get_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
         )
+        if (
+            store.confirm_message == ans.object.object.message.text
+            and ans.object.object.message.from_id
+            == db.students.find_student(id=store.id).vk_id
+        ):
+            await api.messages.send(
+                message="Выберите тип чата",
+                user_id=ans.object.object.message.from_id,
+                random_id=0,
+                keyboard=kbs.preferences.available_chat_types(
+                    ans.object.object.message.from_id, ans.object.object.message.peer_id
+                ),
+            )
 
 
 @simple_bot_message_handler(
