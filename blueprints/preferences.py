@@ -134,7 +134,7 @@ async def select_chat_type(ans: SimpleBotEvent):
             db.students.get_system_id_of_student(ans.object.object.message.from_id)
         )
         if (
-            store.confirm_message == ans.object.object.message.text
+            store.confirm_message in ans.object.object.message.text
             and ans.object.object.message.from_id
             == db.students.find_student(id=store.id).vk_id
         ):
@@ -169,7 +169,7 @@ async def register_chat(ans: SimpleBotEvent):
         except IndexError:
             chat_name = "???"
         await ans.answer(
-            "Чат зарегистрирован",
+            f'Чат "{chat_name}" зарегистрирован',
             keyboard=await kbs.preferences.connected_chats(
                 ans.object.object.message.from_id
             ),
