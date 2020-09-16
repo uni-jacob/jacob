@@ -10,7 +10,6 @@ from vkwave.bots import SimpleBotEvent
 from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
-from database import utils as db
 from services.logger.config import config
 from services.media import translate_string
 
@@ -28,7 +27,6 @@ logger.configure(**config)
 @logger.catch()
 async def greeting(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.chats.get_or_create_cached_chat(ans.object.object.message.peer_id)
         await ans.answer("Привет!")
 
 
