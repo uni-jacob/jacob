@@ -119,7 +119,21 @@ async def generate_confirm_message(ans: SimpleBotEvent):
         )
         await ans.answer(
             f'Отправьте сообщение с кодовой фразой "{confirm_message}" в чат, который нужно зарегистрировать',
+            keyboard=kbs.common.cancel(),
         )
+
+
+@simple_bot_message_handler(
+    preferences_router,
+    filters.PLFilter({"button": "cancel"}),
+    filters.StateFilter("confirm_chat_register"),
+)
+@logger.catch()
+async def generate_confirm_message(ans: SimpleBotEvent):
+    db.admin.clear_admin_storage(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
+    await ans.answer("Регистрация чата отменена")
 
 
 @simple_bot_message_handler(
