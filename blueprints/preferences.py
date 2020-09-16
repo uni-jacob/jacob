@@ -95,7 +95,6 @@ async def delete_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         db.chats.delete_chat(payload["chat"])
-        db.chats.get_or_create_cached_chat(payload["chat"])
         await ans.answer(
             "Чат удален",
             keyboard=await kbs.preferences.connected_chats(
