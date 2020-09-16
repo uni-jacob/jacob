@@ -58,7 +58,7 @@ async def connected_chats(vk_id: int) -> JSONStr:
         )
     if kb.buttons[-1]:
         kb.add_row()
-    if len(chats) < 2 and db.chats.get_cached_chats():
+    if len(chats) < 2:
         # TODO: добавить привязку к типам чатов из БД вместо числа
         kb.add_text_button("➕ Зарегистрировать чат", payload={"button": "reg_chat"})
         kb.add_row()
