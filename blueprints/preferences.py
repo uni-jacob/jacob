@@ -161,6 +161,13 @@ async def register_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         db.chats.register_chat(payload["chat"], payload["chat_type"], payload["group"])
+        try:
+            chat_object = await api.messages.get_conversations_by_id(
+                peer_ids=payload["chat"]
+            )
+            chat_name = chat_object.response.items[0].chat_settings.title
+        except IndexError:
+            chat_name = "???"
         await ans.answer(
             "Чат зарегистрирован",
             keyboard=await kbs.preferences.connected_chats(
