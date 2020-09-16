@@ -115,6 +115,7 @@ async def generate_confirm_message(ans: SimpleBotEvent):
         confirm_message = get_confirm_message()
         db.admin.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("confirm_chat_register"),
             confirm_message=confirm_message,
         )
         await ans.answer(
@@ -124,6 +125,7 @@ async def generate_confirm_message(ans: SimpleBotEvent):
 
 @simple_bot_message_handler(
     preferences_router,
+    filters.StateFilter("confirm_chat_register"),
     MessageFromConversationTypeFilter("from_chat"),
 )
 @logger.catch()
@@ -137,6 +139,9 @@ async def select_chat_type(ans: SimpleBotEvent):
             and ans.object.object.message.from_id
             == db.students.find_student(id=store.id).vk_id
         ):
+            db.admin.clear_admin_storage(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            )
             await api.messages.send(
                 message="Выберите тип чата",
                 user_id=ans.object.object.message.from_id,
