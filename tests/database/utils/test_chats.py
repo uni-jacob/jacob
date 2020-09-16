@@ -4,7 +4,6 @@ from database.utils import chats
 
 
 class TestChats:
-
     def test_is_chat_registered(self):
 
         test_user_id = 549350532
