@@ -161,7 +161,6 @@ async def register_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         db.chats.register_chat(payload["chat"], payload["chat_type"], payload["group"])
-        db.chats.delete_cached_chat(payload["chat"])
         await ans.answer(
             "Чат зарегистрирован",
             keyboard=await kbs.preferences.connected_chats(
