@@ -3,13 +3,11 @@ import typing as t
 
 import requests
 from vkwave.api import API
-from vkwave.api.methods._error import APIError
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 from database.models import ChatType
-from services.exceptions import BotIsNotAChatAdministrator
 
 JSONStr = str
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -146,41 +144,6 @@ def index_chat(
         "◀️ Назад",
         payload={"button": "chat", "group": group_id, "chat_type": chat_type},
     )
-    return kb.get_keyboard()
-
-
-async def cached_chats(user_id: int):
-    kb = Keyboard()
-    chats = db.chats.get_cached_chats()
-    for chat in chats:
-        chat_object = await api.messages.get_conversations_by_id(peer_ids=chat.chat_id)
-        try:
-            # TODO: Что делать, когда бот не администратор чата?
-            #   Валится всегда, если есть чат, в котором бот не админ, даже если этот
-            #   чат не касается текущего пользователя
-            chat_members_request = await api.messages.get_conversation_members(
-                peer_id=chat.chat_id
-            )
-        except APIError:
-            raise BotIsNotAChatAdministrator(
-                "Бот не является администратором в указанном чате"
-            )
-        chat_members = [
-            member.member_id for member in chat_members_request.response.items
-        ]
-        try:
-            chat_title = chat_object.response.items[0].chat_settings.title
-        except (IndexError, AttributeError):
-            chat_title = "???"
-        if len(kb.buttons[-1]) == 2:
-            kb.add_row()
-        if user_id in chat_members:
-            kb.add_text_button(
-                chat_title, payload={"button": "select_chat_type", "chat": chat.chat_id}
-            )
-    if kb.buttons[-1]:
-        kb.add_row()
-    kb.add_text_button("◀️ Назад", payload={"button": "configure_chats"})
     return kb.get_keyboard()
 
 
