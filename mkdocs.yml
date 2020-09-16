@@ -47,6 +47,7 @@ nav:
   - Главная: index.md
   - Возможности:
       - Призыв: functions/call.md
+      - Финансы: functions/finances.md
       - Настройки: functions/settings.md
   - Настройка:
       - Создание группы: configure/mkgroup.md
