@@ -1,23 +1,10 @@
 import typing as t
 
-from database.models import CachedChat
 from database.models import Chat
 from database.models import ChatType
 from database.utils import admin
 from database.utils import shortcuts
 from database.utils import students
-
-
-def get_or_create_cached_chat(chat_id: int) -> CachedChat:
-    """
-    Возвращает кешированный чат (уже существовавщий или свжесозданный)
-    Args:
-        chat_id: идентификатор чата ВК
-
-    Returns:
-        CachedChat: объект кешированного чата
-    """
-    return CachedChat.get_or_create(chat_id=chat_id)[0]
 
 
 def get_list_of_chats_by_group(vk_id: int) -> t.Optional[t.List[Chat]]:
@@ -31,17 +18,6 @@ def get_list_of_chats_by_group(vk_id: int) -> t.Optional[t.List[Chat]]:
     """
     admin_group = admin.get_admin_feud(students.get_system_id_of_student(vk_id))
     query = Chat.select().where(Chat.group_id == admin_group)
-    return shortcuts.generate_list(query)
-
-
-def get_cached_chats() -> t.List[CachedChat]:
-    """
-    Возвращает список кешированных чатов
-
-    Returns:
-        list[CachedChat]: список всех чатов, находящихся в кеше
-    """
-    query = CachedChat.select()
     return shortcuts.generate_list(query)
 
 
@@ -122,15 +98,3 @@ def register_chat(chat_id: int, chat_type: int, group: int) -> Chat:
         Chat: объект чата
     """
     return Chat.create(chat_id=chat_id, chat_type=chat_type, group_id=group)
-
-
-def delete_cached_chat(chat_id):
-    """
-        удаляет чат из кеша
-
-        Args:
-            chat_id: идентфикатор чата
-        Returns:
-            int: количество удаленных записей
-        """
-    return CachedChat.delete().where(CachedChat.chat_id == chat_id).execute()
