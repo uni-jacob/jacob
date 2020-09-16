@@ -66,14 +66,6 @@ class Administrator(BaseModel):
         table_name = "administrators"
 
 
-class CachedChat(BaseModel):
-    id = AutoField(primary_key=True)
-    chat_id = IntegerField(unique=True)
-
-    class Meta:
-        table_name = "cached_chats"
-
-
 class ChatType(BaseModel):
     id = AutoField(
         primary_key=True,
