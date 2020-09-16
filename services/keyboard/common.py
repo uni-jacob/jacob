@@ -52,3 +52,15 @@ def empty() -> JSONStr:
     kb = Keyboard()
 
     return kb.get_empty_keyboard()
+
+
+def cancel():
+    """
+    Генерирует клавиатуру для отмены действия
+
+    Returns:
+        JSONStr: клавиатура
+    """
+    kb = Keyboard()
+
+    return kb.get_keyboard()
