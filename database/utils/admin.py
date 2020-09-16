@@ -78,5 +78,10 @@ def clear_admin_storage(admin_id: int) -> Storage:
         Storage: объект хранилища
     """
     return update_admin_storage(
-        admin_id, state_id=1, selected_students="", text="", attaches="",
+        admin_id,
+        state_id=1,
+        selected_students="",
+        text="",
+        attaches="",
+        confirm_message="",
     )
