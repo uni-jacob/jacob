@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c76ce0af708eee39ff07b34872954bda8f862384ae57348f686daf0c48e86e1e"
+            "sha256": "401c973c2ebe34f7874e772f232cc765ad0387618bed36360eb3cd8acec25ef2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -298,11 +298,10 @@
             "version": "==1.25.10"
         },
         "vkwave": {
+            "file": "https://github.com/fscdev/vkwave/archive/master.zip",
             "hashes": [
-                "sha256:6982543253010ba10acec5712ab4dd84f1a59d880e137f2b62bb08c77e2b537e",
-                "sha256:71e498c564da871fc20aab9f2083c53ec23271ebbc3183f4da8ebe7f694463a6"
+                "sha256:56cd005c34b03c5f78599dbf0638e8e76e1a22f8db46665f289f9dc3e3412767"
             ],
-            "index": "pypi",
             "version": "==0.2.8"
         },
         "yarl": {

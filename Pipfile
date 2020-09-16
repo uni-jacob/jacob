@@ -38,9 +38,9 @@ requests = "*"
 six = "*"
 urllib3 = "*"
 yarl = "*"
-vkwave = "*"
 typing-extensions = "*"
 beautifulsoup4 = "*"
+vkwave = {file = "https://github.com/fscdev/vkwave/archive/master.zip"}
 
 [requires]
 python_version = "3.8"
