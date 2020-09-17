@@ -22,7 +22,6 @@ logger.configure(**config)
 @simple_bot_message_handler(
     chats_router,
     ChatActionFilter("chat_invite_user"),
-    MessageFromConversationTypeFilter("from_chat"),
 )
 @logger.catch()
 async def greeting(ans: SimpleBotEvent):
