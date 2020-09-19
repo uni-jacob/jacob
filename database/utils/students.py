@@ -1,8 +1,9 @@
+import typing as t
+
 from database.models import Student
 from database.utils import admin
 from database.utils import shortcuts
 from services.exceptions import StudentNotFound
-import typing as t
 
 
 def get_system_id_of_student(vk_id: int) -> int:
@@ -42,17 +43,17 @@ def get_active_students(group_id: int) -> list:
     raise StudentNotFound(f"В группе {group_id} нет активных студентов")
 
 
-def get_unique_second_name_letters_in_a_group(vk_id: int) -> list:
+def get_unique_second_name_letters_in_a_group(admin_id: int) -> list:
     """
-    Возвращает список первых букв фамилий в группе, в которой vk_id является
+    Возвращает список первых букв фамилий в группе, в которой admin_id является
     администратором
     Args:
-        vk_id: Идентификатор пользователя
+        admin_id: Идентификатор пользователя
 
     Returns:
         list: список первых букв фамилий
     """
-    admin_group = admin.get_admin_feud(get_system_id_of_student(vk_id))
+    admin_group = admin.get_admin_feud(admin_id)
     query = (
         Student.select(Student.second_name)
         .where(Student.group_id == admin_group)
@@ -64,18 +65,18 @@ def get_unique_second_name_letters_in_a_group(vk_id: int) -> list:
         return list(dict.fromkeys(snd_names))
 
 
-def get_list_of_students_by_letter(letter: str, vk_id: int) -> t.List[Student]:
+def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student]:
     """
     Возвращает объекты студентов группы, в которой vk_id администратор, фамилии
     которых начинаются на letter
     Args:
         letter: первая буква фамилий
-        vk_id: идентификатор пользователся
+        admin_id: идентификатор пользователся
 
     Returns:
         list[Student]: список студентов
     """
-    admin_group = admin.get_admin_feud(get_system_id_of_student(vk_id))
+    admin_group = admin.get_admin_feud(admin_id)
     query = (
         Student.select()
         .where(

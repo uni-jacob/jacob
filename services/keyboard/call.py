@@ -21,17 +21,17 @@ def skip_call_message() -> JSONStr:
     return kb.get_keyboard()
 
 
-def call_interface(user_id: int) -> JSONStr:
+def call_interface(admin_id: int) -> JSONStr:
     """
     Генерирует клавиатуру для выбора призываемых
 
     Args:
-        user_id: Идентификатор пользователя
+        admin_id: Идентификатор пользователя
 
     Returns:
         JSONStr: Строка с клавиатурой
     """
-    kb = kbs.common.alphabet(user_id)
+    kb = kbs.common.alphabet(admin_id)
     if len(kb.buttons[-1]):
         kb.add_row()
     kb.add_text_button(text="✅ Сохранить", payload={"button": "save_selected"})
@@ -73,23 +73,21 @@ def list_of_letters(
 
 
 def list_of_students(
-    letter: str, user_id: int, letters: t.Optional[t.List[str]] = None
+    letter: str, admin_id: int, letters: t.Optional[t.List[str]] = None
 ) -> JSONStr:
     """
     Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
     Args:
         letter: Первая буква фамилий
-        user_id: Идентификатор пользователя
+        admin_id: Идентификатор пользователя
         letters: Список букв (передается когда существует подменю из диапазонов букв,
             используется для возврата назад)
 
     Returns:
         JSONStr: Строка с клавиатурой
     """
-    data = db.students.get_list_of_students_by_letter(letter, user_id)
-    selected = db.shortcuts.get_list_of_calling_students(
-        db.students.get_system_id_of_student(user_id)
-    )
+    data = db.students.get_list_of_students_by_letter(letter, admin_id)
+    selected = db.shortcuts.get_list_of_calling_students(admin_id)
     kb = Keyboard()
     for item in data:
         if len(kb.buttons[-1]) == 2:
@@ -138,9 +136,11 @@ def call_prompt(admin_id: int) -> JSONStr:
     else:
         chat_emoji = "🛠"
     kb.add_text_button(
-        text=f"{names_emoji} Использовать имена", payload={"button": "names_usage"},
+        text=f"{names_emoji} Использовать имена",
+        payload={"button": "names_usage"},
     )
     kb.add_text_button(
-        text=f"{chat_emoji} Переключить чат", payload={"button": "chat_config"},
+        text=f"{chat_emoji} Переключить чат",
+        payload={"button": "chat_config"},
     )
     return kb.get_keyboard()

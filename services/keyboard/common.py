@@ -5,20 +5,18 @@ from database import utils as db
 JSONStr = str
 
 
-def alphabet(user_id: int) -> Keyboard:
+def alphabet(admin_id: int) -> Keyboard:
     """
     Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов
 
     Args:
-        user_id: Идентификатор администратора
+        admin_id: Идентификатор администратора
 
     Returns:
         Keyboard: Фрагмент клавиатуры
-    TODO:
-        Вытащить вычисление алфавита в бота, ради переиспользуемости функции
     """
     kb = Keyboard()
-    alphabet = db.students.get_unique_second_name_letters_in_a_group(user_id)
+    alphabet = db.students.get_unique_second_name_letters_in_a_group(admin_id)
     if len(alphabet) > 15:
         half_len = len(alphabet) // 2
         f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
