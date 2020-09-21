@@ -137,7 +137,11 @@ async def select_letter(ans: SimpleBotEvent):
             await ans.answer(
                 f"Список студентов на букву {letter}",
                 keyboard=kbs.call.list_of_students(
-                    letter, ans.object.object.message.peer_id, payload["letters"]
+                    letter,
+                    db.students.get_system_id_of_student(
+                        ans.object.object.message.peer_id
+                    ),
+                    payload["letters"],
                 ),
             )
         else:
