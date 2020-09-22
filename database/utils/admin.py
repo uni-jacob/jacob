@@ -3,6 +3,7 @@ from loguru import logger
 from database.models import Administrator
 from database.models import Group
 from database.models import Storage
+from services.exceptions import UserIsNotAnAdministrator
 from services.logger.config import config
 
 logger.configure(**config)
@@ -16,11 +17,16 @@ def is_user_admin(admin_id: int) -> bool:
 
     Returns:
         bool: статус администрирования студента
+
+    Raises:
+        UserIsNotAnAdministrator: когда пользователь не является администратором
     """
     admin = Administrator.get_or_none(id=admin_id)
     if admin is not None:
         return True
-    return False
+    raise UserIsNotAnAdministrator(
+        f"Пользователь с id {admin_id} не является администратором"
+    )
 
 
 def get_admin_feud(admin_id: int) -> Group:
