@@ -1,17 +1,13 @@
-import os
 import typing as t
 
 import requests
-from vkwave.api import API
 from vkwave.bots import Keyboard
-from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 from database.models import ChatType
+from services.keyboard import common
 
 JSONStr = str
-api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
-api = api_session.get_context()
 
 
 def preferences() -> JSONStr:
@@ -36,24 +32,8 @@ async def connected_chats(vk_id: int) -> JSONStr:
     Returns:
         JSONStr: клавиатура
     """
-    kb = Keyboard()
+    kb = await common.list_of_chats(vk_id)
     chats = db.chats.get_list_of_chats_by_group(vk_id)
-    for chat in chats:
-        chat_object = await api.messages.get_conversations_by_id(
-            peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
-        )
-        try:
-            chat_title = chat_object.response.items[0].chat_settings.title
-        except (AttributeError, IndexError):
-            chat_title = "???"
-        kb.add_text_button(
-            chat_title,
-            payload={
-                "button": "chat",
-                "group": chat.group_id.id,
-                "chat_type": chat.chat_type.id,
-            },
-        )
     if kb.buttons[-1]:
         kb.add_row()
     if len(chats) < len(db.chats.get_chat_types()):

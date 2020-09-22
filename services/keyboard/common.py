@@ -1,8 +1,14 @@
+import os
+
+from vkwave.api import API
 from vkwave.bots import Keyboard
+from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 
 JSONStr = str
+api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
+api = api_session.get_context()
 
 
 def alphabet(admin_id: int) -> Keyboard:
@@ -31,6 +37,39 @@ def alphabet(admin_id: int) -> Keyboard:
                 text=letter, payload={"button": "letter", "value": letter}
             )
 
+    return kb
+
+
+async def list_of_chats(vk_id: int):
+    """
+    Генерирует фрагмент клавиатуры со списком подключенных чатов
+    Args:
+        vk_id: идентификатор пользователя
+        (TODO: Вытащить вычисление admin_id на самый верх)
+
+    Returns:
+        Keyboard: Фрагмент клавиатуры
+    """
+
+    kb = Keyboard()
+
+    chats = db.chats.get_list_of_chats_by_group(vk_id)
+    for chat in chats:
+        chat_object = await api.messages.get_conversations_by_id(
+            peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
+        )
+        try:
+            chat_title = chat_object.response.items[0].chat_settings.title
+        except (AttributeError, IndexError):
+            chat_title = "???"
+        kb.add_text_button(
+            chat_title,
+            payload={
+                "button": "chat",
+                "group": chat.group_id.id,
+                "chat_type": chat.chat_type.id,
+            },
+        )
     return kb
 
 
