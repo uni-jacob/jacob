@@ -112,7 +112,7 @@ async def delete_chat(ans: SimpleBotEvent):
 async def generate_confirm_message(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         confirm_message = get_confirm_message()
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("confirm_chat_register"),
             confirm_message=confirm_message,
@@ -130,7 +130,7 @@ async def generate_confirm_message(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def generate_confirm_message(ans: SimpleBotEvent):
-    db.admin.clear_admin_storage(
+    db.shortcuts.clear_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id)
     )
     await ans.answer("Регистрация чата отменена")
@@ -152,7 +152,7 @@ async def select_chat_type(ans: SimpleBotEvent):
             and ans.object.object.message.from_id
             == db.students.find_student(id=store.id).vk_id
         ):
-            db.admin.clear_admin_storage(
+            db.shortcuts.clear_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
             )
             await api.messages.send(

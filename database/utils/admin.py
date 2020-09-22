@@ -49,38 +49,3 @@ def get_admin_storage(admin_id: int) -> Storage:
     """
     if is_user_admin(admin_id):
         return Storage.get_or_create(id=admin_id)[0]
-
-
-def update_admin_storage(admin_id: int, **kwargs) -> Storage:
-    """
-    Обновляет хранилище администратора и возвращает объект хранилища
-    Args:
-        admin_id: идентификатор администратора
-        **kwargs: поля для обновления
-
-    Returns:
-        Storage: объект хранилища
-    """
-    store = get_admin_storage(admin_id).update(**kwargs)
-    store.execute()
-    logger.debug(f"Хранилище id{admin_id} обновлено с {kwargs}")
-    return store
-
-
-def clear_admin_storage(admin_id: int) -> Storage:
-    """
-    Очищает хранилище администратора
-    Args:
-        admin_id: идентификатор администратора
-
-    Returns:
-        Storage: объект хранилища
-    """
-    return update_admin_storage(
-        admin_id,
-        state_id=1,
-        selected_students="",
-        text="",
-        attaches="",
-        confirm_message="",
-    )

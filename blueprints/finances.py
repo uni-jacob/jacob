@@ -47,7 +47,7 @@ async def finances(ans: SimpleBotEvent):
 async def fin_category_menu(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             category_id=payload.get("category"),
         )
@@ -76,7 +76,7 @@ async def fin_category_menu(ans: SimpleBotEvent):
 @logger.catch()
 async def add_income(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("select_donater"),
         )
@@ -132,7 +132,7 @@ async def select_letter(ans: SimpleBotEvent):
 async def select_student(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(
                 ans.object.object.message.from_id,
             ),
@@ -158,7 +158,7 @@ async def save_donate(ans: SimpleBotEvent):
             db.finances.add_or_edit_donate(
                 store.category_id, int(store.selected_students), int(text)
             )
-            db.admin.clear_admin_storage(
+            db.shortcuts.clear_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
             )
             await ans.answer("Доход сохранен", keyboard=kbs.finances.fin_category())
@@ -177,7 +177,7 @@ async def call_debtors(ans: SimpleBotEvent):
         msgs = generate_debtors_call(
             db.students.get_system_id_of_student(ans.object.object.message.from_id)
         )
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("confirm_debtors_call"),
         )
@@ -208,7 +208,7 @@ async def confirm_call_debtors(ans: SimpleBotEvent):
         chat = db.shortcuts.get_active_chat(
             db.students.get_system_id_of_student(ans.object.object.message.from_id)
         ).chat_id
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("main"),
         )
@@ -226,7 +226,7 @@ async def confirm_call_debtors(ans: SimpleBotEvent):
 @logger.catch()
 async def deny_call_debtors(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("main"),
         )
@@ -241,7 +241,7 @@ async def deny_call_debtors(ans: SimpleBotEvent):
 @logger.catch()
 async def add_expense(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("enter_expense_summ"),
         )
@@ -262,7 +262,7 @@ async def save_expense(ans: SimpleBotEvent):
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
             )
             db.finances.add_expense(store.category_id, int(text))
-            db.admin.clear_admin_storage(
+            db.shortcuts.clear_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
             )
             await ans.answer("Расход сохранен", keyboard=kbs.finances.fin_category())

@@ -32,7 +32,7 @@ logger.configure(**config)
 @logger.catch()
 async def start_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             state_id=db.bot.get_id_of_state("wait_call_text"),
         )
@@ -50,7 +50,7 @@ async def start_call(ans: SimpleBotEvent):
 @logger.catch()
 async def cancel_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.admin.clear_admin_storage(
+        db.shortcuts.clear_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id)
         )
         await ans.answer(
@@ -69,7 +69,7 @@ async def cancel_call(ans: SimpleBotEvent):
 @logger.catch()
 async def skip_register_call_message(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             state_id=db.bot.get_id_of_state("main"),
         )
@@ -94,7 +94,7 @@ async def register_call_message(ans: SimpleBotEvent):
             attachments = await media.load_attachments(
                 api, raw_attachments, ans.object.object.message.peer_id
             )
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             state_id=db.bot.get_id_of_state("main"),
             text=ans.object.object.message.text,
@@ -207,7 +207,7 @@ async def confirm_call(ans: SimpleBotEvent):
         chat_type = store.current_chat.description.lower()
         if not msg and not store.attaches:
             raise EmptyCallMessage("Сообщение призыва не может быть пустым")
-        db.admin.update_admin_storage(
+        db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             state_id=db.bot.get_id_of_state("confirm_call"),
         )
@@ -257,7 +257,7 @@ async def send_call(ans: SimpleBotEvent):
             random_id=random.getrandbits(64),
             attachment=store.attaches or "",
         )
-        db.admin.clear_admin_storage(admin_id)
+        db.shortcuts.clear_admin_storage(admin_id)
         await ans.answer(
             "Сообщение отправлено",
             keyboard=kbs.main.main_menu(admin_id),
