@@ -1,5 +1,4 @@
 from loguru import logger
-from playhouse import shortcuts
 
 from database.models import Administrator
 from database.models import Group
@@ -62,9 +61,10 @@ def update_admin_storage(admin_id: int, **kwargs) -> Storage:
     Returns:
         Storage: объект хранилища
     """
-    a_id = shortcuts.update_model_from_dict(get_admin_storage(admin_id), kwargs).save()
+    store = get_admin_storage(admin_id).update(**kwargs)
+    store.execute()
     logger.debug(f"Хранилище id{admin_id} обновлено с {kwargs}")
-    return get_admin_storage(a_id)
+    return store
 
 
 def clear_admin_storage(admin_id: int) -> Storage:
