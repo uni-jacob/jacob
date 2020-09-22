@@ -2,6 +2,7 @@ import typing as t
 
 from database import utils as db
 from database.models import FinancialCategory
+from database.models import FinancialDonate
 from database.models import Student
 
 
@@ -19,7 +20,9 @@ def generate_debtors_call(admin_id: int) -> t.List[str]:
     category = FinancialCategory.get_by_id(store.category_id)
     messages = [""]
     for debtor_id in debtors:
-        if donate := db.finances.find_donate(store.category_id, debtor_id):
+        if donate := FinancialDonate.get_or_none(
+            category=category.id, student=debtor_id
+        ):
             summ = category.summ - donate.summ
         else:
             summ = category.summ

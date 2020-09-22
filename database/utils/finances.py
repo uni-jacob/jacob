@@ -23,23 +23,7 @@ def get_list_of_fin_categories(group_id: int) -> t.List[FinancialCategory]:
     return db.shortcuts.generate_list(query)
 
 
-def find_donate(category_id: int, student_id: int) -> t.Optional[FinancialDonate]:
-    """
-    Ищет существующий доход
-
-    Args:
-        category_id: идентификатор категории
-        student_id: идентификатор студента
-
-    Returns:
-        FinancialDonate or None: объект дохода
-    """
-    return FinancialDonate.get_or_none(
-        FinancialDonate.category == category_id, FinancialDonate.student == student_id
-    )
-
-
-def add_or_edit_donate(category_id: int, student_id: int, summ: int):
+def add_or_edit_donate(category_id: int, student_id: int, summ: int) -> FinancialDonate:
     """
     Создает новый доход или редактирует существующий
 
@@ -48,8 +32,10 @@ def add_or_edit_donate(category_id: int, student_id: int, summ: int):
         student_id: Источник дохода (идентификатор студента)
         summ: Сумма дохода
     """
-    if donate := find_donate(category_id, student_id):
-        donate.update(summ=donate.summ + summ, update_date=fn.NOW()).execute()
+    if donate := FinancialDonate.get_or_none(category=category_id, student=student_id):
+        donate_object = donate.update(summ=donate.summ + summ, update_date=fn.NOW())
+        donate_object.execute()
+        return donate_object
     else:
         return FinancialDonate.create(
             category_id=category_id, student_id=student_id, summ=summ, update_date=None
@@ -59,6 +45,7 @@ def add_or_edit_donate(category_id: int, student_id: int, summ: int):
 def get_debtors(category_id: int) -> t.List[int]:
     """
     Ищет должников (не сдавших деньги на категорию вообще или не всю сумму)
+
     Args:
         category_id: идентификатор категории
 
@@ -70,7 +57,7 @@ def get_debtors(category_id: int) -> t.List[int]:
     students = get_active_students(category.group_id)
     debtors = []
     for student in students:
-        donate = find_donate(category_id, student.id)
+        donate = FinancialDonate.get_or_none(category=category_id, student=student.id)
         if donate is None or donate.summ < category.summ:
             debtors.append(student.id)
 
@@ -117,6 +104,7 @@ def calculate_donates_in_category(category_id: int) -> int:
 def calculate_expenses_in_category(category_id: int) -> int:
     """
     Вычисляет сумму расходов в категории
+
     Args:
         category_id: идентификатор категории
 

@@ -10,6 +10,7 @@ from database.utils import students
 def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
     """
     Возвращает список чатов группы, в которой vk_id администратор
+
     Args:
         vk_id: идентификатор пользователя
 

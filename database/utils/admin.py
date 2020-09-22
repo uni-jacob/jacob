@@ -1,3 +1,5 @@
+import typing as t
+
 from loguru import logger
 
 from database.models import Administrator
@@ -12,6 +14,7 @@ logger.configure(**config)
 def is_user_admin(admin_id: int) -> bool:
     """
     Проверяет, является ли студент администратором
+
     Args:
         admin_id: идентификатор студента в системе
 
@@ -29,14 +32,15 @@ def is_user_admin(admin_id: int) -> bool:
     )
 
 
-def get_admin_feud(admin_id: int) -> Group:
+def get_admin_feud(admin_id: int) -> t.Optional[Group]:
     """
     Возвращает идентификатор группы в которой пользователь является администратором
+
     Args:
         admin_id: идентификатор администратора
 
     Returns:
-        Group: объект группы
+        Group or None: объект группы
     """
     if is_user_admin(admin_id):
         admin = Administrator.get_or_none(id=admin_id)
@@ -48,6 +52,7 @@ def get_admin_storage(admin_id: int) -> Storage:
     """
     Ищет хранилище администратора и возвращет объект класса Storage.
     Если хранилище не было найдено, оно создается
+
     Args:
         admin_id: идентификатор администратора
     Returns:
