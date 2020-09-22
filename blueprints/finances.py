@@ -11,6 +11,7 @@ from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
+from database.models import FinancialCategory
 from services import filters
 from services import keyboard as kbs
 from services.finances import generate_debtors_call
@@ -53,12 +54,12 @@ async def fin_category_menu(ans: SimpleBotEvent):
         )
 
         if payload.get("category"):
-            category_object = db.finances.find_fin_category(id=payload["category"])
+            category_object = FinancialCategory.get_by_id(payload["category"])
         else:
             store = db.admin.get_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
             )
-            category_object = db.finances.find_fin_category(id=store.category_id)
+            category_object = FinancialCategory.get_by_id(store.category_id)
 
         category_name = category_object.name
 

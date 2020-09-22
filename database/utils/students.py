@@ -19,7 +19,7 @@ def get_system_id_of_student(vk_id: int) -> int:
         StudentNotFound: когда студент с указанным идентификатором ВК не найден
         в системе
     """
-    student = find_student(vk_id=vk_id)
+    student = Student.get_or_none(vk_id=vk_id)
     if student is not None:
         return student.id
     raise StudentNotFound(f"Студента с id ВКонтакте {vk_id} не существует в системе")
@@ -85,15 +85,3 @@ def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student
         .order_by(Student.second_name.asc())
     )
     return shortcuts.generate_list(query)
-
-
-def find_student(**kwargs) -> Student:
-    """
-    ищет студента
-    Args:
-        **kwargs: параметры поиска
-
-    Returns:
-        Student: объект студента
-    """
-    return Student.get_or_none(**kwargs)

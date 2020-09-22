@@ -12,6 +12,8 @@ from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
+from database.models import Chat
+from database.models import Group
 from database.models import Student
 from services import filters
 from services import keyboard as kbs
@@ -37,7 +39,7 @@ async def open_preferences(ans: SimpleBotEvent):
         group_id = db.admin.get_admin_feud(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id)
         )
-        group = db.groups.find_group(id=group_id)
+        group = Group.get_by_id(group_id)
         await ans.answer(
             f"Настройки группы {group.group_num} ({group.specialty})",
             keyboard=kbs.preferences.preferences(),
@@ -69,9 +71,7 @@ async def list_of_chats(ans: SimpleBotEvent):
 async def configure_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        chat = db.chats.find_chat(
-            group_id=payload["group"], chat_type=payload["chat_type"]
-        )
+        chat = Chat.get(group_id=payload["group"], chat_type=payload["chat_type"])
         chat_object = await api.messages.get_conversations_by_id(
             peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
         )
@@ -149,8 +149,7 @@ async def select_chat_type(ans: SimpleBotEvent):
         )
         if (
             store.confirm_message in ans.object.object.message.text
-            and ans.object.object.message.from_id
-            == db.students.find_student(id=store.id).vk_id
+            and ans.object.object.message.from_id == Student.get_by_id(store.id).vk_id
         ):
             db.shortcuts.clear_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id)
@@ -199,7 +198,7 @@ async def register_chat(ans: SimpleBotEvent):
 async def index_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        chat = db.chats.find_chat(id=payload["chat"])
+        chat = Chat.get_by_id(payload["chat"])
 
         chat_members = await api.messages.get_conversation_members(chat.chat_id)
         group_members = db.students.get_active_students(chat.group_id)
@@ -213,7 +212,7 @@ async def index_chat(ans: SimpleBotEvent):
         query = await api.users.get(
             user_ids=list(diff_vk_db),
         )
-        students = [db.students.find_student(vk_id=st) for st in diff_db_vk]
+        students = [Student.get(vk_id=st) for st in diff_db_vk]
 
         vk_list = [
             f"- @id{st.id} ({st.first_name} {st.last_name})" for st in query.response
@@ -270,9 +269,7 @@ async def register_students(ans: SimpleBotEvent):
         await ans.answer(
             f"{len(query)} студент(ов) зарегистрировано",
             keyboard=kbs.preferences.configure_chat(
-                db.chats.find_chat(
-                    group_id=payload["group"], chat_type=payload["chat_type"]
-                ).id
+                Chat.get(group_id=payload["group"], chat_type=payload["chat_type"]).id
             ),
         )
 
@@ -295,8 +292,6 @@ async def delete_students(ans: SimpleBotEvent):
         await ans.answer(
             f"{query} студент(ов) удалено",
             keyboard=kbs.preferences.configure_chat(
-                db.chats.find_chat(
-                    group_id=payload["group"], chat_type=payload["chat_type"]
-                ).id
+                Chat.get(group_id=payload["group"], chat_type=payload["chat_type"]).id
             ),
         )

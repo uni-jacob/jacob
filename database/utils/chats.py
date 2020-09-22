@@ -41,30 +41,6 @@ def is_chat_registered(vk_id: int, chat_type: int) -> bool:
     return False
 
 
-def find_chat(**kwargs) -> t.Optional[Chat]:
-    """
-    ищет зарегистрированный чат
-    Args:
-        **kwargs: параметры поиска
-
-    Returns:
-        Optional[Chat]: объект чата
-    """
-    return Chat.get_or_none(**kwargs)
-
-
-def find_chat_type(**kwargs) -> t.Optional[ChatType]:
-    """
-    ищет тип чата
-    Args:
-        **kwargs: параметры поиска
-
-    Returns:
-        Optional[ChatType]: объект типа чата
-    """
-    return ChatType.get_or_none(**kwargs)
-
-
 def delete_chat(chat_id: int) -> int:
     """
     удаляет чат из зарегистрированных

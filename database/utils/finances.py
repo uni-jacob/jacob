@@ -23,18 +23,6 @@ def get_list_of_fin_categories(group_id: int) -> t.List[FinancialCategory]:
     return db.shortcuts.generate_list(query)
 
 
-def find_fin_category(**kwargs) -> t.Optional[FinancialCategory]:
-    """
-    Ищет категорию финансов
-    Args:
-        **kwargs: Критерии поиска
-
-    Returns:
-        FinancialCategory or None: объект категории
-    """
-    return FinancialCategory.get_or_none(**kwargs)
-
-
 def find_donate(category_id: int, student_id: int) -> t.Optional[FinancialDonate]:
     """
     Ищет существующий доход
@@ -78,7 +66,7 @@ def get_debtors(category_id: int) -> t.List[int]:
         List[int]: список идентификаторов
     """
 
-    category = find_fin_category(id=category_id)
+    category = FinancialCategory.get_by_id(category_id)
     students = get_active_students(category.group_id)
     debtors = []
     for student in students:

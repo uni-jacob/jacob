@@ -11,6 +11,7 @@ from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
+from database.models import Student
 from services import call
 from services import filters
 from services import keyboard as kbs
@@ -231,7 +232,7 @@ async def call_them_all(ans: SimpleBotEvent):
         admin_id = db.students.get_system_id_of_student(
             ans.object.object.message.peer_id
         )
-        student = db.students.find_student(id=admin_id)
+        student = Student.get_by_id(admin_id)
         students = [st.id for st in db.students.get_active_students(student.group_id)]
         db.shortcuts.update_calling_list(admin_id, students)
         await confirm_call(ans)
