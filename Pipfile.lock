@@ -135,11 +135,11 @@
         },
         "loguru": {
             "hashes": [
-                "sha256:5aecbf13bc8e2f6e5a5d0475460a345b44e2885464095ea7de44e8795857ad33",
-                "sha256:a5e5e196b9958feaf534ac2050171d16576bae633074ce3e73af7dda7e9a58ae"
+                "sha256:b28e72ac7a98be3d28ad28570299a393dfcd32e5e3f6a353dec94675767b6319",
+                "sha256:f8087ac396b5ee5f67c963b495d615ebbceac2796379599820e324419d53667c"
             ],
             "index": "pypi",
-            "version": "==0.5.2"
+            "version": "==0.5.3"
         },
         "more-itertools": {
             "hashes": [
@@ -300,7 +300,8 @@
         "vkwave": {
             "file": "https://github.com/fscdev/vkwave/archive/master.zip",
             "hashes": [
-                "sha256:56cd005c34b03c5f78599dbf0638e8e76e1a22f8db46665f289f9dc3e3412767"
+                "sha256:56cd005c34b03c5f78599dbf0638e8e76e1a22f8db46665f289f9dc3e3412767",
+                "sha256:df1f8ffd5f53536b172f7344e9111932696526362118cc59fdb33a1704a2a570"
             ],
             "version": "==0.2.8"
         },
@@ -536,19 +537,19 @@
         },
         "mkdocs-git-revision-date-localized-plugin": {
             "hashes": [
-                "sha256:69d1abb79ea72cda9d8ef564bfbbccc4826e05717915f08c4a2c678a10f2b07c",
-                "sha256:ad9c46dcd06bfad8a55e4d6ccba777fa88dec9b47cda7db105c60ec764bcc7f5"
+                "sha256:4d3367f43526bba07032fc1054a5db109434f56e5528e000c2ca7b7f86a9c1db",
+                "sha256:53c1cb7b8417d2be603278eafe208cdc7d614fd62f4dad89ee2916bd82ff8563"
             ],
             "index": "pypi",
-            "version": "==0.7.1"
+            "version": "==0.7.2"
         },
         "mkdocs-material": {
             "hashes": [
-                "sha256:9b2225af305668f422a01d4b41ddb7ebb938b1c43a0dde7aae3b00475e6c9ae3",
-                "sha256:d956fba4b3e27b40490aa457678083e0c26fe4ea1b307d8322c3df3412a0b485"
+                "sha256:1fc3861479438a937e2c21cfdf241d05bdde9048b240d57d00046536a7c3ee64",
+                "sha256:48bdee57215e3b3b967cd1561c5836172f9c5917189504b02ded48cf5423973b"
             ],
             "index": "pypi",
-            "version": "==5.5.12"
+            "version": "==5.5.13"
         },
         "mkdocs-material-extensions": {
             "hashes": [
@@ -621,11 +622,11 @@
         },
         "pygments": {
             "hashes": [
-                "sha256:2594e8fdb06fef91552f86f4fd3a244d148ab24b66042036e64f29a291515048",
-                "sha256:2df50d16b45b977217e02cba6c8422aaddb859f3d0570a88e09b00eafae89c6e"
+                "sha256:307543fe65c0947b126e83dd5a61bd8acbd84abec11f43caebaf5534cbc17998",
+                "sha256:926c3f319eda178d1bd90851e4317e6d8cdb5e292a3386aac9bd75eca29cf9c7"
             ],
             "markers": "python_version >= '3.5'",
-            "version": "==2.7.0"
+            "version": "==2.7.1"
         },
         "pyhamcrest": {
             "hashes": [
