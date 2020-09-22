@@ -11,6 +11,7 @@ from blueprints import call
 from blueprints import chats
 from blueprints import finances
 from blueprints import preferences
+from database import utils as db
 from services import keyboard as kbs
 from services.filters import PLFilter
 from services.logger.config import config
@@ -38,7 +39,10 @@ logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
 async def start(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         await ans.answer(
-            "Привет!", keyboard=kbs.main.main_menu(ans.object.object.message.peer_id)
+            "Привет!",
+            keyboard=kbs.main.main_menu(
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+            ),
         )
 
 
