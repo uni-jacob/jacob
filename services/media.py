@@ -1,3 +1,5 @@
+import typing as t
+
 from vkwave.api import APIOptionsRequestContext
 from vkwave.bots import DocUploader
 from vkwave.bots import PhotoUploader
@@ -5,7 +7,6 @@ from vkwave.bots import VoiceUploader
 from vkwave.types.objects import MessagesMessageAttachment
 
 from services.exceptions import AttachmentLimitExceeded
-import typing as t
 
 
 async def load_attachments(
@@ -43,7 +44,6 @@ async def load_attachments(
             atch = await doc_uploader.get_attachment_from_link(from_id, attach.doc.url)
             atchs += atch.split(",")
         if attach.audio_message:
-            # TODO: не работает!
             atch = await am_uploader.get_attachment_from_link(
                 from_id, attach.audio_message.link_ogg
             )
@@ -54,12 +54,12 @@ async def load_attachments(
 
 def translate_string(s: str) -> str:
     """
-        Переводит строку с английской раскладки на русскую и обратно
+    Переводит строку с английской раскладки на русскую и обратно
 
-        Args:
-            s: Исходная строка
-        Returns:
-            str: Переведенная строка
+    Args:
+        s: Исходная строка
+    Returns:
+        str: Переведенная строка
     """
     layout = dict(
         zip(
