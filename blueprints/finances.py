@@ -84,7 +84,7 @@ async def add_income(ans: SimpleBotEvent):
         await ans.answer(
             "Выберите студента, сдавшего деньги",
             keyboard=kbs.finances.fin_list_of_letters(
-                ans.object.object.message.from_id
+                db.students.get_system_id_of_student(ans.object.object.message.from_id)
             ),
         )
 
