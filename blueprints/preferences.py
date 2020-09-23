@@ -72,7 +72,7 @@ async def list_of_chats(ans: SimpleBotEvent):
 async def configure_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        chat = Chat.get(group_id=payload["group"], chat_type=payload["chat_type"])
+        chat = Chat.get_by_id(payload["chat_id"])
         chat_object = await api.messages.get_conversations_by_id(
             peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
         )
@@ -233,7 +233,7 @@ async def index_chat(ans: SimpleBotEvent):
      вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)
         """,
             keyboard=kbs.preferences.index_chat(
-                chat.group_id.id, list(diff_vk_db), list(diff_db_vk), chat.chat_type.id
+                chat.id, list(diff_vk_db), list(diff_db_vk)
             ),
         )
 
@@ -269,9 +269,7 @@ async def register_students(ans: SimpleBotEvent):
 
         await ans.answer(
             f"{len(query)} студент(ов) зарегистрировано",
-            keyboard=kbs.preferences.configure_chat(
-                Chat.get(group_id=payload["group"], chat_type=payload["chat_type"]).id
-            ),
+            keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
         )
 
 
@@ -292,7 +290,5 @@ async def delete_students(ans: SimpleBotEvent):
             query += Student.delete().where(Student.vk_id == st).execute()
         await ans.answer(
             f"{query} студент(ов) удалено",
-            keyboard=kbs.preferences.configure_chat(
-                Chat.get(group_id=payload["group"], chat_type=payload["chat_type"]).id
-            ),
+            keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
         )

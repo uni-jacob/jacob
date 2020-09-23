@@ -66,8 +66,7 @@ async def list_of_chats(vk_id: int):
             chat_title,
             payload={
                 "button": "chat",
-                "group": chat.group_id.id,
-                "chat_type": chat.chat_type.id,
+                "chat_id": chat.id,
             },
         )
     return kb

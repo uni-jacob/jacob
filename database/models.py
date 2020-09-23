@@ -84,7 +84,6 @@ class Chat(BaseModel):
     group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )
-    chat_type = ForeignKeyField(ChatType, backref="chattypes", on_delete="RESTRICT")
 
     class Meta:
         table_name = "chats"
@@ -186,13 +185,7 @@ class Storage(BaseModel):
     state_id = ForeignKeyField(
         State, backref="states", default=1, on_delete="SET DEFAULT", on_update="CASCADE"
     )
-    current_chat = ForeignKeyField(
-        ChatType,
-        backref="chattypes",
-        default=0,
-        on_delete="SET DEFAULT",
-        on_update="CASCADE",
-    )
+    current_chat_id = IntegerField()
     names_usage = BooleanField(default=False)
     selected_students = TextField(default="")
     text = TextField(default="")
