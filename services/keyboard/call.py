@@ -144,23 +144,3 @@ def call_prompt(admin_id: int) -> JSONStr:
         payload={"button": "chat_config"},
     )
     return kb.get_keyboard()
-
-
-async def list_of_active_chats(vk_id):
-    """
-    Клавиатура со списком активных чатов для настройки в меню подтверждения призыва
-
-    Args:
-        vk_id: идентификатор пользователя
-
-    Returns:
-        JSONStr: клавиатура
-    """
-
-    kb = await kbs.common.list_of_chats(vk_id)
-
-    if kb.buttons[-1]:
-        kb.add_row()
-    kb.add_text_button(text="◀️ Назад", payload={"button": "save_selected"})
-
-    return kb
