@@ -40,7 +40,7 @@ urllib3 = "*"
 yarl = "*"
 typing-extensions = "*"
 beautifulsoup4 = "*"
-vkwave = {file = "https://github.com/fscdev/vkwave/archive/master.zip"}
+vkwave = "*"
 
 [requires]
 python_version = "3.8"
