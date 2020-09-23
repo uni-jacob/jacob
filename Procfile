@@ -1,1 +1,1 @@
-jacob: pipenv run python main.py
+jacob: python main.py
