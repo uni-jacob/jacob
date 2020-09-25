@@ -130,7 +130,7 @@ async def generate_confirm_message(ans: SimpleBotEvent):
     filters.StateFilter("confirm_chat_register"),
 )
 @logger.catch()
-async def generate_confirm_message(ans: SimpleBotEvent):
+async def cancel_register_chat(ans: SimpleBotEvent):
     db.shortcuts.clear_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id)
     )
