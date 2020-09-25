@@ -126,10 +126,7 @@ def get_active_chat(admin_id: int) -> Chat:
         Chat: объект активного чата
     """
     store = db.admin.get_admin_storage(admin_id)
-    return Chat.get(
-        chat_type=store.current_chat,
-        group_id=Student.get(id=store.id).group_id,
-    )
+    return Chat.get_by_id(store.current_chat_id)
 
 
 def invert_names_usage(admin_id: int) -> Storage:
