@@ -192,7 +192,7 @@ async def call_debtors(ans: SimpleBotEvent):
             text = ("Сообщение будет отправлено в ваш активный чат",)
         await ans.answer(
             text,
-            keyboard=kbs.common.prompt().get_keyboard(),
+            keyboard=kbs.finances.confirm_debtors_call(),
         )
 
 
