@@ -197,3 +197,4 @@ modules.xml
 
 polygon.py
 services/old_*.py
+*.sql
