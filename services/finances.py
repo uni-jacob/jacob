@@ -18,7 +18,9 @@ def generate_debtors_call(admin_id: int) -> t.List[str]:
     store = db.admin.get_admin_storage(admin_id)
     debtors = db.finances.get_debtors(store.category_id)
     category = FinancialCategory.get_by_id(store.category_id)
-    messages = [""]
+    messages = [
+        f"Вы не сдали на {category.name} сумму, указанную напротив вашего имени\n",
+    ]
     for debtor_id in debtors:
         if donate := FinancialDonate.get_or_none(
             category=category.id, student=debtor_id
