@@ -28,14 +28,14 @@ config = {
         {
             "sink": "jacob.log",
             "format": extra_fmt,
-            "rotation": "00:00",
+            "rotation": "20 MB",
             "enqueue": True,
             "filter": lambda record: "user_id" in record["extra"],
         },
         {
             "sink": "jacob.log",
             "format": fmt,
-            "rotation": "00:00",
+            "rotation": "20 MB",
             "enqueue": True,
             "filter": lambda record: "user_id" not in record["extra"],
         },
