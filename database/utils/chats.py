@@ -1,7 +1,6 @@
 import typing as t
 
 from database.models import Chat
-from database.models import ChatType
 from database.utils import admin
 from database.utils import shortcuts
 from database.utils import students
@@ -22,26 +21,6 @@ def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
     return shortcuts.generate_list(query)
 
 
-def is_chat_registered(vk_id: int, chat_type: int) -> bool:
-    """
-    Проверяет, был ли зарегистрирован чат типа chat_type в группе, в которой
-    пользователь с vk_id администратор
-    Args:
-        vk_id: идентификатор пользователя
-        chat_type: тип чата
-
-    Returns:
-        bool: флаг, указывающий на регистрацию чата
-    """
-    admin_group = admin.get_admin_feud(students.get_system_id_of_student(vk_id))
-    query = Chat.select().where(
-        (Chat.group_id == admin_group) & (Chat.chat_type == chat_type)
-    )
-    if shortcuts.generate_list(query):
-        return True
-    return False
-
-
 def delete_chat(chat_id: int) -> int:
     """
     удаляет чат из зарегистрированных
@@ -52,15 +31,6 @@ def delete_chat(chat_id: int) -> int:
         int: количество удаленных записей
     """
     return Chat.delete().where(Chat.id == chat_id).execute()
-
-
-def get_chat_types() -> t.List[ChatType]:
-    """
-    Получить список типов чатов
-    Returns:
-        list[ChatType]
-    """
-    return shortcuts.generate_list(ChatType.select())
 
 
 def register_chat(chat_id: int, group: int) -> Chat:
