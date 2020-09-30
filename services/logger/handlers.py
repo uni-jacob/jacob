@@ -30,7 +30,7 @@ class TelegramHandler(logging.Handler):
     def format(self, record):
         record.message = record.getMessage()
         msg = record.message.split("\n")
-        return msg[0], "\n".join(msg[1:])
+        return msg[-1], "\n".join(msg[:1])
 
 
 class InterceptHandler(logging.Handler):
