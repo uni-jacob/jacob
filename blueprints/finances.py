@@ -11,6 +11,7 @@ from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
 from database import utils as db
+from database.models import Chat
 from database.models import FinancialCategory
 from services import filters
 from services import keyboard as kbs
@@ -184,12 +185,21 @@ async def call_debtors(ans: SimpleBotEvent):
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("confirm_debtors_call"),
         )
+        store = db.admin.get_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        )
+        chat_id = Chat.get_by_id(store.current_chat_id).chat_id
+        chat_object = await api.messages.get_conversations_by_id(chat_id)
+        try:
+            chat_title = chat_object.response.items[0].chat_settings.title
+        except IndexError:
+            chat_title = "???"
         for msg in msgs:
             await ans.answer(msg)
         if len(msgs) > 1:
-            text = ("Сообщения будут отправлены в ваш активный чат",)
+            text = (f"Сообщения будут отправлены в {chat_title}",)
         else:
-            text = ("Сообщение будет отправлено в ваш активный чат",)
+            text = (f"Сообщение будет отправлено в {chat_title}",)
         await ans.answer(
             text,
             keyboard=kbs.finances.confirm_debtors_call(),
