@@ -209,6 +209,18 @@ async def call_debtors(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.StateFilter("confirm_debtors_call"),
+    filters.PLFilter({"button": "chat_config"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
+@logger.catch()
+async def select_chat_debtors(ans: SimpleBotEvent):
+    kb = await kbs.common.list_of_chats(ans.object.object.message.from_id)
+    await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
+
+
+@simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("confirm_debtors_call"),
     filters.PLFilter({"button": "confirm"}),
     MessageFromConversationTypeFilter("from_pm"),
 )
