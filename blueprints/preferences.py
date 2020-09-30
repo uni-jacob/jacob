@@ -137,7 +137,12 @@ async def cancel_register_chat(ans: SimpleBotEvent):
     db.shortcuts.clear_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id)
     )
-    await ans.answer("Регистрация чата отменена")
+    await ans.answer(
+        "Регистрация чата отменена",
+        keyboard=await kbs.preferences.connected_chats(
+            ans.object.object.message.from_id
+        ),
+    )
 
 
 @simple_bot_message_handler(
