@@ -63,15 +63,14 @@ def get_chat_types() -> t.List[ChatType]:
     return shortcuts.generate_list(ChatType.select())
 
 
-def register_chat(chat_id: int, chat_type: int, group: int) -> Chat:
+def register_chat(chat_id: int, group: int) -> Chat:
     """
     Зарегистрировать чат
     Args:
         chat_id: идентификатор чата
-        chat_type: тип чата
         group: идентификатор группы
 
     Returns:
         Chat: объект чата
     """
-    return Chat.create(chat_id=chat_id, chat_type=chat_type, group_id=group)
+    return Chat.create(chat_id=chat_id, group_id=group)
