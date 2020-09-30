@@ -3,8 +3,6 @@ import typing as t
 import requests
 from vkwave.bots import Keyboard
 
-from database import utils as db
-from database.models import ChatType
 from services.keyboard import common
 
 JSONStr = str
@@ -33,7 +31,6 @@ async def connected_chats(vk_id: int) -> JSONStr:
         JSONStr: клавиатура
     """
     kb = await common.list_of_chats(vk_id)
-    chats = db.chats.get_list_of_chats_by_group(vk_id)
     if kb.buttons[-1]:
         kb.add_row()
     kb.add_text_button("➕ Зарегистрировать чат", payload={"button": "reg_chat"})
@@ -119,32 +116,4 @@ def index_chat(
         "◀️ Назад",
         payload={"button": "chat", "chat_id": chat_id},
     )
-    return kb.get_keyboard()
-
-
-def available_chat_types(vk_id: int, chat: int):
-    kb = Keyboard()
-    chats = db.chats.get_list_of_chats_by_group(vk_id)
-    all_chat_types = db.chats.get_chat_types()
-    registered_chat_types = [chat.chat_type for chat in chats]
-
-    free_chat_types = [i.id for i in all_chat_types if i not in registered_chat_types]
-
-    group_id = db.admin.get_admin_feud(db.students.get_system_id_of_student(vk_id)).id
-    for chat_type in free_chat_types:
-        if len(kb.buttons[-1]) == 2:
-            kb.add_row()
-        obj = ChatType.get(id=chat_type)
-        kb.add_text_button(
-            obj.description,
-            payload={
-                "button": "register_chat",
-                "chat_type": chat_type,
-                "chat": chat,
-                "group": group_id,
-            },
-        )
-    if kb.buttons[-1]:
-        kb.add_row()
-    kb.add_text_button("◀️ Назад", payload={"button": "reg_chat"})
     return kb.get_keyboard()
