@@ -221,6 +221,22 @@ async def select_chat_debtors(ans: SimpleBotEvent):
 @simple_bot_message_handler(
     finances_router,
     filters.StateFilter("confirm_debtors_call"),
+    filters.PLFilter({"button": "chat"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
+@logger.catch()
+async def select_chat_debtors(ans: SimpleBotEvent):
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    db.shortcuts.update_admin_storage(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+        current_chat_id=payload["chat_id"],
+    )
+    await call_debtors(ans)
+
+
+@simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("confirm_debtors_call"),
     filters.PLFilter({"button": "confirm"}),
     MessageFromConversationTypeFilter("from_pm"),
 )
