@@ -66,6 +66,7 @@ async def list_of_chats(ans: SimpleBotEvent):
     preferences_router,
     filters.PLFilter({"button": "chat"}),
     ~filters.StateFilter("confirm_call"),
+    ~filters.StateFilter("confirm_debtors_call"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
