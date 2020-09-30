@@ -36,9 +36,8 @@ async def connected_chats(vk_id: int) -> JSONStr:
     chats = db.chats.get_list_of_chats_by_group(vk_id)
     if kb.buttons[-1]:
         kb.add_row()
-    if len(chats) < len(db.chats.get_chat_types()):
-        kb.add_text_button("➕ Зарегистрировать чат", payload={"button": "reg_chat"})
-        kb.add_row()
+    kb.add_text_button("➕ Зарегистрировать чат", payload={"button": "reg_chat"})
+    kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "settings"})
     return kb.get_keyboard()
 
