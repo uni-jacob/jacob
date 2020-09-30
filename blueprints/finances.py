@@ -197,9 +197,9 @@ async def call_debtors(ans: SimpleBotEvent):
         for msg in msgs:
             await ans.answer(msg)
         if len(msgs) > 1:
-            text = (f"Сообщения будут отправлены в {chat_title}",)
+            text = f"Сообщения будут отправлены в {chat_title}"
         else:
-            text = (f"Сообщение будет отправлено в {chat_title}",)
+            text = f"Сообщение будет отправлено в {chat_title}"
         await ans.answer(
             text,
             keyboard=kbs.finances.confirm_debtors_call(),
