@@ -66,16 +66,6 @@ class Administrator(BaseModel):
         table_name = "administrators"
 
 
-class ChatType(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    description = CharField(unique=True)
-
-    class Meta:
-        table_name = "chat_types"
-
-
 class Chat(BaseModel):
     id = AutoField(
         primary_key=True,
@@ -185,7 +175,13 @@ class Storage(BaseModel):
     state_id = ForeignKeyField(
         State, backref="states", default=1, on_delete="SET DEFAULT", on_update="CASCADE"
     )
-    current_chat_id = IntegerField()
+    current_chat_id = ForeignKeyField(
+        Chat,
+        backref="chats",
+        default=None,
+        on_delete="SET DEFAULT",
+        on_update="CASCADE",
+    )
     names_usage = BooleanField(default=False)
     selected_students = TextField(default="")
     text = TextField(default="")
