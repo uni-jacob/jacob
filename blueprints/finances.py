@@ -178,32 +178,38 @@ async def save_donate(ans: SimpleBotEvent):
 @logger.catch()
 async def call_debtors(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        msgs = generate_debtors_call(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
-        )
-        db.shortcuts.update_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
-            state_id=db.bot.get_id_of_state("confirm_debtors_call"),
-        )
-        store = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
-        )
-        chat_id = Chat.get_by_id(store.current_chat_id).chat_id
-        chat_object = await api.messages.get_conversations_by_id(chat_id)
-        try:
-            chat_title = chat_object.response.items[0].chat_settings.title
-        except IndexError:
-            chat_title = "???"
-        for msg in msgs:
-            await ans.answer(msg)
-        if len(msgs) > 1:
-            text = f"Сообщения будут отправлены в {chat_title}"
+        if db.chats.get_list_of_chats_by_group(ans.object.object.message.from_id):
+            msgs = generate_debtors_call(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            )
+            db.shortcuts.update_admin_storage(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+                state_id=db.bot.get_id_of_state("confirm_debtors_call"),
+            )
+            store = db.admin.get_admin_storage(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            )
+            chat_id = Chat.get_by_id(store.current_chat_id).chat_id
+            chat_object = await api.messages.get_conversations_by_id(chat_id)
+            try:
+                chat_title = chat_object.response.items[0].chat_settings.title
+            except IndexError:
+                chat_title = "???"
+            for msg in msgs:
+                await ans.answer(msg)
+            if len(msgs) > 1:
+                text = f"Сообщения будут отправлены в {chat_title}"
+            else:
+                text = f"Сообщение будет отправлено в {chat_title}"
+            await ans.answer(
+                text,
+                keyboard=kbs.finances.confirm_debtors_call(),
+            )
         else:
-            text = f"Сообщение будет отправлено в {chat_title}"
-        await ans.answer(
-            text,
-            keyboard=kbs.finances.confirm_debtors_call(),
-        )
+            await ans.answer(
+                "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
+                keyboard=kbs.finances.fin_category(),
+            )
 
 
 @simple_bot_message_handler(
