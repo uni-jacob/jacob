@@ -13,7 +13,6 @@ from vkwave.types.bot_events import BotEventType
 
 from database import utils as db
 from services.exceptions import StudentNotFound
-from services.exceptions import UserIsNotAnAdministrator
 
 
 class PLFilter(PayloadFilter):
@@ -56,10 +55,9 @@ class StateFilter(BaseFilter):
             admin_id = db.students.get_system_id_of_student(
                 event.object.object.message.from_id
             )
-            db.admin.is_user_admin(admin_id)
         except StudentNotFound:
             return FilterResult(False)
-        except UserIsNotAnAdministrator:
+        if not db.admin.is_user_admin(admin_id):
             return FilterResult(False)
         current_state = db.admin.get_admin_storage(admin_id).state_id.id
         return FilterResult(current_state == self.state)
