@@ -97,6 +97,15 @@ async def delete_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         db.chats.delete_chat(payload["chat"])
+        chats = db.chats.get_list_of_chats_by_group(ans.object.object.message.from_id)
+        try:
+            chat_id = chats[0].id
+        except IndexError:
+            chat_id = None
+        db.shortcuts.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            current_chat_id=chat_id,
+        )
         await ans.answer(
             "Чат удален",
             keyboard=await kbs.preferences.connected_chats(
