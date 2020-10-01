@@ -29,8 +29,8 @@ class TelegramHandler(logging.Handler):
 
     def format(self, record):
         record.message = record.getMessage()
-        msg = record.message.split("\n")
-        return msg[-1], "\n".join(msg[:1])
+        msg = [msg.strip() for msg in record.message.split("\n") if msg]
+        return "\n".join(msg[-2:]), "\n".join(msg[1:])
 
 
 class InterceptHandler(logging.Handler):
