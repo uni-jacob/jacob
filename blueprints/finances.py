@@ -231,7 +231,7 @@ async def select_chat_debtors(ans: SimpleBotEvent):
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def select_chat_debtors(ans: SimpleBotEvent):
+async def save_chat_debtors(ans: SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),

@@ -129,7 +129,7 @@ async def generate_confirm_message(ans: SimpleBotEvent):
             confirm_message=confirm_message,
         )
         await ans.answer(
-            f"Отправьте сообщение с кодовой фразой в чат, который нужно зарегистрировать",
+            "Отправьте сообщение с кодовой фразой в чат, который нужно зарегистрировать",
             keyboard=kbs.common.cancel(),
         )
 
