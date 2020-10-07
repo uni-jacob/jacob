@@ -21,7 +21,7 @@ def preferences(admin_id: int) -> JSONStr:
     kb = Keyboard()
     kb.add_text_button("💬 Настроить чаты", payload={"button": "configure_chats"})
     kb.add_row()
-    if len(db.admin.get_admin_feud(admin_id)):
+    if len(db.admin.get_admin_feud(admin_id)) > 1:
         kb.add_text_button("Выбрать группу", payload={"button": "select_group"})
         kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
@@ -139,7 +139,7 @@ def list_of_groups(admin_id: int) -> JSONStr:
     """
     kb = Keyboard()
 
-    groups = db.admin.get_admin_feud(admin_id)
+    groups = db.admin.get_active_group(admin_id)
     for group in groups:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
