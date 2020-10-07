@@ -302,3 +302,18 @@ async def delete_students(ans: SimpleBotEvent):
             f"{query} студент(ов) удалено",
             keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
         )
+
+
+@simple_bot_message_handler(
+    preferences_router,
+    filters.PLFilter({"button": "select_group"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
+@logger.catch()
+async def list_of_administrating_groups(ans: SimpleBotEvent):
+    await ans.answer(
+        "Выберите активную группу",
+        keyboard=kbs.preferences.list_of_groups(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        ),
+    )
