@@ -19,7 +19,7 @@ def list_of_fin_categories(vk_id: int) -> JSONStr:
     kb = Keyboard()
     admin_id = db.students.get_system_id_of_student(vk_id)
     categories = db.finances.get_list_of_fin_categories(
-        db.admin.get_admin_feud(admin_id)
+        db.admin.get_active_group(admin_id)
     )
     for category in categories:
         if len(kb.buttons[-1]) == 2:

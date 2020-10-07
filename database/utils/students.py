@@ -53,7 +53,7 @@ def get_unique_second_name_letters_in_a_group(admin_id: int) -> list:
     Returns:
         list: список первых букв фамилий
     """
-    admin_group = admin.get_admin_feud(admin_id)
+    admin_group = admin.get_active_group(admin_id)
     query = (
         Student.select(Student.second_name)
         .where(Student.group_id == admin_group)
@@ -76,11 +76,12 @@ def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student
     Returns:
         list[Student]: список студентов
     """
-    admin_group = admin.get_admin_feud(admin_id)
+    active_group = admin.get_active_group(admin_id)
     query = (
         Student.select()
         .where(
-            (Student.second_name.startswith(letter)) & (Student.group_id == admin_group)
+            (Student.second_name.startswith(letter))
+            & (Student.group_id == active_group)
         )
         .order_by(Student.second_name.asc())
     )

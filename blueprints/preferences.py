@@ -13,7 +13,6 @@ from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 from database.models import Chat
-from database.models import Group
 from database.models import Student
 from services import filters
 from services import keyboard as kbs
@@ -37,12 +36,12 @@ logger.configure(**config)
 async def open_preferences(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         # TODO: Изменить механизм получения идшника активной группы
-        group_id = db.admin.get_admin_feud(
-            db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+        active_group = db.admin.get_active_group(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id)
         )
-        group = Group.get_by_id(group_id)
         await ans.answer(
-            f"Настройки\nАктивная группа: {group.group_num} ({group.specialty})",
+            f"Настройки\nАктивная группа: {active_group.group_num} ("
+            f"{active_group.specialty})",
             keyboard=kbs.preferences.preferences(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id)
             ),
