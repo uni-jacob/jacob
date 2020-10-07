@@ -5,6 +5,7 @@ from loguru import logger
 from database.models import Administrator
 from database.models import Group
 from database.models import Storage
+from database.models import Student
 from services.logger.config import config
 
 logger.configure(**config)
@@ -58,3 +59,21 @@ def get_admin_storage(admin_id: int) -> Storage:
     """
     if is_user_admin(admin_id):
         return Storage.get_or_create(id=admin_id)[0]
+
+
+def get_active_group(admin_id: int) -> Group:
+    """
+    Возвращает объект активной группы администратора
+    Если администратор управляет одной группой, возвращается идентификатор группы,
+    которой он принадлежит
+
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        Group: объект активной группы
+    """
+
+    if len(get_admin_feud(admin_id)) > 1:
+        return Storage.get_by_id(admin_id).active_group
+    return Student.get_by_id(admin_id).group_id
