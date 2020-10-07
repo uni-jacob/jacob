@@ -124,3 +124,27 @@ def index_chat(
         payload={"button": "chat", "chat_id": chat_id},
     )
     return kb.get_keyboard()
+
+
+def list_of_groups(admin_id: int) -> JSONStr:
+    """
+    Генерирует клавиатуру со списком групп, доступных пользователю для
+    администрирования
+
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        JSONStr: Строка с клавиатурой
+    """
+    kb = Keyboard()
+
+    groups = db.admin.get_admin_feud(admin_id)
+    for group in groups:
+        if len(kb.buttons[-1]) == 2:
+            kb.add_row()
+        kb.add_text_button(
+            group.group_num, payload={"button": "group", "group_id": group.id}
+        )
+
+    return kb.get_keyboard()
