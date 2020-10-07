@@ -317,3 +317,18 @@ async def list_of_administrating_groups(ans: SimpleBotEvent):
             db.students.get_system_id_of_student(ans.object.object.message.from_id)
         ),
     )
+
+
+@simple_bot_message_handler(
+    preferences_router,
+    filters.PLFilter({"button": "group"}),
+    MessageFromConversationTypeFilter("from_pm"),
+)
+@logger.catch()
+async def select_active_group(ans: SimpleBotEvent):
+    payload = hyperjson.loads(ans.object.object.message.payload)
+    db.shortcuts.update_admin_storage(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+        active_group=payload["group_id"],
+    )
+    await open_preferences(ans)
