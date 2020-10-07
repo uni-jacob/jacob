@@ -29,7 +29,7 @@ def is_user_admin(admin_id: int) -> bool:
     return False
 
 
-def get_admin_feud(admin_id: int) -> t.Optional[Group]:
+def get_admin_feud(admin_id: int) -> t.Optional[t.List[Group]]:
     """
     Возвращает идентификатор группы в которой пользователь является администратором
 
@@ -37,12 +37,13 @@ def get_admin_feud(admin_id: int) -> t.Optional[Group]:
         admin_id: идентификатор администратора
 
     Returns:
-        Group or None: объект группы
+        list[Group] or None: объект группы
     """
     if is_user_admin(admin_id):
-        admin = Administrator.get_or_none(id=admin_id)
-        logger.debug(f"Администрируемое: {admin.group_id}")
-        return admin.group_id
+        admin_entries = Administrator.select().where(Administrator.id == admin_id)
+        groups = [admin.group_id for admin in admin_entries]
+        logger.debug(f"Администрируемое: {groups}")
+        return groups
 
 
 def get_admin_storage(admin_id: int) -> Storage:
