@@ -3,20 +3,27 @@ import typing as t
 import requests
 from vkwave.bots import Keyboard
 
+from database import utils as db
 from services.keyboard import common
 
 JSONStr = str
 
 
-def preferences() -> JSONStr:
+def preferences(admin_id: int) -> JSONStr:
     """
     Возвращает клавиатуру главного окна настроек
+
+    Args:
+        admin_id: Идентификатор администратора
     Returns:
         JSONStr: клавиатура
     """
     kb = Keyboard()
     kb.add_text_button("💬 Настроить чаты", payload={"button": "configure_chats"})
     kb.add_row()
+    if len(db.admin.get_admin_feud(admin_id)):
+        kb.add_text_button("Выбрать группу", payload={"button": "select_group"})
+        kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
