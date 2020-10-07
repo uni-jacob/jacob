@@ -36,13 +36,16 @@ logger.configure(**config)
 @logger.catch()
 async def open_preferences(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
+        # TODO: Изменить механизм получения идшника активной группы
         group_id = db.admin.get_admin_feud(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id)
         )
         group = Group.get_by_id(group_id)
         await ans.answer(
-            f"Настройки группы {group.group_num} ({group.specialty})",
-            keyboard=kbs.preferences.preferences(),
+            f"Настройки\nАктивная группа: {group.group_num} ({group.specialty})",
+            keyboard=kbs.preferences.preferences(
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+            ),
         )
 
 
