@@ -28,10 +28,10 @@ def update_admin_storage(admin_id: int, **kwargs) -> Storage:
     Returns:
         Storage: объект хранилища
     """
-    store = db.admin.get_admin_storage(admin_id).update(**kwargs)
+    store = Storage.update(**kwargs).where(Storage.id == admin_id)
     store.execute()
     logger.debug(f"Хранилище id{admin_id} обновлено с {kwargs}")
-    return store
+    return db.admin.get_admin_storage(admin_id)
 
 
 def clear_admin_storage(admin_id: int) -> Storage:
