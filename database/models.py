@@ -189,7 +189,13 @@ class Storage(BaseModel):
     attaches = TextField(default="")
     category_id = IntegerField(null=True)
     confirm_message = TextField(null=True)
-    active_group = IntegerField(null=True)
+    active_group = ForeignKeyField(
+        Group,
+        backref="groups",
+        default=None,
+        on_delete="SET DEFAULT",
+        on_update="CASCADE",
+    )
 
     class Meta:
         table_name = "storages"
