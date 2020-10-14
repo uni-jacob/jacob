@@ -139,7 +139,7 @@ def list_of_groups(admin_id: int) -> JSONStr:
     """
     kb = Keyboard()
 
-    groups = db.admin.get_active_group(admin_id)
+    groups = db.admin.get_admin_feud(admin_id)
     for group in groups:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
