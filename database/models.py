@@ -58,6 +58,7 @@ class Group(BaseModel):
 
 class Administrator(BaseModel):
     id = IntegerField(primary_key=True)
+    student_id = IntegerField()
     group_id = ForeignKeyField(
         Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
     )

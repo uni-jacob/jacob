@@ -24,7 +24,7 @@ def is_user_admin(admin_id: int) -> bool:
     Raises:
         UserIsNotAnAdministrator: когда пользователь не является администратором
     """
-    admin = Administrator.get_or_none(id=admin_id)
+    admin = Administrator.get_or_none(student_id=admin_id)
     if admin is not None:
         return True
     return False
@@ -41,7 +41,9 @@ def get_admin_feud(admin_id: int) -> t.Optional[t.List[Group]]:
         list[Group] or None: объект группы
     """
     if is_user_admin(admin_id):
-        admin_entries = Administrator.select().where(Administrator.id == admin_id)
+        admin_entries = Administrator.select().where(
+            Administrator.student_id == admin_id
+        )
         groups = [admin.group_id for admin in admin_entries]
         logger.debug(f"Администрируемое: {groups}")
         return groups
