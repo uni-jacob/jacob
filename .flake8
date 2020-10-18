@@ -3,6 +3,24 @@
 exclude = .git,__pycache__,polygon.py
 max_complexity = 10
 count = True
-ignore = F401,W503,E501,W605
+ignore =    C416,
+            D10,
+            DAR003,
+            DAR101,
+            DAR102,
+            F401,
+            E501,
+            I001,
+            RST301,
+            Q000,
+            W503,
+            W605,
+            WPS305,
+            WPS201,
+            WPS202,
+            WPS210,
+            WPS219,
+            WPS229,
+
 show_source = True
 statistics = True
