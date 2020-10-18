@@ -6,8 +6,6 @@ from database import utils as db
 from database.models import BaseModel
 from database.models import Chat
 from database.models import Storage
-from database.models import Student
-from services.exceptions import ChatNotFound
 from services.logger.config import config
 
 logger.configure(**config)
@@ -142,26 +140,3 @@ def invert_names_usage(admin_id: int) -> Storage:
     store = db.admin.get_admin_storage(admin_id)
     state = not store.names_usage
     return update_admin_storage(admin_id, names_usage=state)
-
-
-def invert_current_chat(admin_id: int) -> Storage:
-    """
-    Изменяет активный чат администратора
-
-    Args:
-        admin_id: идентификатор администратора
-
-    Returns:
-        Storage: объект хранилища
-    """
-    active_chat = get_active_chat(admin_id)
-    store = db.admin.get_admin_storage(admin_id)
-    group_id = Student.get_by_id(store.id).group_id
-    another_type = abs(active_chat.chat_type.id - 1)
-    another_chat = Chat.get(group_id=group_id, chat_type=another_type)
-    if another_chat is not None:
-        return update_admin_storage(admin_id, current_chat=another_type)
-    else:
-        raise ChatNotFound(
-            f"У группы {group_id} не зарегистрирован" f"{another_chat} чат"
-        )
