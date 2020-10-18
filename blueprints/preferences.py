@@ -213,11 +213,11 @@ async def index_chat(ans: SimpleBotEvent):
         chat_members = await api.messages.get_conversation_members(chat.chat_id)
         group_members = db.students.get_active_students(chat.group_id)
 
-        vk_ = prepare_set_from_vk(chat_members.response.items)
-        db_ = prepare_set_from_db(group_members)
+        vk_set = prepare_set_from_vk(chat_members.response.items)
+        db_set = prepare_set_from_db(group_members)
 
-        diff_vk_db = vk_.difference(db_)  # есть в вк, нет в бд
-        diff_db_vk = db_.difference(vk_)  # есть в бд, нет в вк
+        diff_vk_db = vk_set.difference(db_set)  # есть в вк, нет в бд
+        diff_db_vk = db_set.difference(vk_set)  # есть в бд, нет в вк
 
         query = await api.users.get(
             user_ids=list(diff_vk_db),
