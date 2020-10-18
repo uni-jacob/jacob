@@ -25,7 +25,7 @@ def get_system_id_of_student(vk_id: int) -> int:
     raise StudentNotFound(f"Студента с id ВКонтакте {vk_id} не существует в системе")
 
 
-def get_active_students(group_id: int) -> list:
+def get_active_students(group_id: int) -> t.List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы
     Args:
