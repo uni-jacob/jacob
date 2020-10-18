@@ -1,5 +1,5 @@
 [flake8]
-# select = E9,F63,F7,F82
+format = wemake
 exclude = .git,__pycache__,polygon.py
 max_complexity = 10
 count = True
