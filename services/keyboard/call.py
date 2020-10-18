@@ -10,7 +10,8 @@ JSONStr = str
 
 def skip_call_message() -> JSONStr:
     """
-    Генерирует клавиатуру для пропуска ввода сообщения призыва
+    Генерирует клавиатуру для пропуска ввода сообщения призыва.
+
     Returns:
         JSONStr: Строка с клавиатурой
     """
@@ -23,7 +24,7 @@ def skip_call_message() -> JSONStr:
 
 def call_interface(admin_id: int) -> JSONStr:
     """
-    Генерирует клавиатуру для выбора призываемых
+    Генерирует клавиатуру для выбора призываемых.
 
     Args:
         admin_id: Идентификатор пользователя
@@ -43,10 +44,13 @@ def call_interface(admin_id: int) -> JSONStr:
 
 
 def list_of_letters(
-    letters: list, return_to: str = "skip_call_message", category_id: int = None
+    letters: list,
+    return_to: str = "skip_call_message",
+    category_id: int = None,
 ) -> JSONStr:
     """
-    Генерирует подменю с буквами алфавита
+    Генерирует подменю с буквами алфавита.
+
     Args:
         letters: список букв
         return_to: Пейлоад с указанием места возврата
@@ -61,7 +65,12 @@ def list_of_letters(
         if len(kb.buttons[-1]) == 4:
             kb.add_row()
         kb.add_text_button(
-            letter, payload={"button": "letter", "value": letter, "letters": letters}
+            letter,
+            payload={
+                "button": "letter",
+                "value": letter,
+                "letters": letters,
+            },
         )
     if kb.buttons[-1]:
         kb.add_row()
@@ -73,10 +82,13 @@ def list_of_letters(
 
 
 def list_of_students(
-    letter: str, admin_id: int, letters: t.Optional[t.List[str]] = None
+    letter: str,
+    admin_id: int,
+    letters: t.Optional[t.List[str]] = None,
 ) -> JSONStr:
     """
-    Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter
+    Генерирует клавиатуру со списком студентов, фамилии которых начинаются на letter.
+
     Args:
         letter: Первая буква фамилий
         admin_id: Идентификатор пользователя
@@ -115,8 +127,7 @@ def list_of_students(
 
 def call_prompt(admin_id: int) -> JSONStr:
     """
-    Генерирует клавиатуру с подтверждением отправки призыва и возможностью его
-    настройки
+    Генерирует клавиатуру с настройкой призыва.
 
     Args:
         admin_id: идентфикатор администратора

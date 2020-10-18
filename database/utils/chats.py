@@ -8,7 +8,7 @@ from database.utils import students
 
 def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
     """
-    Возвращает список чатов группы, в которой vk_id администратор
+    Возвращает список чатов группы, в активной группе.
 
     Args:
         vk_id: идентификатор пользователя
@@ -23,10 +23,11 @@ def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
 
 def delete_chat(chat_id: int) -> int:
     """
-    удаляет чат из зарегистрированных
+    Удаляет чат из зарегистрированных.
 
     Args:
         chat_id: идентфикатор чата
+
     Returns:
         int: количество удаленных записей
     """
@@ -35,7 +36,8 @@ def delete_chat(chat_id: int) -> int:
 
 def register_chat(chat_id: int, group: int) -> Chat:
     """
-    Зарегистрировать чат
+    Зарегистрировать чат.
+
     Args:
         chat_id: идентификатор чата
         group: идентификатор группы

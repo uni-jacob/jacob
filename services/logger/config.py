@@ -39,5 +39,5 @@ config = {
             "enqueue": True,
             "filter": lambda record: "user_id" not in record["extra"],
         },
-    ]
+    ],
 }

@@ -16,16 +16,26 @@ logger.configure(**config)
 
 
 def list_of_fin_categories(vk_id: int) -> JSONStr:
+    """
+    Генерирует клавитуру со списком финансовых категорий.
+
+    Args:
+        vk_id: Идентификатор администратора
+
+    Returns:
+        JSONStr: клавиатура
+    """
     kb = Keyboard()
     admin_id = db.students.get_system_id_of_student(vk_id)
     categories = db.finances.get_list_of_fin_categories(
-        db.admin.get_active_group(admin_id)
+        db.admin.get_active_group(admin_id),
     )
     for category in categories:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
         kb.add_text_button(
-            category.name, payload={"button": "fin_category", "category": category.id}
+            category.name,
+            payload={"button": "fin_category", "category": category.id},
         )
     if kb.buttons[-1]:
         kb.add_row()
@@ -36,7 +46,7 @@ def list_of_fin_categories(vk_id: int) -> JSONStr:
 
 def fin_category() -> JSONStr:
     """
-    клавиатура меню категории финансов
+    клавиатура меню категории финансов.
 
     Returns:
         JSONStr: клавиатура

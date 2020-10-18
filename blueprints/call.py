@@ -48,8 +48,8 @@ async def start_call(ans: SimpleBotEvent):
                 "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
                 keyboard=kbs.main.main_menu(
                     db.students.get_system_id_of_student(
-                        ans.object.object.message.from_id
-                    )
+                        ans.object.object.message.from_id,
+                    ),
                 ),
             )
 
@@ -63,12 +63,12 @@ async def start_call(ans: SimpleBotEvent):
 async def cancel_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.clear_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+            db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         )
         await ans.answer(
             "Призыв отменён. Возврат на главную.",
             keyboard=kbs.main.main_menu(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
         )
 
@@ -88,7 +88,7 @@ async def skip_register_call_message(ans: SimpleBotEvent):
         await ans.answer(
             "Выберите призываемых студентов",
             keyboard=kbs.call.call_interface(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
         )
 
@@ -104,7 +104,9 @@ async def register_call_message(ans: SimpleBotEvent):
         attachments = ""
         if raw_attachments := ans.object.object.message.attachments:
             attachments = await media.load_attachments(
-                api, raw_attachments, ans.object.object.message.peer_id
+                api,
+                raw_attachments,
+                ans.object.object.message.peer_id,
             )
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -115,7 +117,7 @@ async def register_call_message(ans: SimpleBotEvent):
         await ans.answer(
             "Сообщение сохранено. Выберите призываемых студентов",
             keyboard=kbs.call.call_interface(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
         )
 
@@ -151,9 +153,9 @@ async def select_letter(ans: SimpleBotEvent):
                 keyboard=kbs.call.list_of_students(
                     letter,
                     db.students.get_system_id_of_student(
-                        ans.object.object.message.peer_id
+                        ans.object.object.message.peer_id,
                     ),
-                    payload["letters"],
+                    payload.get("letters"),
                 ),
             )
         else:
@@ -162,7 +164,7 @@ async def select_letter(ans: SimpleBotEvent):
                 keyboard=kbs.call.list_of_students(
                     letter,
                     db.students.get_system_id_of_student(
-                        ans.object.object.message.peer_id
+                        ans.object.object.message.peer_id,
                     ),
                 ),
             )
@@ -181,7 +183,7 @@ async def select_student(ans: SimpleBotEvent):
         letter = payload["letter"]
         name = payload["name"]
         if student_id in db.shortcuts.get_list_of_calling_students(
-            db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+            db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         ):
             db.shortcuts.pop_student_from_calling_list(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -212,7 +214,7 @@ async def select_student(ans: SimpleBotEvent):
 async def confirm_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         admin_id = db.students.get_system_id_of_student(
-            ans.object.object.message.peer_id
+            ans.object.object.message.peer_id,
         )
         msg = call.generate_message(admin_id)
         store = db.admin.get_admin_storage(admin_id)
@@ -231,7 +233,7 @@ async def confirm_call(ans: SimpleBotEvent):
         await ans.answer(
             f'Сообщение будет отправлено в чат "{chat_name}":\n{msg}',
             keyboard=kbs.call.call_prompt(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
             attachment=store.attaches or "",
         )
@@ -246,7 +248,7 @@ async def confirm_call(ans: SimpleBotEvent):
 async def call_them_all(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         admin_id = db.students.get_system_id_of_student(
-            ans.object.object.message.peer_id
+            ans.object.object.message.peer_id,
         )
         student = Student.get_by_id(admin_id)
         students = [st.id for st in db.students.get_active_students(student.group_id)]
@@ -264,7 +266,7 @@ async def call_them_all(ans: SimpleBotEvent):
 async def send_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         admin_id = db.students.get_system_id_of_student(
-            ans.object.object.message.peer_id
+            ans.object.object.message.peer_id,
         )
         store = db.admin.get_admin_storage(admin_id)
         msg = call.generate_message(admin_id)
@@ -303,7 +305,7 @@ async def deny_call(ans: SimpleBotEvent):
 async def change_names_usage(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.invert_names_usage(
-            db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+            db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         )
         await confirm_call(ans)
 

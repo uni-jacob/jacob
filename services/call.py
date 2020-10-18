@@ -1,10 +1,11 @@
-from database.models import Student
 from database import utils as db
+from database.models import Student
 
 
 def generate_mentions(names_usage: bool, students: str) -> str:
     """
-    Генерирует призыв студентов
+    Генерирует призыв студентов.
+
     Args:
         names_usage: Использование имен студентов
         students: Список идентификаторов призываемых студентов
@@ -24,7 +25,8 @@ def generate_mentions(names_usage: bool, students: str) -> str:
 
 def generate_message(admin_id: int) -> str:
     """
-    Генерирует сообщение для призыва
+    Генерирует сообщение для призыва.
+
     Args:
         admin_id: Идентификатор пользователя, из хранилища которого провести генерацию
 

@@ -13,7 +13,7 @@ api = api_session.get_context()
 
 def alphabet(admin_id: int) -> Keyboard:
     """
-    Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов
+    Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов.
 
     Args:
         admin_id: Идентификатор администратора
@@ -34,7 +34,8 @@ def alphabet(admin_id: int) -> Keyboard:
             if len(kb.buttons[-1]) == 4:
                 kb.add_row()
             kb.add_text_button(
-                text=letter, payload={"button": "letter", "value": letter}
+                text=letter,
+                payload={"button": "letter", "value": letter},
             )
 
     return kb
@@ -42,7 +43,8 @@ def alphabet(admin_id: int) -> Keyboard:
 
 async def list_of_chats(vk_id: int):
     """
-    Генерирует фрагмент клавиатуры со списком подключенных чатов
+    Генерирует фрагмент клавиатуры со списком подключенных чатов.
+
     Args:
         vk_id: идентификатор пользователя
         (TODO: Вытащить вычисление admin_id на самый верх)
@@ -50,13 +52,13 @@ async def list_of_chats(vk_id: int):
     Returns:
         Keyboard: Фрагмент клавиатуры
     """
-
     kb = Keyboard()
 
     chats = db.chats.get_list_of_chats_by_group(vk_id)
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(
-            peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
+            peer_ids=chat.chat_id,
+            group_id=os.getenv("GROUP_ID"),
         )
         try:
             chat_title = chat_object.response.items[0].chat_settings.title
@@ -74,7 +76,8 @@ async def list_of_chats(vk_id: int):
 
 def prompt() -> Keyboard:
     """
-    Генерирует клавиатуру с подтверждением действия
+    Генерирует клавиатуру с подтверждением действия.
+
     Returns:
         Keyboard: Объект клавиатуры
     """
@@ -92,7 +95,7 @@ def empty() -> JSONStr:
 
 def cancel():
     """
-    Генерирует клавиатуру для отмены действия
+    Генерирует клавиатуру для отмены действия.
 
     Returns:
         JSONStr: клавиатура

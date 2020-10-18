@@ -49,7 +49,10 @@ class Group(BaseModel):
     group_num = CharField()
     specialty = TextField()
     alma_mater = ForeignKeyField(
-        AlmaMater, backref="almamater", on_delete="CASCADE", on_update="CASCADE"
+        AlmaMater,
+        backref="almamater",
+        on_delete="CASCADE",
+        on_update="CASCADE",
     )
 
     class Meta:
@@ -60,7 +63,10 @@ class Administrator(BaseModel):
     id = IntegerField(primary_key=True)
     student_id = IntegerField()
     group_id = ForeignKeyField(
-        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+        Group,
+        backref="groups",
+        on_delete="CASCADE",
+        on_update="CASCADE",
     )
 
     class Meta:
@@ -73,7 +79,10 @@ class Chat(BaseModel):
     )
     chat_id = BigIntegerField(unique=True)
     group_id = ForeignKeyField(
-        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+        Group,
+        backref="groups",
+        on_delete="CASCADE",
+        on_update="CASCADE",
     )
 
     class Meta:
@@ -87,7 +96,10 @@ class FinancialCategory(BaseModel):
     name = CharField()
     summ = IntegerField()
     group_id = ForeignKeyField(
-        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+        Group,
+        backref="groups",
+        on_delete="CASCADE",
+        on_update="CASCADE",
     )
 
     class Meta:
@@ -98,15 +110,26 @@ class Student(BaseModel):
     id = AutoField(
         primary_key=True,
     )
-    vk_id = BigIntegerField(unique=True, constraints=[Check("vk_id > 0")])
+    vk_id = BigIntegerField(
+        unique=True,
+        constraints=[
+            Check("vk_id > 0"),
+        ],
+    )
     first_name = CharField()
     second_name = CharField()
     group_id = ForeignKeyField(
-        Group, backref="groups", on_delete="CASCADE", on_update="CASCADE"
+        Group,
+        backref="groups",
+        on_delete="CASCADE",
+        on_update="CASCADE",
     )
     email = CharField(null=True)
     phone_number = BigIntegerField(
-        null=True, constraints=[Check("phone_number < 99999999999")]
+        null=True,
+        constraints=[
+            Check("phone_number < 99999999999"),
+        ],
     )
     subgroup = IntegerField(null=True)
     academic_status = ForeignKeyField(
@@ -132,7 +155,10 @@ class FinancialDonate(BaseModel):
         on_update="CASCADE",
     )
     student = ForeignKeyField(
-        Student, backref="students", on_delete="CASCADE", on_update="CASCADE"
+        Student,
+        backref="students",
+        on_delete="CASCADE",
+        on_update="CASCADE",
     )
     summ = IntegerField()
     create_date = TimestampField(default=fn.NOW())
@@ -174,7 +200,11 @@ class Storage(BaseModel):
         primary_key=True,
     )
     state_id = ForeignKeyField(
-        State, backref="states", default=1, on_delete="SET DEFAULT", on_update="CASCADE"
+        State,
+        backref="states",
+        default=1,
+        on_delete="SET DEFAULT",
+        on_update="CASCADE",
     )
     current_chat_id = ForeignKeyField(
         Chat,

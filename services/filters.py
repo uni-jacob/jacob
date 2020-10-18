@@ -28,18 +28,17 @@ class PLFilter(PayloadFilter):
             return FilterResult(False)
         if event.bot_type is BotType.USER:
             current_payload = self.json_loader(event.object.object.message_data.payload)
+        elif event.object.type == BotEventType.MESSAGE_EVENT.value:
+            current_payload = event.object.object.payload
         else:
-            if event.object.type == BotEventType.MESSAGE_EVENT.value:
-                current_payload = event.object.object.payload
-            else:
-                current_payload = self.json_loader(event.object.object.message.payload)
+            current_payload = self.json_loader(event.object.object.message.payload)
         if current_payload is None:
             return FilterResult(False)
         return FilterResult(
             any(
                 self.payload.get(key, None) == val
                 for key, val in current_payload.items()
-            )
+            ),
         )
 
 
@@ -53,7 +52,7 @@ class StateFilter(BaseFilter):
     async def check(self, event: BaseEvent) -> FilterResult:
         try:
             admin_id = db.students.get_system_id_of_student(
-                event.object.object.message.from_id
+                event.object.object.message.from_id,
             )
         except StudentNotFound:
             return FilterResult(False)

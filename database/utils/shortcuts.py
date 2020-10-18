@@ -17,7 +17,7 @@ def generate_list(data) -> t.List[BaseModel]:
 
 def update_admin_storage(admin_id: int, **kwargs) -> Storage:
     """
-    Обновляет хранилище администратора и возвращает объект хранилища
+    Обновляет хранилище администратора и возвращает объект хранилища.
 
     Args:
         admin_id: идентификатор администратора
@@ -34,7 +34,7 @@ def update_admin_storage(admin_id: int, **kwargs) -> Storage:
 
 def clear_admin_storage(admin_id: int) -> Storage:
     """
-    Очищает хранилище администратора
+    Очищает хранилище администратора.
 
     Args:
         admin_id: идентификатор администратора
@@ -54,7 +54,7 @@ def clear_admin_storage(admin_id: int) -> Storage:
 
 def get_list_of_calling_students(admin_id: int) -> t.List[int]:
     """
-    Возвращает список призываемых студентов из хранилища администратора admin_id
+    Возвращает список призываемых студентов из хранилища администратора admin_id.
 
     Args:
         admin_id: идентификатор администратора
@@ -69,7 +69,8 @@ def get_list_of_calling_students(admin_id: int) -> t.List[int]:
 
 def update_calling_list(admin_id: int, calling_list: list) -> Storage:
     """
-    Изменяет список призыва
+    Изменяет список призыва.
+
     Args:
         admin_id: идентификатор администратора
         calling_list: список призыва для замены
@@ -78,13 +79,15 @@ def update_calling_list(admin_id: int, calling_list: list) -> Storage:
         Storage: хранилище администратора
     """
     return update_admin_storage(
-        admin_id, selected_students=",".join(map(str, calling_list))
+        admin_id,
+        selected_students=",".join(map(str, calling_list)),
     )
 
 
 def pop_student_from_calling_list(admin_id: int, student_id: int) -> Storage:
     """
-    Удаляет студента из списка призываемых студентов
+    Удаляет студента из списка призываемых студентов.
+
     Args:
         admin_id: идентификатор администратора
         student_id: идентфикатор удаляемого студента
@@ -99,7 +102,7 @@ def pop_student_from_calling_list(admin_id: int, student_id: int) -> Storage:
 
 def add_student_to_calling_list(admin_id: int, student_id: int) -> Storage:
     """
-    Добавляет студента в список призываемых студентов
+    Добавляет студента в список призываемых студентов.
 
     Args:
         admin_id: идентификатор администратора
@@ -115,7 +118,7 @@ def add_student_to_calling_list(admin_id: int, student_id: int) -> Storage:
 
 def get_active_chat(admin_id: int) -> Chat:
     """
-    Получает идентификатор активного чата конкретного администратора
+    Получает идентификатор активного чата конкретного администратора.
 
     Args:
         admin_id: идентификатор администратора
@@ -129,7 +132,7 @@ def get_active_chat(admin_id: int) -> Chat:
 
 def invert_names_usage(admin_id: int) -> Storage:
     """
-    Изменяет использование имен у администратора
+    Изменяет использование имен у администратора.
 
     Args:
         admin_id: идентификатор администратора

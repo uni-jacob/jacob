@@ -35,15 +35,14 @@ logger.configure(**config)
 @logger.catch()
 async def open_preferences(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        # TODO: Изменить механизм получения идшника активной группы
         active_group = db.admin.get_active_group(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
         )
         await ans.answer(
             f"Настройки\nАктивная группа: {active_group.group_num} ("
             f"{active_group.specialty})",
             keyboard=kbs.preferences.preferences(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
         )
 
@@ -59,7 +58,7 @@ async def list_of_chats(ans: SimpleBotEvent):
         await ans.answer(
             "Список подключенных чатов",
             keyboard=await kbs.preferences.connected_chats(
-                ans.object.object.message.peer_id
+                ans.object.object.message.peer_id,
             ),
         )
 
@@ -77,7 +76,8 @@ async def configure_chat(ans: SimpleBotEvent):
         payload = hyperjson.loads(ans.object.object.message.payload)
         chat = Chat.get_by_id(payload["chat_id"])
         chat_object = await api.messages.get_conversations_by_id(
-            peer_ids=chat.chat_id, group_id=os.getenv("GROUP_ID")
+            peer_ids=chat.chat_id,
+            group_id=os.getenv("GROUP_ID"),
         )
         try:
             chat_title = chat_object.response.items[0].chat_settings.title
@@ -111,7 +111,7 @@ async def delete_chat(ans: SimpleBotEvent):
         await ans.answer(
             "Чат удален",
             keyboard=await kbs.preferences.connected_chats(
-                ans.object.object.message.from_id
+                ans.object.object.message.from_id,
             ),
         )
 
@@ -146,12 +146,12 @@ async def generate_confirm_message(ans: SimpleBotEvent):
 @logger.catch()
 async def cancel_register_chat(ans: SimpleBotEvent):
     db.shortcuts.clear_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer(
         "Регистрация чата отменена",
         keyboard=await kbs.preferences.connected_chats(
-            ans.object.object.message.from_id
+            ans.object.object.message.from_id,
         ),
     )
 
@@ -165,14 +165,14 @@ async def cancel_register_chat(ans: SimpleBotEvent):
 async def register_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         store = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
         )
         if (
             store.confirm_message in ans.object.object.message.text
             and ans.object.object.message.from_id == Student.get_by_id(store.id).vk_id
         ):
             db.shortcuts.clear_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
 
             group = Student.get(vk_id=ans.object.object.message.from_id).group_id.id
@@ -183,7 +183,7 @@ async def register_chat(ans: SimpleBotEvent):
             )
             try:
                 chat_object = await api.messages.get_conversations_by_id(
-                    peer_ids=ans.object.object.message.peer_id
+                    peer_ids=ans.object.object.message.peer_id,
                 )
                 chat_name = chat_object.response.items[0].chat_settings.title
             except IndexError:
@@ -193,7 +193,7 @@ async def register_chat(ans: SimpleBotEvent):
                 peer_id=ans.object.object.message.from_id,
                 random_id=0,
                 keyboard=await kbs.preferences.connected_chats(
-                    ans.object.object.message.from_id
+                    ans.object.object.message.from_id,
                 ),
             )
             await ans.answer("Привет!")
@@ -242,7 +242,9 @@ async def index_chat(ans: SimpleBotEvent):
      вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)
         """,
             keyboard=kbs.preferences.index_chat(
-                chat.id, list(diff_vk_db), list(diff_db_vk)
+                chat.id,
+                list(diff_vk_db),
+                list(diff_db_vk),
             ),
         )
 
@@ -272,7 +274,7 @@ async def register_students(ans: SimpleBotEvent):
                     "vk_id": student.id,
                     "group_id": payload["group"],
                     "academic_status": 1,
-                }
+                },
             )
         query = Student.insert_many(data).execute()
 
@@ -313,7 +315,7 @@ async def list_of_administrating_groups(ans: SimpleBotEvent):
     await ans.answer(
         "Выберите активную группу",
         keyboard=kbs.preferences.list_of_groups(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
         ),
     )
 

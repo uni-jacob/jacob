@@ -4,7 +4,7 @@ from services.exceptions import BotStateNotFound
 
 def get_id_of_state(description: str) -> int:
     """
-    Возвращает идентификатор состояния бота по его описанию
+    Возвращает идентификатор состояния бота по его описанию.
 
     Args:
         description: описание статуса бота

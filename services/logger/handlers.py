@@ -24,7 +24,7 @@ class TelegramHandler(logging.Handler):
         requests.post(
             f"https://api.telegram.org/bot"
             f"{data['token']}/sendMessage?chat_id={os.getenv('TG_CHATS')}&text"
-            f"={message}&parse_mode=Markdown"
+            f"={message}&parse_mode=Markdown",
         )
 
     def format(self, record):
@@ -48,5 +48,6 @@ class InterceptHandler(logging.Handler):
             depth += 1
 
         logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage()
+            level,
+            record.getMessage(),
         )

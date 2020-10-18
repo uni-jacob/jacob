@@ -8,9 +8,11 @@ JSONStr = str
 
 def main_menu(admin_id: int) -> JSONStr:
     """
-    Генерирует клавиатуру главного меню
+    Генерирует клавиатуру главного меню.
+
     Args:
         admin_id: Идентификатор пользователя
+
     Returns:
         JSONStr: Строка с клавиатурой
 

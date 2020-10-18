@@ -15,11 +15,15 @@ async def load_attachments(
     from_id: int,
 ) -> str:
     """
-    Загружает вложения на сервера ВК
+    Загружает вложения на сервера ВК.
+
     Args:
         api: Объект API ВКонтакте
         attachments: Вложения
         from_id: Отправитель сообщения с вложениями
+
+    Raises:
+        AttachmentLimitExceeded: Если количество вложений больше 10
 
     Returns:
         str: Список идентификаторов вложений, готовых к отправке
@@ -38,14 +42,21 @@ async def load_attachments(
                 if size.height > max_size:
                     max_size = size.height
                     max_url = size.url
-            atch = await photo_uploader.get_attachment_from_link(from_id, max_url)
+            atch = await photo_uploader.get_attachment_from_link(
+                from_id,
+                max_url,
+            )
             atchs += atch.split(",")
         if attach.doc:
-            atch = await doc_uploader.get_attachment_from_link(from_id, attach.doc.url)
+            atch = await doc_uploader.get_attachment_from_link(
+                from_id,
+                attach.doc.url,
+            )
             atchs += atch.split(",")
         if attach.audio_message:
             atch = await am_uploader.get_attachment_from_link(
-                from_id, attach.audio_message.link_ogg
+                from_id,
+                attach.audio_message.link_ogg,
             )
             atchs += atch.split(",")
 
@@ -54,10 +65,11 @@ async def load_attachments(
 
 def translate_string(s: str) -> str:
     """
-    Переводит строку с английской раскладки на русскую и обратно
+    Переводит строку с английской раскладки на русскую и обратно.
 
     Args:
         s: Исходная строка
+
     Returns:
         str: Переведенная строка
     """
@@ -69,7 +81,7 @@ def translate_string(s: str) -> str:
                 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~',
             ),
             "йцукенгшщзхъфывапролджэячсмитьбю.ё" "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,Ё",
-        )
+        ),
     )
     en_layout = dict(
         zip(
@@ -79,7 +91,7 @@ def translate_string(s: str) -> str:
                 "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,Ё",
             ),
             "qwertyuiop[]asdfghjkl;'zxcvbnm,./`" 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~',
-        )
+        ),
     )
     tr = s.translate(layout)
     if tr == s:

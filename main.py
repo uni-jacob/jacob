@@ -41,7 +41,7 @@ async def start(ans: SimpleBotEvent):
         await ans.answer(
             "Привет!",
             keyboard=kbs.main.main_menu(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
         )
 

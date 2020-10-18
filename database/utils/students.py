@@ -8,7 +8,8 @@ from services.exceptions import StudentNotFound
 
 def get_system_id_of_student(vk_id: int) -> int:
     """
-    Возвращает идентификатор студента в системе
+    Возвращает идентификатор студента в системе.
+
     Args:
         vk_id: идентификатор студента в ВКонтакте
 
@@ -16,8 +17,8 @@ def get_system_id_of_student(vk_id: int) -> int:
         int: идентификатор студента в системе
 
     Raises:
-        StudentNotFound: когда студент с указанным идентификатором ВК не найден
-        в системе
+        StudentNotFound: когда студент с указанным идентификатором ВК не найден в
+        системе
     """
     student = Student.get_or_none(vk_id=vk_id)
     if student is not None:
@@ -27,15 +28,20 @@ def get_system_id_of_student(vk_id: int) -> int:
 
 def get_active_students(group_id: int) -> t.List[Student]:
     """
-    Возвращает список активных (не отчисленных студентов) конкретной группы
+    Возвращает список активных (не отчисленных студентов) конкретной группы.
+
     Args:
         group_id: идентфикатор группы
+
+    Raises:
+        StudentNotFound: Когда в группе нет активных студентов
 
     Returns:
         list[Student]: набор активных студентов группы
     """
     query = Student.select().where(
-        Student.group_id == group_id, Student.academic_status > 0
+        Student.group_id == group_id,
+        Student.academic_status > 0,
     )
     students = shortcuts.generate_list(query)
     if students:
@@ -45,8 +51,8 @@ def get_active_students(group_id: int) -> t.List[Student]:
 
 def get_unique_second_name_letters_in_a_group(admin_id: int) -> list:
     """
-    Возвращает список первых букв фамилий в группе, в которой admin_id является
-    администратором
+    Возвращает список первых букв фамилий в активной группе.
+
     Args:
         admin_id: Идентификатор пользователя
 
@@ -67,8 +73,8 @@ def get_unique_second_name_letters_in_a_group(admin_id: int) -> list:
 
 def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student]:
     """
-    Возвращает объекты студентов группы, в которой vk_id администратор, фамилии
-    которых начинаются на letter
+    Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
+
     Args:
         letter: первая буква фамилий
         admin_id: идентификатор пользователся
@@ -81,7 +87,7 @@ def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student
         Student.select()
         .where(
             (Student.second_name.startswith(letter))
-            & (Student.group_id == active_group)
+            & (Student.group_id == active_group),
         )
         .order_by(Student.second_name.asc())
     )

@@ -9,7 +9,8 @@ from database.models import Student
 
 def prepare_set_from_vk(data: t.List[MessagesConversationMember]) -> t.Set[int]:
     """
-    Формирует список идентификаторов студентов из беседы ВК
+    Формирует список идентификаторов студентов из беседы ВК.
+
     Args:
         data: Список судентов
 
@@ -21,7 +22,8 @@ def prepare_set_from_vk(data: t.List[MessagesConversationMember]) -> t.Set[int]:
 
 def prepare_set_from_db(data: t.List[Student]) -> t.Set[int]:
     """
-    Формирует список идентификаторов студентов из базы данных
+    Формирует список идентификаторов студентов из базы данных.
+
     Args:
         data: Список судентов
 
@@ -33,7 +35,8 @@ def prepare_set_from_db(data: t.List[Student]) -> t.Set[int]:
 
 def get_confirm_message() -> str:
     """
-    Генерирует подтверждающее сообщение для регистрации чатов
+    Генерирует подтверждающее сообщение для регистрации чатов.
+
     Returns:
         str: подтверждающее сообщение
     """

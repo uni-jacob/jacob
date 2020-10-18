@@ -11,10 +11,11 @@ JSONStr = str
 
 def preferences(admin_id: int) -> JSONStr:
     """
-    Возвращает клавиатуру главного окна настроек
+    Возвращает клавиатуру главного окна настроек.
 
     Args:
         admin_id: Идентификатор администратора
+
     Returns:
         JSONStr: клавиатура
     """
@@ -31,9 +32,11 @@ def preferences(admin_id: int) -> JSONStr:
 
 async def connected_chats(vk_id: int) -> JSONStr:
     """
-    Генерирует клавиатуру со списком подключенных чатов
+    Генерирует клавиатуру со списком подключенных чатов.
+
     Args:
         vk_id: идентификатор пользователя
+
     Returns:
         JSONStr: клавиатура
     """
@@ -48,7 +51,7 @@ async def connected_chats(vk_id: int) -> JSONStr:
 
 def configure_chat(chat_id: int):
     """
-    Меню настройки чата
+    Меню настройки чата.
 
     Args:
         chat_id: Идентфикатор чата
@@ -58,27 +61,35 @@ def configure_chat(chat_id: int):
     """
     kb = Keyboard()
     kb.add_text_button(
-        "🗑 Отключить чат", payload={"button": "remove_chat", "chat": chat_id}
+        "🗑 Отключить чат",
+        payload={"button": "remove_chat", "chat": chat_id},
     )
     kb.add_row()
     kb.add_text_button(
-        "🗂 Индексировать чат", payload={"button": "index_chat", "chat": chat_id}
+        "🗂 Индексировать чат",
+        payload={"button": "index_chat", "chat": chat_id},
     )
     kb.add_row()
-    kb.add_text_button("◀️ Назад", payload={"button": "configure_chats"})
+    kb.add_text_button(
+        "◀️ Назад",
+        payload={"button": "configure_chats"},
+    )
     return kb.get_keyboard()
 
 
 def index_chat(
-    chat_id: int, vk_students: t.List[int], db_students: t.List[int]
+    chat_id: int,
+    vk_students: t.List[int],
+    db_students: t.List[int],
 ) -> JSONStr:
     """
-    Меню индексации чата
+    Меню индексации чата.
 
     Args:
         chat_id: Идентификатор чата
         vk_students: Список студентов, присутствующих в чате
         db_students: Список студентов, присутствующих в БД
+
     Returns:
         JSONStr: Клавиатура
     """
@@ -128,8 +139,7 @@ def index_chat(
 
 def list_of_groups(admin_id: int) -> JSONStr:
     """
-    Генерирует клавиатуру со списком групп, доступных пользователю для
-    администрирования
+    Генерирует клавиатуру с группами, доступных пользователю для администрирования.
 
     Args:
         admin_id: идентификатор администратора
@@ -144,7 +154,8 @@ def list_of_groups(admin_id: int) -> JSONStr:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
         kb.add_text_button(
-            group.group_num, payload={"button": "group", "group_id": group.id}
+            group.group_num,
+            payload={"button": "group", "group_id": group.id},
         )
 
     return kb.get_keyboard()

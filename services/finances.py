@@ -8,7 +8,8 @@ from database.models import Student
 
 def generate_debtors_call(admin_id: int) -> t.List[str]:
     """
-    Генерирует сообщение призыва должников
+    Генерирует сообщение призыва должников.
+
     Args:
         admin_id: идентификатор администратора
 
@@ -23,7 +24,8 @@ def generate_debtors_call(admin_id: int) -> t.List[str]:
     ]
     for debtor_id in debtors:
         if donate := FinancialDonate.get_or_none(
-            category=category.id, student=debtor_id
+            category=category.id,
+            student=debtor_id,
         ):
             summ = category.summ - donate.summ
         else:

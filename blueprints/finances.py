@@ -35,7 +35,7 @@ async def finances(ans: SimpleBotEvent):
         await ans.answer(
             "Список финансовых категорий",
             keyboard=kbs.finances.list_of_fin_categories(
-                ans.object.object.message.from_id
+                ans.object.object.message.from_id,
             ),
         )
 
@@ -58,7 +58,7 @@ async def fin_category_menu(ans: SimpleBotEvent):
             category_object = FinancialCategory.get_by_id(payload["category"])
         else:
             store = db.admin.get_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             category_object = FinancialCategory.get_by_id(store.category_id)
 
@@ -85,7 +85,7 @@ async def add_income(ans: SimpleBotEvent):
         await ans.answer(
             "Выберите студента, сдавшего деньги",
             keyboard=kbs.finances.fin_list_of_letters(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             ),
         )
 
@@ -100,7 +100,7 @@ async def select_half(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         store = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
         )
         category = store.category_id
         await ans.answer(
@@ -157,13 +157,15 @@ async def save_donate(ans: SimpleBotEvent):
         text = ans.object.object.message.text
         if re.match(r"^\d+$", text):
             store = db.admin.get_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             db.finances.add_or_edit_donate(
-                store.category_id, int(store.selected_students), int(text)
+                store.category_id,
+                int(store.selected_students),
+                int(text),
             )
             db.shortcuts.clear_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             await ans.answer("Доход сохранен", keyboard=kbs.finances.fin_category())
         else:
@@ -180,14 +182,14 @@ async def call_debtors(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         if db.chats.get_list_of_chats_by_group(ans.object.object.message.from_id):
             msgs = generate_debtors_call(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             db.shortcuts.update_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
                 state_id=db.bot.get_id_of_state("confirm_debtors_call"),
             )
             store = db.admin.get_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             chat_id = Chat.get_by_id(store.current_chat_id).chat_id
             chat_object = await api.messages.get_conversations_by_id(chat_id)
@@ -250,10 +252,10 @@ async def save_chat_debtors(ans: SimpleBotEvent):
 async def confirm_call_debtors(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         msgs = generate_debtors_call(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
         )
         chat = db.shortcuts.get_active_chat(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id)
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
         ).chat_id
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -306,11 +308,11 @@ async def save_expense(ans: SimpleBotEvent):
         text = ans.object.object.message.text
         if re.match(r"^\d+$", text):
             store = db.admin.get_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             db.finances.add_expense(store.category_id, int(text))
             db.shortcuts.clear_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             )
             await ans.answer("Расход сохранен", keyboard=kbs.finances.fin_category())
         else:
@@ -325,10 +327,10 @@ async def save_expense(ans: SimpleBotEvent):
 @logger.catch()
 async def get_statistics(ans: SimpleBotEvent):
     store = db.admin.get_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     donates_summ = db.finances.calculate_donates_in_category(store.category_id)
     expenses_summ = db.finances.calculate_expenses_in_category(store.category_id)
     await ans.answer(
-        f"Статистика\nСобрано: {donates_summ} руб.\nПотрачено: {expenses_summ} руб."
+        f"Статистика\nСобрано: {donates_summ} руб.\nПотрачено: {expenses_summ} руб.",
     )
