@@ -38,6 +38,8 @@ def call_interface(admin_id: int) -> JSONStr:
     kb.add_text_button(text="✅ Сохранить", payload={"button": "save_selected"})
     kb.add_text_button(text="👥 Призвать всех", payload={"button": "call_all"})
     kb.add_row()
+    kb.add_text_button(text="✏️ Изменить текст", payload={"button": "call"})
+    kb.add_row()
     kb.add_text_button(text="🚫 Отмена", payload={"button": "cancel_call"})
 
     return kb.get_keyboard()
