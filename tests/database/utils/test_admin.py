@@ -1,5 +1,7 @@
 from pyshould import it
+from pyshould.expect import expect_all
 
+from database.models import Group
 from database.models import Storage
 from database.utils import admin
 
@@ -20,6 +22,22 @@ class TestAdmin:
         status = admin.is_user_admin(test_student_id)
 
         it(status).should.be_equal(False)
+
+    def test_get_admin_feud(self):
+
+        test_student_id = 1
+
+        groups = admin.get_admin_feud(test_student_id)
+
+        expect_all(groups).be_an_instance_of(Group)
+
+    def test_get_admin_feud_of_non_admin(self):
+
+        test_student_id = 3
+
+        groups = admin.get_admin_feud(test_student_id)
+
+        it(groups).be_an_instance_of(type(None))
 
     def test_get_admin_storage(self):
 
