@@ -81,6 +81,9 @@ def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student
 
     Returns:
         list[Student]: список студентов
+
+    TODO:
+        Поменять агрументы местами
     """
     active_group = admin.get_active_group(admin_id)
     query = (
