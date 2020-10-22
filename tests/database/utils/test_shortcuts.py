@@ -35,7 +35,7 @@ class TestShortcuts:
     def test_get_active_chat(self):
 
         test_admin_id = 1
-        test_chat = Chat.get(id=1)
+        test_chat = Chat.get(id=2)
 
         res = shortcuts.get_active_chat(test_admin_id)
 
