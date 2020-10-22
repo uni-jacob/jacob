@@ -37,17 +37,17 @@ class TestStudents:
 
     def test_get_unique_second_name_letters_in_a_group(self):
 
-        test_user_id = 549350532
+        test_user_id = 1
 
         snd_names = students.get_unique_second_name_letters_in_a_group(test_user_id)
 
-        it(snd_names).should.be_equal(["f", "Г"])
+        it(snd_names).should.be_equal(list("БВКМНСТ"))
 
     def test_get_list_of_students_by_letter(self):
 
-        test_letter = "Г"
-        test_user_id = 549350532
-        test_student = Student.get(id=1)
+        test_letter = "Б"
+        test_user_id = 1
+        test_student = Student.get_by_id(4)
 
         st = students.get_list_of_students_by_letter(test_letter, test_user_id)
 
