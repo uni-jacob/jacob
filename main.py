@@ -11,6 +11,8 @@ from blueprints import call
 from blueprints import chats
 from blueprints import finances
 from blueprints import preferences
+from blueprints import schedule
+from blueprints import web
 from database import utils as db
 from services import keyboard as kbs
 from services.filters import PLFilter
@@ -25,6 +27,8 @@ bot.dispatcher.add_router(call.call_router)
 bot.dispatcher.add_router(preferences.preferences_router)
 bot.dispatcher.add_router(chats.chats_router)
 bot.dispatcher.add_router(finances.finances_router)
+bot.dispatcher.add_router(schedule.schedule_router)
+bot.dispatcher.add_router(web.web_router)
 
 logger.configure(**config)
 logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
