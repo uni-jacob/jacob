@@ -54,3 +54,19 @@ class TestAdmin:
         store = admin.get_admin_storage(test_student_id)
 
         it(store).should.be_an_instance_of(type(None))
+
+    def test_get_active_group(self):
+
+        test_student_id = 1
+
+        group = admin.get_active_group(test_student_id)
+
+        it(group).should.be_equal(Group.get_by_id(2))
+
+    def test_get_active_group_of_non_admin(self):
+
+        test_student_id = 3
+
+        group = admin.get_active_group(test_student_id)
+
+        it(group).should.be_equal(None)
