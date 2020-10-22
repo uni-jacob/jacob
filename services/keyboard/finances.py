@@ -73,7 +73,11 @@ def fin_list_of_letters(user_id: int):
         kb.add_row()
 
     kb.add_text_button(
-        "🚫 Отмена", payload={"button": "fin_category", "category": store.category_id}
+        "🚫 Отмена",
+        payload={
+            "button": "fin_category",
+            "category": store.category_id,
+        },
     )
 
     return kb.get_keyboard()

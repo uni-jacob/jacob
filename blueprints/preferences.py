@@ -176,7 +176,9 @@ async def register_chat(ans: SimpleBotEvent):
             )
 
             group = db.admin.get_active_group(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id)
+                db.students.get_system_id_of_student(
+                    ans.object.object.message.from_id,
+                ),
             )
             chat = db.chats.register_chat(ans.object.object.message.peer_id, group)
             db.shortcuts.update_admin_storage(
