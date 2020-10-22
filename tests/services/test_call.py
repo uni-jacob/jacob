@@ -20,4 +20,6 @@ class TestCall:
 
         res = call.generate_message(test_admin_id)
 
-        it(res).should.be_equal("@id549350532 (!)@id199901833 (!)@id255208457 (!)\nTest")
+        it(res).should.be_equal(
+            "@id549350532 (!)@id199901833 (!)@id255208457 (!)\nTest"
+        )
