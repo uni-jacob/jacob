@@ -67,11 +67,14 @@ def fin_category() -> JSONStr:
 def fin_list_of_letters(user_id: int):
 
     kb = kbs.common.alphabet(user_id)
+    store = db.admin.get_admin_storage(user_id)
 
     if kb.buttons[-1]:
         kb.add_row()
 
-    kb.add_text_button("🚫 Отмена", payload={"button": "fin_category"})
+    kb.add_text_button(
+        "🚫 Отмена", payload={"button": "fin_category", "category": store.category_id}
+    )
 
     return kb.get_keyboard()
 
