@@ -77,7 +77,7 @@ class Chat(BaseModel):
     id = AutoField(
         primary_key=True,
     )
-    chat_id = BigIntegerField(unique=True)
+    chat_id = BigIntegerField()
     group_id = ForeignKeyField(
         Group,
         backref="groups",
