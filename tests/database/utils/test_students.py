@@ -30,7 +30,7 @@ class TestStudents:
 
     def test_get_active_students_in_empty_group(self):
 
-        test_group_id = 2
+        test_group_id = 3
 
         with pytest.raises(StudentNotFound):
             students.get_active_students(test_group_id)
