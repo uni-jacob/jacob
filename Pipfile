@@ -43,6 +43,7 @@ yarl = "*"
 typing-extensions = "*"
 beautifulsoup4 = "*"
 vkwave = "*"
+pygithub = "*"
 
 [requires]
 python_version = "3.8"
