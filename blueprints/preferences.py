@@ -182,27 +182,42 @@ async def register_chat(ans: SimpleBotEvent):
                     ans.object.object.message.from_id,
                 ),
             )
-            chat = db.chats.register_chat(ans.object.object.message.peer_id, group)
-            db.shortcuts.update_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id),
-                current_chat_id=chat.id,
-            )
-            try:
-                chat_object = await api.messages.get_conversations_by_id(
-                    peer_ids=ans.object.object.message.peer_id,
+            if db.chats.is_chat_registered(
+                ans.object.object.message.peer_id,
+                group,
+            ):
+                await api.messages.send(
+                    message="Чат уже зарегистрирован в этой группе",
+                    peer_id=ans.object.object.message.from_id,
+                    random_id=0,
+                    keyboard=await kbs.preferences.connected_chats(
+                        ans.object.object.message.from_id,
+                    ),
                 )
-                chat_name = chat_object.response.items[0].chat_settings.title
-            except IndexError:
-                chat_name = "???"
-            await api.messages.send(
-                message=f'Чат "{chat_name}" зарегистрирован',
-                peer_id=ans.object.object.message.from_id,
-                random_id=0,
-                keyboard=await kbs.preferences.connected_chats(
-                    ans.object.object.message.from_id,
-                ),
-            )
-            await ans.answer("Привет!")
+            else:
+                chat = db.chats.register_chat(ans.object.object.message.peer_id, group)
+                db.shortcuts.update_admin_storage(
+                    db.students.get_system_id_of_student(
+                        ans.object.object.message.from_id,
+                    ),
+                    current_chat_id=chat.id,
+                )
+                try:
+                    chat_object = await api.messages.get_conversations_by_id(
+                        peer_ids=ans.object.object.message.peer_id,
+                    )
+                    chat_name = chat_object.response.items[0].chat_settings.title
+                except IndexError:
+                    chat_name = "???"
+                await api.messages.send(
+                    message=f'Чат "{chat_name}" зарегистрирован',
+                    peer_id=ans.object.object.message.from_id,
+                    random_id=0,
+                    keyboard=await kbs.preferences.connected_chats(
+                        ans.object.object.message.from_id,
+                    ),
+                )
+                await ans.answer("Привет!")
 
 
 @simple_bot_message_handler(
