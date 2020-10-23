@@ -35,7 +35,7 @@ async def finances(ans: SimpleBotEvent):
         await ans.answer(
             "Список финансовых категорий",
             keyboard=kbs.finances.list_of_fin_categories(
-                ans.object.object.message.from_id,
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
             ),
         )
 
@@ -224,7 +224,9 @@ async def call_debtors(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def select_chat_debtors(ans: SimpleBotEvent):
-    kb = await kbs.common.list_of_chats(ans.object.object.message.from_id)
+    kb = await kbs.common.list_of_chats(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+    )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
 
 

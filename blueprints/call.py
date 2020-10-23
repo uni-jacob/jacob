@@ -320,7 +320,9 @@ async def change_names_usage(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def change_chat(ans: SimpleBotEvent):
-    kb = await kbs.common.list_of_chats(ans.object.object.message.from_id)
+    kb = await kbs.common.list_of_chats(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+    )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
 
 

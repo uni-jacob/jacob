@@ -11,18 +11,20 @@ api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
 api = api_session.get_context()
 
 
-def alphabet(admin_id: int) -> Keyboard:
+def alphabet(group_id: int) -> Keyboard:
     """
     Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов.
 
     Args:
-        admin_id: Идентификатор администратора
+        group_id: Идентификатор администратора
 
     Returns:
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
-    alphabet = db.students.get_unique_second_name_letters_in_a_group(admin_id)
+    alphabet = db.students.get_unique_second_name_letters_in_a_group(
+        group_id,
+    )
     if len(alphabet) > 15:
         half_len = len(alphabet) // 2
         f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
@@ -41,13 +43,12 @@ def alphabet(admin_id: int) -> Keyboard:
     return kb
 
 
-async def list_of_chats(vk_id: int):
+async def list_of_chats(admin_id: int):
     """
     Генерирует фрагмент клавиатуры со списком подключенных чатов.
 
     Args:
-        vk_id: идентификатор пользователя
-        (TODO: Вытащить вычисление admin_id на самый верх)
+        admin_id: идентификатор пользователя
 
     Returns:
         Keyboard: Фрагмент клавиатуры
@@ -55,7 +56,7 @@ async def list_of_chats(vk_id: int):
     kb = Keyboard()
 
     chats = db.chats.get_list_of_chats_by_group(
-        db.students.get_system_id_of_student(vk_id),
+        db.admin.get_active_group(admin_id),
     )
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(

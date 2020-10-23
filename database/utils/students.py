@@ -49,20 +49,19 @@ def get_active_students(group_id: int) -> t.List[Student]:
     raise StudentNotFound(f"В группе {group_id} нет активных студентов")
 
 
-def get_unique_second_name_letters_in_a_group(admin_id: int) -> list:
+def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     """
     Возвращает список первых букв фамилий в активной группе.
 
     Args:
-        admin_id: Идентификатор пользователя
+        group_id: Идентификатор группы
 
     Returns:
         list: список первых букв фамилий
     """
-    admin_group = admin.get_active_group(admin_id)
     query = (
         Student.select(Student.second_name)
-        .where(Student.group_id == admin_group)
+        .where(Student.group_id == group_id)
         .order_by(Student.second_name)
         .distinct()
     )

@@ -15,18 +15,17 @@ api = api_session.get_context()
 logger.configure(**config)
 
 
-def list_of_fin_categories(vk_id: int) -> JSONStr:
+def list_of_fin_categories(admin_id: int) -> JSONStr:
     """
     Генерирует клавитуру со списком финансовых категорий.
 
     Args:
-        vk_id: Идентификатор администратора
+        admin_id: Идентификатор администратора
 
     Returns:
         JSONStr: клавиатура
     """
     kb = Keyboard()
-    admin_id = db.students.get_system_id_of_student(vk_id)
     categories = db.finances.get_list_of_fin_categories(
         db.admin.get_active_group(admin_id),
     )
@@ -64,10 +63,12 @@ def fin_category() -> JSONStr:
     return kb.get_keyboard()
 
 
-def fin_list_of_letters(user_id: int):
+def fin_list_of_letters(admin_id: int):
 
-    kb = kbs.common.alphabet(user_id)
-    store = db.admin.get_admin_storage(user_id)
+    kb = kbs.common.alphabet(
+        db.admin.get_active_group(admin_id),
+    )
+    store = db.admin.get_admin_storage(admin_id)
 
     if kb.buttons[-1]:
         kb.add_row()

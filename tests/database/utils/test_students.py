@@ -2,6 +2,7 @@ import pytest
 from pyshould import it
 
 from database.models import Student
+from database.utils import admin
 from database.utils import students
 from services.exceptions import StudentNotFound
 
@@ -39,7 +40,9 @@ class TestStudents:
 
         test_user_id = 1
 
-        snd_names = students.get_unique_second_name_letters_in_a_group(test_user_id)
+        snd_names = students.get_unique_second_name_letters_in_a_group(
+            admin.get_active_group(test_user_id),
+        )
 
         it(snd_names).should.be_equal(list("БВКМНСТ"))
 
