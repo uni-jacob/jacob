@@ -23,6 +23,9 @@ class BaseModel(Model):
     def __str__(self):
         return f"<{type(self).__name__}: {self._pk}>"
 
+    def json(self):
+        return self.__dict__.get("__data__")
+
 
 class AcademicStatus(BaseModel):
     id = AutoField(
