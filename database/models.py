@@ -229,3 +229,15 @@ class Storage(BaseModel):
 
     class Meta:
         table_name = "storages"
+
+
+class Issue(BaseModel):
+    id = AutoField(
+        primary_key=True,
+    )
+    from_id = IntegerField()
+    title = TextField()
+    text = TextField(null=True)
+
+    class Meta:
+        table_name = "issues"
