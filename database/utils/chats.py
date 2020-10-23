@@ -3,20 +3,19 @@ import typing as t
 from database.models import Chat
 from database.utils import admin
 from database.utils import shortcuts
-from database.utils import students
 
 
-def get_list_of_chats_by_group(vk_id: int) -> t.List[Chat]:
+def get_list_of_chats_by_group(admin_id: int) -> t.List[Chat]:
     """
     Возвращает список чатов группы, в активной группе.
 
     Args:
-        vk_id: идентификатор пользователя
+        admin_id: идентификатор пользователя
 
     Returns:
         list[Chat]: список объектов чатов
     """
-    active_group = admin.get_active_group(students.get_system_id_of_student(vk_id))
+    active_group = admin.get_active_group(admin_id)
     query = Chat.select().where(Chat.group_id == active_group)
     return shortcuts.generate_list(query)
 

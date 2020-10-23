@@ -54,7 +54,9 @@ async def list_of_chats(vk_id: int):
     """
     kb = Keyboard()
 
-    chats = db.chats.get_list_of_chats_by_group(vk_id)
+    chats = db.chats.get_list_of_chats_by_group(
+        db.students.get_system_id_of_student(vk_id),
+    )
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(
             peer_ids=chat.chat_id,
