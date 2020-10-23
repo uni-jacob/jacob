@@ -19,7 +19,7 @@ from services import keyboard as kbs
 from services.filters import PLFilter
 from services.logger.config import config
 
-__version__ = "2.11.2"
+__version__ = "2.12.0"
 
 from services.logger.handlers import InterceptHandler
 
