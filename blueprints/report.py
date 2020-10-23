@@ -11,6 +11,7 @@ from vkwave.client import AIOHTTPClient
 
 from database import utils as db
 from services import filters
+from services import keyboard as kbs
 from services.logger.config import config
 
 report_router = DefaultRouter()
@@ -30,7 +31,10 @@ async def start_reporting(ans: SimpleBotEvent):
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
         state_id=db.bot.get_id_of_state("wait_issue_title"),
     )
-    await ans.answer("Отправьте заголовок проблемы, кратко описывающий произошедшее")
+    await ans.answer(
+        "Отправьте заголовок проблемы, кратко описывающий произошедшее",
+        keyboard=kbs.common.empty(),
+    )
 
 
 @simple_bot_message_handler(
@@ -83,4 +87,9 @@ async def create_issue(ans: SimpleBotEvent):
 
     await ans.answer(
         f"Ишью создан: https://github.com/dadyarri/jacob/issues/{new_issue.number}",
+        keyboard=kbs.main.main_menu(
+            db.students.get_system_id_of_student(
+                ans.object.object.message.from_id,
+            ),
+        ),
     )
