@@ -49,6 +49,6 @@ class TestStudents:
         test_user_id = 1
         test_student = Student.get_by_id(4)
 
-        st = students.get_list_of_students_by_letter(test_letter, test_user_id)
+        st = students.get_list_of_students_by_letter(test_user_id, test_letter)
 
         it(st).should.be_equal([test_student])

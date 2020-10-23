@@ -100,7 +100,7 @@ def list_of_students(
     Returns:
         JSONStr: Строка с клавиатурой
     """
-    data = db.students.get_list_of_students_by_letter(letter, admin_id)
+    data = db.students.get_list_of_students_by_letter(admin_id, letter)
     selected = db.shortcuts.get_list_of_calling_students(admin_id)
     kb = Keyboard()
     for item in data:

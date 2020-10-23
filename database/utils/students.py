@@ -71,19 +71,16 @@ def get_unique_second_name_letters_in_a_group(admin_id: int) -> list:
         return list(dict.fromkeys(snd_names))
 
 
-def get_list_of_students_by_letter(letter: str, admin_id: int) -> t.List[Student]:
+def get_list_of_students_by_letter(admin_id: int, letter: str) -> t.List[Student]:
     """
     Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
 
     Args:
-        letter: первая буква фамилий
         admin_id: идентификатор пользователся
+        letter: первая буква фамилий
 
     Returns:
         list[Student]: список студентов
-
-    TODO:
-        Поменять агрументы местами
     """
     active_group = admin.get_active_group(admin_id)
     query = (
