@@ -45,3 +45,20 @@ def register_chat(chat_id: int, group: int) -> Chat:
         Chat: объект чата
     """
     return Chat.create(chat_id=chat_id, group_id=group)
+
+
+def is_chat_registered(chat_id: int, group_id: int) -> bool:
+    """
+    Проверяет, был ли зарегистрирован чат для группы.
+
+    Args:
+        chat_id: Идентификатор чата
+        group_id: Идентификатор группы
+
+    Returns:
+        bool: Флаг регистрации чата
+    """
+    chat = Chat.get_or_none(chat_id=chat_id, group_id=group_id)
+    if chat is not None:
+        return True
+    return False
