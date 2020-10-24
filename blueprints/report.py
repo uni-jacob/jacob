@@ -85,6 +85,10 @@ async def create_issue(ans: SimpleBotEvent):
         ),
     )
 
+    db.shortcuts.clear_admin_storage(
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+    )
+
     await ans.answer(
         f"Ишью создан: https://github.com/dadyarri/jacob/issues/{new_issue.number}",
         keyboard=kbs.main.main_menu(
