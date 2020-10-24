@@ -30,6 +30,7 @@ def main_menu(admin_id: int) -> JSONStr:
         kb.add_text_button(text="⚙ Настройки", payload={"button": "settings"})
         kb.add_text_button(text="🌐 Веб", payload={"button": "web"})
         kb.add_row()
+        kb.add_text_button(text="Контакты", payload={"button": "contacts"},)
         kb.add_text_button(
             text="Сообщить об ошибке",
             payload={"button": "report_error"},
