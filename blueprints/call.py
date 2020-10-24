@@ -112,7 +112,7 @@ async def register_call_message(ans: SimpleBotEvent):
             )
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            state_id=db.bot.get_id_of_state("main"),
+            state_id=db.bot.get_id_of_state("select_mentioned"),
             text=ans.object.object.message.text,
             attaches=attachments,
         )
@@ -126,7 +126,7 @@ async def register_call_message(ans: SimpleBotEvent):
 
 @simple_bot_message_handler(
     call_router,
-    filters.PLFilter({"button": "half"}) & ~filters.StateFilter("select_donater"),
+    filters.PLFilter({"button": "half"}) & filters.StateFilter("select_mentioned"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -141,7 +141,7 @@ async def select_half(ans: SimpleBotEvent):
 
 @simple_bot_message_handler(
     call_router,
-    filters.PLFilter({"button": "letter"}) & ~filters.StateFilter("select_donater"),
+    filters.PLFilter({"button": "letter"}) & filters.StateFilter("select_mentioned"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -174,7 +174,7 @@ async def select_letter(ans: SimpleBotEvent):
 
 @simple_bot_message_handler(
     call_router,
-    filters.PLFilter({"button": "student"}) & ~filters.StateFilter("select_donater"),
+    filters.PLFilter({"button": "student"}) & filters.StateFilter("select_mentioned"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
