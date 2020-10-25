@@ -25,20 +25,11 @@ def alphabet(group_id: int) -> Keyboard:
     alphabet = db.students.get_unique_second_name_letters_in_a_group(
         db.admin.get_active_group(admin_id),
     )
-    if len(alphabet) > 15:
-        half_len = len(alphabet) // 2
-        f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
-        for half in (f_alphabet, s_alphabet):
-            title = f"{half[0]}..{half[-1]}"
-            kb.add_text_button(title, payload={"button": "half", "half": half})
-    else:
-        for letter in alphabet:
-            if len(kb.buttons[-1]) == 4:
-                kb.add_row()
-            kb.add_text_button(
-                text=letter,
-                payload={"button": "letter", "value": letter},
-            )
+    half_len = len(alphabet) // 2
+    f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
+    for index, half in enumerate(f_alphabet, s_alphabet):
+        title = f"{half[0]}..{half[-1]}"
+        kb.add_text_button(title, payload={"button": "half", "half": index})
 
     return kb
 
