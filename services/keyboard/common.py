@@ -49,7 +49,7 @@ class Keyboards(ABC):
             kb.add_text_button(letter, payload={"button": "letter", "value": letter})
         if kb.buttons[-1]:
             kb.add_row()
-        kb.add_text_button("◀️ Назад", payload=self.return_to)
+        kb.add_text_button("◀️ Назад", payload={"button": self.return_to})
 
         return kb.get_keyboard()
 
