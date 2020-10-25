@@ -9,6 +9,7 @@ from vkwave.bots import TextFilter
 
 from blueprints import call
 from blueprints import chats
+from blueprints import contacts
 from blueprints import finances
 from blueprints import preferences
 from blueprints import report
@@ -31,6 +32,7 @@ bot.dispatcher.add_router(finances.finances_router)
 bot.dispatcher.add_router(schedule.schedule_router)
 bot.dispatcher.add_router(web.web_router)
 bot.dispatcher.add_router(report.report_router)
+bot.dispatcher.add_router(contacts.contacts_router)
 
 logger.configure(**config)
 logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
