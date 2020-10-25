@@ -48,11 +48,6 @@ async def start_call(ans: SimpleBotEvent):
         else:
             await ans.answer(
                 "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
-                keyboard=kbs.main.main_menu(
-                    db.students.get_system_id_of_student(
-                        ans.object.object.message.from_id,
-                    ),
-                ),
             )
 
 
