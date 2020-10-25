@@ -1,6 +1,5 @@
 from vkwave.bots import Keyboard
 
-from database import utils as db
 from services import keyboard as kbs
 from services.keyboard.common import Keyboards
 from services.keyboard.common import StudentsNavigator
@@ -80,71 +79,4 @@ def skip_call_message() -> JSONStr:
     kb.add_text_button(text="⏩ Пропустить", payload={"button": "skip_call_message"})
 
     kb.add_text_button(text="🚫 Отмена", payload={"button": "cancel_call"})
-    return kb.get_keyboard()
-
-
-def list_of_letters(
-    letters: list,
-    return_to: str = "skip_call_message",
-    category_id: int = None,
-) -> JSONStr:
-    """
-    Генерирует подменю с буквами алфавита.
-
-    Args:
-        letters: список букв
-        return_to: Пейлоад с указанием места возврата
-        category_id: идшник категории финансов (используется для возврата назад в
-            добавление дохода)
-
-    Returns:
-        JSONStr: клавиатура
-    """
-    kb = Keyboard()
-    for letter in letters:
-        if len(kb.buttons[-1]) == 4:
-            kb.add_row()
-        kb.add_text_button(
-            letter,
-            payload={
-                "button": "letter",
-                "value": letter,
-                "letters": letters,
-            },
-        )
-    if kb.buttons[-1]:
-        kb.add_row()
-    payload = {"button": return_to}
-    if category_id:
-        payload["category"] = category_id
-    kb.add_text_button("◀️ Назад", payload=payload)
-    return kb.get_keyboard()
-
-
-def call_prompt(admin_id: int) -> JSONStr:
-    """
-    Генерирует клавиатуру с настройкой призыва.
-
-    Args:
-        admin_id: идентфикатор администратора
-
-    Returns:
-        JSONStr:  Клавиатура
-    """
-    kb = kbs.common.prompt()
-    kb.add_row()
-    store = db.admin.get_admin_storage(admin_id)
-    if store.names_usage:
-        names_emoji = "✅"
-    else:
-        names_emoji = "🚫"
-    chat_emoji = "📡"
-    kb.add_text_button(
-        text=f"{names_emoji} Использовать имена",
-        payload={"button": "names_usage"},
-    )
-    kb.add_text_button(
-        text=f"{chat_emoji} Переключить чат",
-        payload={"button": "chat_config"},
-    )
     return kb.get_keyboard()
