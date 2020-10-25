@@ -18,7 +18,7 @@ logger.configure(**config)
 
 
 class IncomeKeyboards(Keyboards):
-    """Набор клавиатур для навигации в режиме Призыва."""
+    """Набор клавиатур для навигации в режиме Добавления дохода."""
 
     def __init__(self, admin_id: int, return_to: str):
         super().__init__(admin_id)
@@ -44,7 +44,7 @@ class IncomeKeyboards(Keyboards):
 
     def submenu(self, half: int) -> str:
         """
-        Подменю призыва (список букв в рамках половины алфавита).
+        Подменю добавления дохода (список букв в рамках половины алфавита).
 
         Returns:
             str: Клавиатура
