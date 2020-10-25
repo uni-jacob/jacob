@@ -142,9 +142,11 @@ def alphabet(admin_id: int) -> Keyboard:
     )
     half_len = len(alphabet) // 2
     f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
-    for index, half in enumerate(f_alphabet, s_alphabet):
+    index = 0
+    for half in f_alphabet, s_alphabet:
         title = f"{half[0]}..{half[-1]}"
         kb.add_text_button(title, payload={"button": "half", "half": index})
+        index += 1
 
     return kb
 
