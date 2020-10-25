@@ -84,9 +84,11 @@ async def add_income(ans: SimpleBotEvent):
         )
         await ans.answer(
             "Выберите студента, сдавшего деньги",
-            keyboard=kbs.finances.fin_list_of_letters(
+            keyboard=kbs.finances.IncomeNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
-            ),
+            )
+            .render()
+            .menu(),
         )
 
 
@@ -99,13 +101,13 @@ async def add_income(ans: SimpleBotEvent):
 async def select_half(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        store = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        )
-        category = store.category_id
         await ans.answer(
             "Выберите студента, сдавшего деньги",
-            keyboard=kbs.call.list_of_letters(payload["half"], "add_income", category),
+            keyboard=kbs.finances.IncomeNavigator(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            )
+            .render()
+            .submenu(payload["half"]),
         )
 
 
@@ -120,11 +122,11 @@ async def select_letter(ans: SimpleBotEvent):
         letter = payload["value"]
         await ans.answer(
             f"Список студентов на букву {letter}",
-            keyboard=kbs.call.list_of_students(
-                letter,
+            keyboard=kbs.finances.IncomeNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-                payload.get("letters"),
-            ),
+            )
+            .render()
+            .students(letter),
         )
 
 

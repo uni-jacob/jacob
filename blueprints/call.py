@@ -48,11 +48,6 @@ async def start_call(ans: SimpleBotEvent):
         else:
             await ans.answer(
                 "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
-                keyboard=kbs.main.main_menu(
-                    db.students.get_system_id_of_student(
-                        ans.object.object.message.from_id,
-                    ),
-                ),
             )
 
 
@@ -85,13 +80,15 @@ async def skip_register_call_message(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            state_id=db.bot.get_id_of_state("main"),
+            state_id=db.bot.get_id_of_state("select_mentioned"),
         )
         await ans.answer(
             "Выберите призываемых студентов",
-            keyboard=kbs.call.call_interface(
+            keyboard=kbs.call.CallNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            ),
+            )
+            .render()
+            .menu(),
         )
 
 
@@ -118,15 +115,18 @@ async def register_call_message(ans: SimpleBotEvent):
         )
         await ans.answer(
             "Сообщение сохранено. Выберите призываемых студентов",
-            keyboard=kbs.call.call_interface(
+            keyboard=kbs.call.CallNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            ),
+            )
+            .render()
+            .menu(),
         )
 
 
 @simple_bot_message_handler(
     call_router,
-    filters.PLFilter({"button": "half"}) & filters.StateFilter("select_mentioned"),
+    filters.PLFilter({"button": "half"}),
+    filters.StateFilter("select_mentioned"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -135,13 +135,18 @@ async def select_half(ans: SimpleBotEvent):
         payload = hyperjson.loads(ans.object.object.message.payload)
         await ans.answer(
             "Выберите призываемых студентов",
-            keyboard=kbs.call.list_of_letters(payload["half"]),
+            keyboard=kbs.call.CallNavigator(
+                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
+            )
+            .render()
+            .submenu(payload["half"]),
         )
 
 
 @simple_bot_message_handler(
     call_router,
-    filters.PLFilter({"button": "letter"}) & filters.StateFilter("select_mentioned"),
+    filters.PLFilter({"button": "letter"}),
+    filters.StateFilter("select_mentioned"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -149,32 +154,22 @@ async def select_letter(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         letter = payload["value"]
-        if "letters" in payload:
-            await ans.answer(
-                f"Список студентов на букву {letter}",
-                keyboard=kbs.call.list_of_students(
-                    letter,
-                    db.students.get_system_id_of_student(
-                        ans.object.object.message.peer_id,
-                    ),
-                    payload.get("letters"),
+        await ans.answer(
+            f"Список студентов на букву {letter}",
+            keyboard=kbs.call.CallNavigator(
+                db.students.get_system_id_of_student(
+                    ans.object.object.message.peer_id,
                 ),
             )
-        else:
-            await ans.answer(
-                f"Список студентов на букву {letter}",
-                keyboard=kbs.call.list_of_students(
-                    letter,
-                    db.students.get_system_id_of_student(
-                        ans.object.object.message.peer_id,
-                    ),
-                ),
-            )
+            .render()
+            .students(letter),
+        )
 
 
 @simple_bot_message_handler(
     call_router,
-    filters.PLFilter({"button": "student"}) & filters.StateFilter("select_mentioned"),
+    filters.PLFilter({"button": "student"}),
+    filters.StateFilter("select_mentioned"),
     MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -200,10 +195,11 @@ async def select_student(ans: SimpleBotEvent):
             label = "добавлен в список призыва"
         await ans.answer(
             f"{name} {label}",
-            keyboard=kbs.call.list_of_students(
-                letter,
+            keyboard=kbs.call.CallNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            ),
+            )
+            .render()
+            .students(letter),
         )
 
 
@@ -234,9 +230,11 @@ async def confirm_call(ans: SimpleBotEvent):
         )
         await ans.answer(
             f'Сообщение будет отправлено в чат "{chat_name}":\n{msg}',
-            keyboard=kbs.call.call_prompt(
+            keyboard=kbs.call.CallNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            ),
+            )
+            .render()
+            .menu(),
             attachment=store.attaches or "",
         )
 
