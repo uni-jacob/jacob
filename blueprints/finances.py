@@ -101,10 +101,6 @@ async def add_income(ans: SimpleBotEvent):
 async def select_half(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
-        # store = db.admin.get_admin_storage(
-        #     db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        # )
-        # category = store.category_id
         await ans.answer(
             "Выберите студента, сдавшего деньги",
             keyboard=kbs.finances.IncomeNavigator(
