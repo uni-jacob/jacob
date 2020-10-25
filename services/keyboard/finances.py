@@ -125,25 +125,6 @@ def fin_category() -> JSONStr:
     return kb.get_keyboard()
 
 
-def fin_list_of_letters(admin_id: int):
-
-    kb = kbs.common.alphabet(db.admin.get_active_group(admin_id))
-    store = db.admin.get_admin_storage(admin_id)
-
-    if kb.buttons[-1]:
-        kb.add_row()
-
-    kb.add_text_button(
-        "🚫 Отмена",
-        payload={
-            "button": "fin_category",
-            "category": store.category_id,
-        },
-    )
-
-    return kb.get_keyboard()
-
-
 def confirm_debtors_call():
 
     kb = kbs.common.prompt()
