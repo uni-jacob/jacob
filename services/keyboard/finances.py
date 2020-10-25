@@ -65,9 +65,7 @@ def fin_category() -> JSONStr:
 
 def fin_list_of_letters(admin_id: int):
 
-    kb = kbs.common.alphabet(
-        db.admin.get_active_group(admin_id),
-    )
+    kb = kbs.common.alphabet(db.admin.get_active_group(admin_id))
     store = db.admin.get_admin_storage(admin_id)
 
     if kb.buttons[-1]:
