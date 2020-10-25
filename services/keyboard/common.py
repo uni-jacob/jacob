@@ -13,17 +13,17 @@ api = api_session.get_context()
 
 def alphabet(group_id: int) -> Keyboard:
     """
-    Генерирует фрагмент клавиатуры со списком первых букв фамилиий студентов.
+    Генерирует фрагмент клавиатуры с половинами алфавита фамилиий студентов.
 
     Args:
-        group_id: Идентификатор администратора
+        admin_id: Идентификатор администратора
 
     Returns:
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
     alphabet = db.students.get_unique_second_name_letters_in_a_group(
-        group_id,
+        db.admin.get_active_group(admin_id),
     )
     if len(alphabet) > 15:
         half_len = len(alphabet) // 2
