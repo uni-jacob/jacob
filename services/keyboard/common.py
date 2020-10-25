@@ -30,12 +30,7 @@ class Keyboards(ABC):
 
     @abstractmethod
     def menu(self) -> str:
-        """
-        Главное меню функции, реализуется в подклассах
-
-        Returns:
-            str: клавиатура
-        """
+        """Главное меню функции, реализуется в подклассах."""
         pass
 
     @abstractmethod
