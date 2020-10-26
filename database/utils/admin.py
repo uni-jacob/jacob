@@ -5,7 +5,6 @@ from loguru import logger
 from database.models import Administrator
 from database.models import Group
 from database.models import Storage
-from database.models import Student
 from services.logger.config import config
 
 logger.configure(**config)
@@ -79,4 +78,4 @@ def get_active_group(admin_id: int) -> t.Optional[Group]:
     if is_user_admin(admin_id):
         if len(get_admin_feud(admin_id)) > 1:
             return Storage.get_by_id(admin_id).active_group
-        return Student.get_by_id(admin_id).group_id
+        return Administrator.get(student_id=admin_id).group_id
