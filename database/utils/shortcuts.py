@@ -118,7 +118,7 @@ def add_student_to_calling_list(admin_id: int, student_id: int) -> Storage:
 
 def get_active_chat(admin_id: int) -> Chat:
     """
-    Получает идентификатор активного чата конкретного администратора.
+    Получает объект активного чата конкретного администратора.
 
     Args:
         admin_id: идентификатор администратора
