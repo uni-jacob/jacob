@@ -230,11 +230,9 @@ async def confirm_call(ans: SimpleBotEvent):
         )
         await ans.answer(
             f'Сообщение будет отправлено в чат "{chat_name}":\n{msg}',
-            keyboard=kbs.call.CallNavigator(
+            keyboard=kbs.call.call_prompt(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            )
-            .render()
-            .menu(),
+            ),
             attachment=store.attaches or "",
         )
 
