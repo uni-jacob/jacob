@@ -88,9 +88,7 @@ def list_of_fin_categories(admin_id: int) -> JSONStr:
         JSONStr: клавиатура
     """
     kb = Keyboard()
-    categories = db.finances.get_list_of_fin_categories(
-        db.admin.get_active_group(admin_id),
-    )
+    categories = db.finances.get_fin_categories(db.admin.get_active_group(admin_id))
     for category in categories:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()

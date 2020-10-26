@@ -9,7 +9,7 @@ from database.models import FinancialExpense
 from database.utils.students import get_active_students
 
 
-def get_list_of_fin_categories(group_id: int) -> t.List[FinancialCategory]:
+def get_fin_categories(group_id: int) -> t.List[FinancialCategory]:
     """
     Возвращает список категорий финансов группы.
 
