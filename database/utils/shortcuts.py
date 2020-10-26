@@ -95,9 +95,9 @@ def pop_student_from_calling_list(admin_id: int, student_id: int) -> Storage:
     Returns:
         Storage: хранилище администратора
     """
-    cl = get_list_of_calling_students(admin_id)
-    cl.remove(student_id)
-    return update_calling_list(admin_id, cl)
+    calling_list = get_list_of_calling_students(admin_id)
+    calling_list.remove(student_id)
+    return update_calling_list(admin_id, calling_list)
 
 
 def add_student_to_calling_list(admin_id: int, student_id: int) -> Storage:
@@ -111,9 +111,9 @@ def add_student_to_calling_list(admin_id: int, student_id: int) -> Storage:
     Returns:
         Storage: хранилище администратора
     """
-    cl = get_list_of_calling_students(admin_id)
-    cl.append(student_id)
-    return update_calling_list(admin_id, cl)
+    calling_list = get_list_of_calling_students(admin_id)
+    calling_list.append(student_id)
+    return update_calling_list(admin_id, calling_list)
 
 
 def get_active_chat(admin_id: int) -> Chat:
