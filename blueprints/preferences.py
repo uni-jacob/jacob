@@ -100,7 +100,9 @@ async def delete_chat(ans: SimpleBotEvent):
         payload = hyperjson.loads(ans.object.object.message.payload)
         db.chats.delete_chat(payload["chat"])
         chats = db.chats.get_list_of_chats_by_group(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            db.admin.get_active_group(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            ),
         )
         try:
             chat_id = chats[0].id

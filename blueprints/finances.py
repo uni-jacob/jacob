@@ -183,7 +183,9 @@ async def save_donate(ans: SimpleBotEvent):
 async def call_debtors(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         if db.chats.get_list_of_chats_by_group(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            db.admin.get_active_group(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            ),
         ):
             msgs = generate_debtors_call(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),

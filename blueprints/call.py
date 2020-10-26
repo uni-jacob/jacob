@@ -35,7 +35,9 @@ logger.configure(**config)
 async def start_call(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         if db.chats.get_list_of_chats_by_group(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            db.admin.get_active_group(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            ),
         ):
             db.shortcuts.update_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
