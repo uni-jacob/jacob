@@ -44,7 +44,7 @@ def clear_admin_storage(admin_id: int) -> Storage:
     """
     return update_admin_storage(
         admin_id,
-        state_id=1,
+        state_id=db.bot.get_id_of_state("main"),
         selected_students="",
         text="",
         attaches="",
