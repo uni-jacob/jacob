@@ -58,7 +58,9 @@ async def list_of_chats(ans: SimpleBotEvent):
         await ans.answer(
             "Список подключенных чатов",
             keyboard=await kbs.preferences.connected_chats(
-                ans.object.object.message.peer_id,
+                db.students.get_system_id_of_student(
+                    ans.object.object.message.from_id,
+                ),
             ),
         )
 
@@ -115,7 +117,9 @@ async def delete_chat(ans: SimpleBotEvent):
         await ans.answer(
             "Чат удален",
             keyboard=await kbs.preferences.connected_chats(
-                ans.object.object.message.from_id,
+                db.students.get_system_id_of_student(
+                    ans.object.object.message.from_id,
+                ),
             ),
         )
 
@@ -155,7 +159,9 @@ async def cancel_register_chat(ans: SimpleBotEvent):
     await ans.answer(
         "Регистрация чата отменена",
         keyboard=await kbs.preferences.connected_chats(
-            ans.object.object.message.from_id,
+            db.students.get_system_id_of_student(
+                ans.object.object.message.from_id,
+            ),
         ),
     )
 
@@ -193,7 +199,9 @@ async def register_chat(ans: SimpleBotEvent):
                     peer_id=ans.object.object.message.from_id,
                     random_id=0,
                     keyboard=await kbs.preferences.connected_chats(
-                        ans.object.object.message.from_id,
+                        db.students.get_system_id_of_student(
+                            ans.object.object.message.from_id,
+                        ),
                     ),
                 )
             else:
@@ -216,7 +224,9 @@ async def register_chat(ans: SimpleBotEvent):
                     peer_id=ans.object.object.message.from_id,
                     random_id=0,
                     keyboard=await kbs.preferences.connected_chats(
-                        ans.object.object.message.from_id,
+                        db.students.get_system_id_of_student(
+                            ans.object.object.message.from_id,
+                        ),
                     ),
                 )
                 await ans.answer("Привет!")
