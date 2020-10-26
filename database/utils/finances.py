@@ -74,7 +74,7 @@ def get_debtors(category_id: int) -> t.List[int]:
     return debtors
 
 
-def add_expense(category_id, summ) -> FinancialExpense:
+def add_expense(category_id: int, summ: int) -> FinancialExpense:
     """
     Создает новый расход.
 
