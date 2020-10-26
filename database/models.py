@@ -20,8 +20,8 @@ class BaseModel(Model):
     class Meta:
         database = db
 
-    def __str__(self):
-        return f"<{type(self).__name__}: {self._pk}>"
+    def __repr__(self):
+        return self._pk
 
     def json(self):
         return self.__dict__.get("__data__")
