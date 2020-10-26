@@ -27,7 +27,18 @@ def update_issue(issue_id: int, **kwargs):
     return Issue.get_by_id(issue_id)
 
 
-def generate_issue_text(vk_id: int):
+def generate_issue_text(vk_id: int) -> str:
+    """
+    Генерирует текст ишью.
+
+    (К сохраненному тексту добавляется служебная информация)
+
+    Args:
+        vk_id: Идентификатор ВКонтакте
+
+    Returns:
+        str: Текст ишью
+    """
     store = db.admin.get_admin_storage(
         db.students.get_system_id_of_student(vk_id),
     ).json()
