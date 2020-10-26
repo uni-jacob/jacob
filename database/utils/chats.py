@@ -31,18 +31,18 @@ def delete_chat(chat_id: int) -> int:
     return Chat.delete().where(Chat.id == chat_id).execute()
 
 
-def register_chat(chat_id: int, group: int) -> Chat:
+def register_chat(chat_id: int, group_id: int) -> Chat:
     """
     Зарегистрировать чат.
 
     Args:
         chat_id: идентификатор чата
-        group: идентификатор группы
+        group_id: идентификатор группы
 
     Returns:
         Chat: объект чата
     """
-    return Chat.create(chat_id=chat_id, group_id=group)
+    return Chat.create(chat_id=chat_id, group_id=group_id)
 
 
 def is_chat_registered(chat_id: int, group_id: int) -> bool:
