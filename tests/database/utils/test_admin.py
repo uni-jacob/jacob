@@ -37,7 +37,7 @@ class TestAdmin:
 
         groups = admin.get_admin_feud(test_student_id)
 
-        it(groups).be_an_instance_of(type(None))
+        it(groups).should.be_equal([])
 
     def test_get_admin_storage(self):
 
