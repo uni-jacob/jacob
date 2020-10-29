@@ -57,6 +57,37 @@ async def create_category(ans: SimpleBotEvent):
     )
 
 
+# TODO: Добавить отмену регистрации категории
+
+
+@simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("wait_for_finances_category_description"),
+    MessageFromConversationTypeFilter("from_pm"),
+)
+@logger.catch()
+async def register_category(ans: SimpleBotEvent):
+    if re.match("^\w+ \d+$", ans.object.object.message.text):
+        category = db.finances.create_finances_category(
+            db.admin.get_active_group(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            ),
+            *ans.object.object.message.text.split(),
+        )
+        db.shortcuts.update_admin_storage(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            state_id=db.bot.get_id_of_state("main"),
+        )
+        await ans.answer(
+            f"Категория {category.name} зарегистрирована",
+            keyboard=kbs.finances.list_of_fin_categories(
+                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            ),
+        )
+    else:
+        await ans.answer("Неверный формат данных")
+
+
 @simple_bot_message_handler(
     finances_router,
     filters.PLFilter({"button": "fin_category"}),
