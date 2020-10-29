@@ -129,3 +129,18 @@ def calculate_expenses_in_category(category_id: int) -> int:
         summ += donate.summ
 
     return summ
+
+
+def create_finances_category(group_id: int, name: str, summ: int) -> FinancialCategory:
+    """
+    Создаёт новую финансовую категорию, или возвращает уже существующую.
+
+    Args:
+        group_id: Идентификатор группы
+        name: Название категории
+        summ: Сумма сборов
+
+    Returns:
+        FinancialCategory: объект категории
+    """
+    return FinancialCategory.get_or_create(group_id=group_id, name=name, summ=summ)[0]
