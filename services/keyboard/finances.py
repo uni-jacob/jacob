@@ -102,6 +102,7 @@ def list_of_fin_categories(admin_id: int) -> JSONStr:
         "Создать категорию",
         payload={"button": "create_finances_category"},
     )
+    kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
