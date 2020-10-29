@@ -99,7 +99,7 @@ def list_of_fin_categories(admin_id: int) -> JSONStr:
     if kb.buttons[-1]:
         kb.add_row()
     kb.add_text_button(
-        "Создать категорию",
+        "➕ Создать категорию",
         payload={"button": "create_finances_category"},
     )
     kb.add_row()
