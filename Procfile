@@ -1,1 +1,1 @@
-jacob: python main.py
+jacob: python jacob/main.py
