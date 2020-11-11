@@ -17,7 +17,7 @@ from blueprints import schedule
 from blueprints import web
 from database import utils as db
 from services import keyboard as kbs
-from services.exceptions import StundentNotFound
+from services.exceptions import StudentNotFound
 from services.filters import PLFilter
 from services.logger.config import config
 
