@@ -17,6 +17,7 @@ from blueprints import schedule
 from blueprints import web
 from database import utils as db
 from services import keyboard as kbs
+from services.exceptions import StundentNotFound
 from services.filters import PLFilter
 from services.logger.config import config
 
@@ -49,14 +50,22 @@ logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
 @logger.catch()
 async def start(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        await ans.answer(
-            "Привет!",
-            keyboard=kbs.main.main_menu(
+        try:
+            student_id = (
                 db.students.get_system_id_of_student(
                     ans.object.object.message.peer_id,
                 ),
-            ),
-        )
+            )
+        except StudentNotFound:
+            await ans.answer(
+                """Вы не являетесь зарегестрированным студентом.
+                Чтобы получить доступ, напишите @dadyarri университет, названия группы и направления"""
+            )
+        else:
+            await ans.answer(
+                "Привет!",
+                keyboard=kbs.main.main_menu(student_id),
+            )
 
 
 bot.run_forever()
