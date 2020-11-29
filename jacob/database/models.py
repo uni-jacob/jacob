@@ -1,246 +1,143 @@
-from peewee import AutoField
-from peewee import BigIntegerField
-from peewee import BooleanField
-from peewee import CharField
-from peewee import Check
-from peewee import ForeignKeyField
-from peewee import IntegerField
-from peewee import Model
-from peewee import PostgresqlDatabase
-from peewee import TextField
-from peewee import TimestampField
-from peewee import fn
+from datetime import datetime
 
-from services.db import get_db_credentials
-
-db = PostgresqlDatabase(**get_db_credentials())
+from pony.orm import PrimaryKey
+from pony.orm import Optional
+from pony.orm import Set
+from pony.orm import Required
+from pony.orm import Database
 
 
-class BaseModel(Model):
-    class Meta:
-        database = db
-
-    def __repr__(self):
-        return self._pk
-
-    def json(self):
-        return self.__dict__.get("__data__")
+db = Database()
 
 
-class AcademicStatus(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    description = CharField()
-
-    class Meta:
-        table_name = "academic_statuses"
+class AcademicStatus(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    description = Optional(str, 255, unique=True)
+    students = Set("Student")
 
 
-class AlmaMater(BaseModel):
-    id = AutoField(primary_key=True)
-    name = CharField()
-
-    class Meta:
-        table_name = "alma_maters"
-
-
-class Group(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    group_num = CharField()
-    specialty = TextField()
-    alma_mater = ForeignKeyField(
-        AlmaMater,
-        backref="almamater",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-
-    class Meta:
-        table_name = "groups"
+class AdminConfig(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    names_usage = Optional(bool)
+    active_group = Required("Group")
+    active_chat = Required("Chat")
 
 
-class Administrator(BaseModel):
-    id = IntegerField(primary_key=True)
-    student_id = IntegerField()
-    group_id = ForeignKeyField(
-        Group,
-        backref="groups",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-
-    class Meta:
-        table_name = "administrators"
+class AlmaMater(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    name = Required(str)
+    groups = Set("Group")
 
 
-class Chat(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    chat_id = BigIntegerField()
-    group_id = ForeignKeyField(
-        Group,
-        backref="groups",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-
-    class Meta:
-        table_name = "chats"
+class Group(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    group_num = Required(str, 255)
+    specialty = Required(str)
+    alma_mater = Required(AlmaMater)
+    admin_configs = Set(AdminConfig)
+    chats = Set("Chat")
+    administrators = Set("Administrator")
+    students = Set("Student")
+    financial_categories = Set("FinancialCategory")
 
 
-class FinancialCategory(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    name = CharField()
-    summ = IntegerField()
-    group_id = ForeignKeyField(
-        Group,
-        backref="groups",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-
-    class Meta:
-        table_name = "financial_categories"
+class Chat(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    vk_id = Required(int)
+    group = Required(Group)
+    admin_configs = Set(AdminConfig)
 
 
-class Student(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    vk_id = BigIntegerField(
-        unique=True,
-        constraints=[
-            Check("vk_id > 0"),
-        ],
-    )
-    first_name = CharField()
-    second_name = CharField()
-    group_id = ForeignKeyField(
-        Group,
-        backref="groups",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-    email = CharField(null=True)
-    phone_number = BigIntegerField(
-        null=True,
-        constraints=[
-            Check("phone_number < 99999999999"),
-        ],
-    )
-    subgroup = IntegerField(null=True)
-    academic_status = ForeignKeyField(
-        AcademicStatus,
-        backref="academicstatuses",
-        default=1,
-        on_delete="RESTRICT",
-        on_update="CASCADE",
-    )
-
-    class Meta:
-        table_name = "students"
+class Administrator(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    groups = Set(Group)
+    call_storage = Optional("CallStorage")
+    chat_registrar_config = Optional("ChatRegistrarConfig")
+    financial_config = Optional("FinancialConfig")
+    state_storage = Optional("StateStorage")
 
 
-class FinancialDonate(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    category = ForeignKeyField(
-        FinancialCategory,
-        backref="categories",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-    student = ForeignKeyField(
-        Student,
-        backref="students",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-    summ = IntegerField()
-    create_date = TimestampField(default=fn.NOW())
-    update_date = TimestampField(null=True)
-
-    class Meta:
-        table_name = "financial_donates"
+class Student(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    vk_id = Required(int)
+    first_name = Required(str)
+    last_name = Required(str)
+    group = Required(Group)
+    subgroup = Optional(int)
+    email = Optional(str, nullable=True)
+    phone_number = Required(int)
+    academic_status = Required(AcademicStatus)
+    financial_incomes = Set("FinancialIncome")
+    issues = Set("Issue")
 
 
-class FinancialExpense(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    category = ForeignKeyField(
-        FinancialCategory,
-        backref="categories",
-        on_delete="CASCADE",
-        on_update="CASCADE",
-    )
-    summ = IntegerField()
-    create_date = TimestampField(default=fn.NOW())
-
-    class Meta:
-        table_name = "financial_expenses"
+class CallStorage(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    administrator = Required(Administrator)
 
 
-class State(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    description = CharField()
-
-    class Meta:
-        table_name = "states"
+class ChatRegistrarConfig(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    administrator = Required(Administrator)
+    phrase = Optional(str, default="")
 
 
-class Storage(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    state_id = ForeignKeyField(
-        State,
-        backref="states",
-        default=1,
-        on_delete="SET DEFAULT",
-        on_update="CASCADE",
-    )
-    current_chat_id = ForeignKeyField(
-        Chat,
-        backref="chats",
-        default=None,
-        on_delete="SET DEFAULT",
-        on_update="CASCADE",
-    )
-    names_usage = BooleanField(default=False)
-    selected_students = TextField(default="")
-    text = TextField(default="")
-    attaches = TextField(default="")
-    category_id = IntegerField(null=True)
-    confirm_message = TextField(null=True)
-    active_group = ForeignKeyField(
-        Group,
-        backref="groups",
-        default=None,
-        on_delete="SET DEFAULT",
-        on_update="CASCADE",
-    )
-
-    class Meta:
-        table_name = "storages"
+class FinancialCategory(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    name = Optional(str)
+    summ = Optional(int)
+    group = Required(Group)
+    financial_configs = Set("FinancialConfig")
+    financial_incomes = Set("FinancialIncome")
+    financial_expenses = Set("FinancialExpense")
 
 
-class Issue(BaseModel):
-    id = AutoField(
-        primary_key=True,
-    )
-    from_id = IntegerField()
-    title = TextField()
-    text = TextField(null=True)
+class FinancialConfig(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    administrator = Required(Administrator)
+    financial_category = Required(FinancialCategory)
 
-    class Meta:
-        table_name = "issues"
+
+class FinancialIncome(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    financial_category = Required(FinancialCategory)
+    student = Required(Student)
+    summ = Required(int)
+    create_date = Required(datetime, default=lambda: datetime.now())
+    update_date = Optional(datetime)
+
+
+class FinancialExpense(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    financial_category = Required(FinancialCategory)
+    summ = Required(int)
+    create_date = Optional(datetime, default=lambda: datetime.now())
+
+
+class Issue(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    author = Required(Student)
+    title = Required(str)
+    text = Optional(str, nullable=True)
+
+
+class State(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    description = Optional(str, 255, unique=True)
+    state_storages = Set("StateStorage")
+
+
+class StateStorage(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    administrator = Required(Administrator)
+    state = Required(State)
+
+
+db.bind(
+    provider="postgres",
+    user="dadyarri",
+    password="mjro10011",
+    host="localhost",
+    database="jacob",
+)
+db.generate_mapping(create_tables=True)
