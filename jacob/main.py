@@ -7,6 +7,7 @@ from vkwave.bots import SimpleBotEvent
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots import TextFilter
 
+from blueprints.main import main
 from blueprints import call
 from blueprints import chats
 from blueprints import contacts
@@ -28,6 +29,7 @@ bot = SimpleLongPollBot(
     tokens=os.getenv("VK_TOKEN"),
     group_id=os.getenv("GROUP_ID"),
 )
+bot.dispatcher.add_router(main.main_router)
 bot.dispatcher.add_router(call.call_router)
 bot.dispatcher.add_router(preferences.preferences_router)
 bot.dispatcher.add_router(chats.chats_router)
@@ -39,24 +41,6 @@ bot.dispatcher.add_router(contacts.contacts_router)
 
 logger.configure(**config)
 logging.basicConfig(level=logging.DEBUG, handlers=[InterceptHandler()])
-
-
-@bot.message_handler(
-    TextFilter(["старт", "начать", "start", "привет", "hi", "hello"])
-    | PLFilter({"button": "main_menu"}),
-    MessageFromConversationTypeFilter("from_pm"),
-)
-@logger.catch()
-async def start(ans: SimpleBotEvent):
-    with logger.contextualize(user_id=ans.object.object.message.from_id):
-        await ans.answer(
-            "Привет!",
-            keyboard=kbs.main.main_menu(
-                db.students.get_system_id_of_student(
-                    ans.object.object.message.peer_id,
-                ),
-            ),
-        )
 
 
 bot.run_forever()
