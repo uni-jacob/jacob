@@ -36,3 +36,32 @@ def main_menu(admin_id: int) -> JSONStr:
             payload={"button": "report_error"},
         )
     return kb.get_keyboard()
+
+
+def choose_register_way() -> JSONStr:
+    kb = Keyboard()
+
+    kb.add_text_button(
+        text="Новая группа",
+        payload={"button": "create_new_group"},
+    )
+    kb.add_text_button(
+        text="Существующая группа",
+        payload={"button": "choose_existing_group"},
+    )
+
+    return kb.get_keyboard()
+
+
+def universities() -> JSONStr:
+    kb = Keyboard()
+
+    universities = db.uni.get()
+
+    for uni in universities:
+        if len(kb.buttons[-1] == 2):
+            kb.add_row()
+
+        kb.add_text_button(uni.name)
+
+    return kb.get_keyboard()
