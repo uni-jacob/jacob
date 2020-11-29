@@ -56,12 +56,18 @@ def choose_register_way() -> JSONStr:
 def universities() -> JSONStr:
     kb = Keyboard()
 
-    universities = db.uni.get()
+    universities = db.uni.get_all()
 
     for uni in universities:
         if len(kb.buttons[-1] == 2):
             kb.add_row()
 
-        kb.add_text_button(uni.name)
+        kb.add_text_button(
+            uni.name,
+            payload={
+                "button": "university",
+                "university": uni.id,
+            },
+        )
 
     return kb.get_keyboard()
