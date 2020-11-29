@@ -821,6 +821,14 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 dev = ["pre-commit", "tox"]
 
 [[package]]
+name = "pony"
+version = "0.7.14"
+description = "Pony Object-Relational Mapper"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pre-commit"
 version = "2.8.2"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
@@ -1244,7 +1252,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.6"
-content-hash = "f818d5c90d2ef369d70039a1bd91e1919a576bb7e77e93bd239b717fe0897bc2"
+content-hash = "e5a72723f2e5772f56525694c9480a136280fb94b6c585da2d596ec19f8f42bd"
 
 [metadata.files]
 aiohttp = [
@@ -1677,6 +1685,9 @@ pep8-naming = [
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
+]
+pony = [
+    {file = "pony-0.7.14.tar.gz", hash = "sha256:2f01e84e79ea7a14040225cb6c079bb266e7ba147346356c266490b18c77ce82"},
 ]
 pre-commit = [
     {file = "pre_commit-2.8.2-py2.py3-none-any.whl", hash = "sha256:22e6aa3bd571debb01eb7d34483f11c01b65237be4eebbf30c3d4fb65762d315"},

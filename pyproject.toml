@@ -32,6 +32,7 @@ typing-extensions = "^3.7.4"
 beautifulsoup4 = "^4.9.3"
 vkwave = "^0.2.9"
 PyGithub = "^1.53"
+pony = "^0.7.14"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
