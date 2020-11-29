@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from pony.orm import PrimaryKey
@@ -6,6 +7,7 @@ from pony.orm import Set
 from pony.orm import Required
 from pony.orm import Database
 
+from jacob.services.db import get_db_credentials
 
 db = Database()
 
@@ -133,11 +135,5 @@ class StateStorage(db.Entity):
     state = Required(State)
 
 
-db.bind(
-    provider="postgres",
-    user="dadyarri",
-    password="mjro10011",
-    host="localhost",
-    database="jacob",
-)
+db.bind(provider="postgres", **get_db_credentials(os.getenv("DATABASE_URL")))
 db.generate_mapping(create_tables=True)
