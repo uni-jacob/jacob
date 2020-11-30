@@ -52,6 +52,7 @@ class Chat(db.Entity):
 
 class Administrator(db.Entity):
     id = PrimaryKey(int, auto=True)
+    student = Required("Student")
     groups = Set(Group)
     call_storage = Optional("CallStorage")
     chat_registrar_config = Optional("ChatRegistrarConfig")
@@ -71,6 +72,7 @@ class Student(db.Entity):
     academic_status = Required(AcademicStatus)
     financial_incomes = Set("FinancialIncome")
     issues = Set("Issue")
+    administrators = Set(Administrator)
 
 
 class CallStorage(db.Entity):
