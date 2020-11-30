@@ -1,6 +1,7 @@
 import typing as t
 
 from loguru import logger
+from pony.orm import select
 
 from database.models import Administrator
 from database.models import Group
@@ -20,8 +21,7 @@ def is_user_admin(admin_id: int) -> bool:
     Returns:
         bool: статус администрирования студента
     """
-    admin = Administrator.get_or_none(student_id=admin_id)
-    if admin is not None:
+    if Administrator.get(student=admin_id) is not None:
         return True
     return False
 
@@ -37,10 +37,9 @@ def get_admin_feud(admin_id: int) -> t.List[Group]:
         list[Group]: список объектов групп
     """
     if is_user_admin(admin_id):
-        admin_entries = Administrator.select().where(
-            Administrator.student_id == admin_id,
+        groups = select(
+            admin.groups for admin in Administrator if admin.student == admin_id
         )
-        groups = [admin.group_id for admin in admin_entries]
         logger.debug(f"Администрируемое: {groups}")
         return groups
     return []
