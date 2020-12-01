@@ -1,5 +1,8 @@
 import typing as t
 
+from pony.orm import select
+from pony.orm import db_session
+
 from database.models import Chat
 from database.utils import shortcuts
 
@@ -14,23 +17,22 @@ def get_list_of_chats_by_group(group_id: int) -> t.List[Chat]:
     Returns:
         list[Chat]: Список объектов чатов
     """
-    query = Chat.select().where(Chat.group_id == group_id)
-    return shortcuts.generate_list(query)
+    return select(c for c in Chat if c.group == group_id)[:]
 
 
-def delete_chat(chat_id: int) -> int:
+@db_session
+def delete_chat(chat_id: int):
     """
     Удаляет чат из зарегистрированных.
 
     Args:
         chat_id: идентфикатор чата
 
-    Returns:
-        int: количество удаленных записей
     """
-    return Chat.delete().where(Chat.id == chat_id).execute()
+    Chat[chat_id].delete()
 
 
+@db_session
 def register_chat(chat_id: int, group_id: int) -> Chat:
     """
     Зарегистрировать чат.
@@ -42,7 +44,7 @@ def register_chat(chat_id: int, group_id: int) -> Chat:
     Returns:
         Chat: объект чата
     """
-    return Chat.create(chat_id=chat_id, group_id=group_id)
+    return Chat(chat_id=chat_id, group_id=group_id)
 
 
 def is_chat_registered(chat_id: int, group_id: int) -> bool:
@@ -56,7 +58,7 @@ def is_chat_registered(chat_id: int, group_id: int) -> bool:
     Returns:
         bool: Флаг регистрации чата
     """
-    chat = Chat.get_or_none(chat_id=chat_id, group_id=group_id)
+    chat = Chat.get(chat_id=chat_id, group_id=group_id)
     if chat is not None:
         return True
     return False
