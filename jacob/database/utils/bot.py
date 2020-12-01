@@ -15,7 +15,7 @@ def get_id_of_state(description: str) -> int:
     Raises:
         BotStateNotFound: если переданный статус бота не был найден в БД
     """
-    state = State.get_or_none(description=description)
+    state = State.get(description=description)
     if state is not None:
         return state.id
     raise BotStateNotFound(f'Статус "{description}" не существует')
