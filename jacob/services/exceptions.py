@@ -1,4 +1,4 @@
-class UserIsNotAnAdministrator(Exception):
+class UserIsNotAnAdmin(Exception):
     """Вызывается, когда пользователь не является администратором."""
 
     pass
