@@ -3,10 +3,12 @@ import typing as t
 from loguru import logger
 from pony.orm import select
 
-from database.models import Administrator
-from database.models import Group
-from database.models import Storage
-from services.logger.config import config
+from jacob.database.models import Administrator
+from jacob.database.models import AdminConfig
+from jacob.database.models import Group
+from jacob.database.models import Storage
+from jacob.services.logger.config import config
+from jacob.services.exceptions import UserIsNotAnAdmin
 
 logger.configure(**config)
 
@@ -21,9 +23,7 @@ def is_user_admin(admin_id: int) -> bool:
     Returns:
         bool: статус администрирования студента
     """
-    if Administrator.get(student=admin_id) is not None:
-        return True
-    return False
+    return Administrator.exists(student=admin_id)
 
 
 def get_admin_feud(admin_id: int) -> t.List[Group]:
@@ -42,12 +42,11 @@ def get_admin_feud(admin_id: int) -> t.List[Group]:
         )
         logger.debug(f"Администрируемое: {groups}")
         return groups
-    return []
+    raise UserIsNotAnAdmin(f"Пользователь {admin_id} не является админом")
 
 
-def get_admin_storage(admin_id: int) -> Storage:
-    """
-    Ищет хранилище администратора и возвращет объект класса Storage.
+def get_or_create_admin_config(admin_id: int) -> AdminConfig:
+    """Ищет хранилище администратора и возвращает объект класса AdminConfig.
 
     Если хранилище не было найдено, оно создается
 
@@ -55,10 +54,13 @@ def get_admin_storage(admin_id: int) -> Storage:
         admin_id: идентификатор администратора
 
     Returns:
-        Storage: объект хранилища пользователя
+        AdminConfig: объект хранилища настроек администратора
     """
     if is_user_admin(admin_id):
-        return Storage.get_or_create(id=admin_id)[0]
+        if AdminConfig.exists(administrator=admin_id):
+            return AdminConfig.get(administrator=admin_id)
+        return AdminConfig(administrator=admin_id)
+    raise UserIsNotAnAdmin(f"Пользователь {admin_id} не является админом")
 
 
 def get_active_group(admin_id: int) -> t.Optional[Group]:
@@ -76,5 +78,6 @@ def get_active_group(admin_id: int) -> t.Optional[Group]:
     """
     if is_user_admin(admin_id):
         if len(get_admin_feud(admin_id)) > 1:
-            return Storage.get_by_id(admin_id).active_group
-        return Administrator.get(student_id=admin_id).group_id
+            return AdminConfig[admin_id].active_group
+        return Administrator.get(student_id=admin_id).group
+    raise UserIsNotAnAdmin(f"Пользователь {admin_id} не является админом")
