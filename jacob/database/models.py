@@ -20,9 +20,10 @@ class AcademicStatus(db.Entity):
 
 class AdminConfig(db.Entity):
     id = PrimaryKey(int, auto=True)
-    names_usage = Optional(bool)
-    active_group = Required("Group")
-    active_chat = Required("Chat")
+    administrator = Required("Administrator")
+    names_usage = Optional(bool, default=True)
+    active_group = Optional("Group")
+    active_chat = Optional("Chat")
 
 
 class AlmaMater(db.Entity):
@@ -54,6 +55,7 @@ class Administrator(db.Entity):
     id = PrimaryKey(int, auto=True)
     student = Required("Student")
     groups = Set(Group)
+    admin_config = Optional(AdminConfig)
     call_storage = Optional("CallStorage")
     chat_registrar_config = Optional("ChatRegistrarConfig")
     financial_config = Optional("FinancialConfig")
@@ -67,7 +69,7 @@ class Student(db.Entity):
     last_name = Required(str)
     group = Required(Group)
     subgroup = Optional(int)
-    email = Optional(str, nullable=True)
+    email = Optional(str)
     phone_number = Required(int)
     academic_status = Required(AcademicStatus)
     financial_incomes = Set("FinancialIncome")
@@ -122,7 +124,7 @@ class Issue(db.Entity):
     id = PrimaryKey(int, auto=True)
     author = Required(Student)
     title = Required(str)
-    text = Optional(str, nullable=True)
+    text = Optional(str)
 
 
 class State(db.Entity):
