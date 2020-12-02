@@ -1,8 +1,9 @@
 import typing as t
+from datetime import datetime
 
-from peewee import fn
+from pony.orm import select
+from pony.orm import db_session
 
-from database import utils as db
 from database.models import FinancialCategory
 from database.models import FinancialDonate
 from database.models import FinancialExpense
@@ -19,11 +20,14 @@ def get_fin_categories(group_id: int) -> t.List[FinancialCategory]:
     Returns:
         List[FinancialCategory]: категории финансов
     """
-    query = FinancialCategory.select().where(FinancialCategory.group_id == group_id)
-    return db.shortcuts.generate_list(query)
+    return select(fc for fc in FinancialCategory if fc.group == group_id)[:]
 
 
-def add_or_edit_donate(category_id: int, student_id: int, summ: int) -> FinancialDonate:
+def add_or_edit_donate(
+    category_id: int,
+    student_id: int,
+    summ: int,
+) -> FinancialDonate:
     """
     Создает новый доход или редактирует существующий.
 
@@ -35,22 +39,19 @@ def add_or_edit_donate(category_id: int, student_id: int, summ: int) -> Financia
     Returns:
         FinancialDonate: Объект дохода
     """
-    if donate := FinancialDonate.get_or_none(
-        category=category_id,
-        student=student_id,
-    ):
-        donate_object = donate.update(
-            summ=donate.summ + summ,
-            update_date=fn.NOW(),
+    donate = FinancialDonate.get(category=category_id, student=student_id)
+    if donate is not None:
+        with db_session:
+            donate.summ = (donate.summ + summ,)
+            donate.update_date = (datetime.now(),)
+        return donate
+    with db_session:
+        return FinancialDonate(
+            category_id=category_id,
+            student_id=student_id,
+            summ=summ,
+            update_date=None,
         )
-        donate_object.execute()
-        return donate_object
-    return FinancialDonate.create(
-        category_id=category_id,
-        student_id=student_id,
-        summ=summ,
-        update_date=None,
-    )
 
 
 def get_debtors(category_id: int) -> t.List[int]:
@@ -63,11 +64,11 @@ def get_debtors(category_id: int) -> t.List[int]:
     Returns:
         List[int]: список идентификаторов
     """
-    category = FinancialCategory.get_by_id(category_id)
-    students = get_active_students(category.group_id)
+    category = FinancialCategory[category_id]
+    students = get_active_students(category.group)
     debtors = []
     for student in students:
-        donate = FinancialDonate.get_or_none(category=category_id, student=student.id)
+        donate = FinancialDonate.get(category=category_id, student=student.id)
         if donate is None or donate.summ < category.summ:
             debtors.append(student.id)
 
@@ -85,10 +86,11 @@ def add_expense(category_id: int, summ: int) -> FinancialExpense:
     Returns:
         FinancialExpense: объект расхода
     """
-    return FinancialExpense.create(
-        category_id=category_id,
-        summ=summ,
-    )
+    with db_session:
+        return FinancialExpense(
+            category_id=category_id,
+            summ=summ,
+        )
 
 
 def calculate_donates_in_category(category_id: int) -> int:
@@ -101,14 +103,7 @@ def calculate_donates_in_category(category_id: int) -> int:
     Returns:
         int: Сумма сборов
     """
-    summ = 0
-    donates = FinancialDonate.select(FinancialDonate.summ).where(
-        FinancialDonate.category == category_id,
-    )
-    for donate in donates:
-        summ += donate.summ
-
-    return summ
+    return sum(fd.summ for fd in FinancialDonate if fd.category == category_id)
 
 
 def calculate_expenses_in_category(category_id: int) -> int:
@@ -121,17 +116,12 @@ def calculate_expenses_in_category(category_id: int) -> int:
     Returns:
         int: сумма расходов
     """
-    summ = 0
-    donates = FinancialExpense.select(FinancialExpense.summ).where(
-        FinancialExpense.category == category_id,
-    )
-    for donate in donates:
-        summ += donate.summ
-
-    return summ
+    return sum(fd.summ for fd in FinancialExpense if fd.category == category_id)
 
 
-def create_finances_category(group_id: int, name: str, summ: int) -> FinancialCategory:
+def get_or_create_finances_category(
+    group_id: int, name: str, summ: int
+) -> FinancialCategory:
     """
     Создаёт новую финансовую категорию, или возвращает уже существующую.
 
@@ -143,4 +133,6 @@ def create_finances_category(group_id: int, name: str, summ: int) -> FinancialCa
     Returns:
         FinancialCategory: объект категории
     """
-    return FinancialCategory.get_or_create(group_id=group_id, name=name, summ=summ)[0]
+    if FinancialCategory.exists(group_id=group_id, name=name, summ=summ):
+        return FinancialCategory.get(group_id=group_id, name=name, summ=summ)
+    return FinancialCategory(group_id=group_id, name=name, summ=summ)
