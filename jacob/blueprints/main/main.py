@@ -1,43 +1,32 @@
-import os
-import random
+"""Главное меню бота."""
 
-import hyperjson
+import os
+
 from loguru import logger
-from vkwave.api import API
-from vkwave.bots import DefaultRouter
-from vkwave.bots import MessageFromConversationTypeFilter
-from vkwave.bots import SimpleBotEvent
-from vkwave.bots import simple_bot_message_handler
-from vkwave.bots import SimpleLongPollBot
-from vkwave.bots import TextFilter
-from vkwave.client import AIOHTTPClient
+from vkwave import api, bots, client
 
 from database import utils as db
-from database.models import Chat
-from database.models import Student
-from services import call
-from services import filters
 from services import keyboard as kbs
-from services import media
-from services.exceptions import EmptyCallMessage
 from services.exceptions import StudentNotFound
 from services.filters import PLFilter
 from services.logger.config import config
 
-main_router = DefaultRouter()
-api_session = API(tokens=os.getenv("VK_CANARY_TOKEN"), clients=AIOHTTPClient())
-api = api_session.get_context()
+main_router = bots.DefaultRouter()
+api_session = api.API(
+    tokens=os.getenv("VK_CANARY_TOKEN"), clients=client.AIOHTTPClient()
+)
+api_context = api_session.get_context()
 logger.configure(**config)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     main_router,
-    TextFilter(["старт", "начать", "start", "привет", "hi", "hello"])
+    bots.TextFilter(["старт", "начать", "start", "привет", "hi", "hello"])
     | PLFilter({"button": "main_menu"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def _greeting(ans: SimpleBotEvent):
+async def _greeting(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         try:
             student_id = db.students.get_system_id_of_student(
@@ -45,8 +34,8 @@ async def _greeting(ans: SimpleBotEvent):
             )
         except StudentNotFound:
             await ans.answer(
-                """Вы не являетесь зарегистрированным студентом.
-                Желаете попасть в существующую группу или создать свою?""",
+                "Вы не являетесь зарегистрированным студентом.\n"
+                + "Желаете попасть в существующую группу или создать свою?",
                 keyboard=kbs.main.choose_register_way(),
             )
         else:
@@ -58,13 +47,13 @@ async def _greeting(ans: SimpleBotEvent):
             )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     main_router,
     PLFilter({"button": "create_new_group"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def _show_universities(ans: SimpleBotEvent):
+async def _show_universities(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         # режим: выбор универа
         await ans.answer(
