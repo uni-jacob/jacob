@@ -7,3 +7,6 @@ count = True
 show_source = True
 statistics = True
 ignore = E501
+inline_quotes = double
+multiline_quotes = double
+docstring_quotes = double
