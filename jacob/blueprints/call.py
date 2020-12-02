@@ -1,44 +1,45 @@
+"""Блок Призыв."""
+
+# TODO:
+#   - WPS202 Found too many module members: 14 > 7
+#   - WPS204 Found overused expression: logger.contextualize(...)
+#   - WPS210 Found too many local variables: 7 > 5 _confirm_call(...)
+
+
 import os
 import random
 
 import hyperjson
 from loguru import logger
-from vkwave.api import API
-from vkwave.bots import DefaultRouter
-from vkwave.bots import MessageFromConversationTypeFilter
-from vkwave.bots import SimpleBotEvent
-from vkwave.bots import simple_bot_message_handler
-from vkwave.client import AIOHTTPClient
+from vkwave import api, bots, client
 
+from database import models
 from database import utils as db
-from database.models import Chat
-from database.models import Student
-from services import call
-from services import filters
+from services import call, filters
 from services import keyboard as kbs
 from services import media
 from services.exceptions import EmptyCallMessage
 from services.logger.config import config
 
-call_router = DefaultRouter()
-api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
-api = api_session.get_context()
+call_router = bots.DefaultRouter()
+api_session = api.API(tokens=os.getenv("VK_TOKEN"), clients=client.AIOHTTPClient())
+api_context = api_session.get_context()
 logger.configure(**config)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "call"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def start_call(ans: SimpleBotEvent):
+async def _start_call(ans: bots.SimpleBotEvent):
+    # TODO: Вытащить contextualize в декоратор
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        if db.chats.get_list_of_chats_by_group(
-            db.admin.get_active_group(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id),
-            ),
-        ):
+        group_id = db.admin.get_active_group(
+            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+        )
+        if db.chats.get_list_of_chats_by_group(group_id):
             db.shortcuts.update_admin_storage(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
                 state_id=db.bot.get_id_of_state("wait_call_text"),
@@ -53,13 +54,13 @@ async def start_call(ans: SimpleBotEvent):
             )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "cancel_call"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def cancel_call(ans: SimpleBotEvent):
+async def _cancel_call(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.clear_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -72,13 +73,13 @@ async def cancel_call(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "skip_call_message"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def skip_register_call_message(ans: SimpleBotEvent):
+async def _skip_register_call_message(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
@@ -94,18 +95,19 @@ async def skip_register_call_message(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.StateFilter("wait_call_text"),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def register_call_message(ans: SimpleBotEvent):
+async def _register_call_message(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         attachments = ""
-        if raw_attachments := ans.object.object.message.attachments:
+        raw_attachments = ans.object.object.message.attachments
+        if raw_attachments is not None:
             attachments = await media.load_attachments(
-                api,
+                api_context,
                 raw_attachments,
                 ans.object.object.message.peer_id,
             )
@@ -125,14 +127,14 @@ async def register_call_message(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "half"}),
     filters.StateFilter("select_mentioned"),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def select_half(ans: SimpleBotEvent):
+async def _select_half(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         await ans.answer(
@@ -145,19 +147,19 @@ async def select_half(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "letter"}),
     filters.StateFilter("select_mentioned"),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def select_letter(ans: SimpleBotEvent):
+async def _select_letter(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         letter = payload["value"]
         await ans.answer(
-            f"Список студентов на букву {letter}",
+            "Список студентов на букву {0}".format(letter),
             keyboard=kbs.call.CallNavigator(
                 db.students.get_system_id_of_student(
                     ans.object.object.message.peer_id,
@@ -168,112 +170,114 @@ async def select_letter(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "student"}),
     filters.StateFilter("select_mentioned"),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def select_student(ans: SimpleBotEvent):
+async def _select_student(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = hyperjson.loads(ans.object.object.message.payload)
         student_id = payload["student_id"]
-        letter = payload["letter"]
-        name = payload["name"]
-        if student_id in db.shortcuts.get_list_of_calling_students(
-            db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-        ):
+        admin_id = db.students.get_system_id_of_student(
+            ans.object.object.message.peer_id,
+        )
+        if student_id in db.shortcuts.get_list_of_calling_students(admin_id):
             db.shortcuts.pop_student_from_calling_list(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
+                admin_id,
                 student_id,
             )
             label = "удален из списка призыва"
         else:
             db.shortcuts.add_student_to_calling_list(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
+                admin_id,
                 student_id,
             )
             label = "добавлен в список призыва"
         await ans.answer(
-            f"{name} {label}",
+            "{0} {1}".format(payload["name"], label),
             keyboard=kbs.call.CallNavigator(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
+                admin_id,
             )
             .render()
-            .students(letter),
+            .students(payload["letter"]),
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "save_selected"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def confirm_call(ans: SimpleBotEvent):
+async def _confirm_call(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         admin_id = db.students.get_system_id_of_student(
             ans.object.object.message.peer_id,
         )
         msg = call.generate_message(admin_id)
         store = db.admin.get_admin_storage(admin_id)
-        chat_id = Chat.get_by_id(store.current_chat_id).chat_id
+        chat_id = models.Chat.get_by_id(store.current_chat_id).chat_id
+        query = await api_context.messages.get_conversations_by_id(chat_id)
         try:
-            query = await api.messages.get_conversations_by_id(chat_id)
-            chat_name = query.response.items[0].chat_settings.title
+            chat_settings = query.response.items[0].chat_settings
         except IndexError:
             chat_name = "???"
+        else:
+            chat_name = chat_settings.title
         if not msg and not store.attaches:
             raise EmptyCallMessage("Сообщение призыва не может быть пустым")
         db.shortcuts.update_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.peer_id),
+            admin_id,
             state_id=db.bot.get_id_of_state("confirm_call"),
         )
         await ans.answer(
-            f'Сообщение будет отправлено в чат "{chat_name}":\n{msg}',
+            'Сообщение будет отправлено в чат "{0}":\n{1}'.format(chat_name, msg),
             keyboard=kbs.call.call_prompt(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
+                admin_id,
             ),
             attachment=store.attaches or "",
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.PLFilter({"button": "call_all"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def call_them_all(ans: SimpleBotEvent):
+async def _call_them_all(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         admin_id = db.students.get_system_id_of_student(
             ans.object.object.message.peer_id,
         )
-        student = Student.get_by_id(admin_id)
+        student = models.Student.get_by_id(admin_id)
         students = [st.id for st in db.students.get_active_students(student.group_id)]
         db.shortcuts.update_calling_list(admin_id, students)
-        await confirm_call(ans)
+        await _confirm_call(ans)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "confirm"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def send_call(ans: SimpleBotEvent):
+async def _send_call(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         admin_id = db.students.get_system_id_of_student(
             ans.object.object.message.peer_id,
         )
         store = db.admin.get_admin_storage(admin_id)
         msg = call.generate_message(admin_id)
-        await api.messages.send(
-            peer_id=Chat.get_by_id(store.current_chat_id).chat_id,
+        bits = 64
+        await api_context.messages.send(
+            peer_id=models.Chat.get_by_id(store.current_chat_id).chat_id,
             message=msg,
-            random_id=random.getrandbits(64),
+            random_id=random.getrandbits(bits),
             attachment=store.attaches or "",
         )
         db.shortcuts.clear_admin_storage(admin_id)
@@ -283,58 +287,58 @@ async def send_call(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "deny"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def deny_call(ans: SimpleBotEvent):
+async def _deny_call(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        await cancel_call(ans)
+        await _cancel_call(ans)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "names_usage"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def change_names_usage(ans: SimpleBotEvent):
+async def _change_names_usage(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.invert_names_usage(
             db.students.get_system_id_of_student(ans.object.object.message.peer_id),
         )
-        await confirm_call(ans)
+        await _confirm_call(ans)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "chat_config"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def change_chat(ans: SimpleBotEvent):
+async def _change_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     call_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "chat"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def select_chat(ans: SimpleBotEvent):
+async def _select_chat(ans: bots.SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
         current_chat_id=payload["chat_id"],
     )
-    await confirm_call(ans)
+    await _confirm_call(ans)
