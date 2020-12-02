@@ -2,6 +2,8 @@
 format = wemake
 exclude = .git,__pycache__,polygon.py,tests
 max_complexity = 10
+max_line_length = 88
 count = True
 show_source = True
 statistics = True
+ignore = E501
