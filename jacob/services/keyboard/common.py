@@ -213,6 +213,6 @@ def cancel():
     """
     kb = Keyboard()
 
-    kb.add_text_button("Отмена", payload={"button": "cancel"})
+    kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
 
     return kb.get_keyboard()
