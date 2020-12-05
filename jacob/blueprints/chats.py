@@ -1,50 +1,40 @@
-import os
+"""Функционал в чатах."""
 
 from loguru import logger
-from vkwave.api import API
-from vkwave.bots import ChatActionFilter
-from vkwave.bots import CommandsFilter
-from vkwave.bots import DefaultRouter
-from vkwave.bots import MessageFromConversationTypeFilter
-from vkwave.bots import SimpleBotEvent
-from vkwave.bots import simple_bot_message_handler
-from vkwave.client import AIOHTTPClient
+from vkwave import bots
 
 from services.logger.config import config
 from services.media import translate_string
 
-chats_router = DefaultRouter()
-api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
-api = api_session.get_context()
+chats_router = bots.DefaultRouter()
 logger.configure(**config)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     chats_router,
-    ChatActionFilter("chat_invite_user"),
+    bots.ChatActionFilter("chat_invite_user"),
 )
 @logger.catch()
-async def greeting(ans: SimpleBotEvent):
+async def _greeting(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         await ans.answer("Привет!")
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     chats_router,
-    CommandsFilter("tr"),
-    MessageFromConversationTypeFilter("from_chat"),
+    bots.CommandsFilter("tr"),
+    bots.MessageFromConversationTypeFilter("from_chat"),
 )
 @logger.catch()
-async def tr_command(ans: SimpleBotEvent):
+async def _tr_command(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        if msg := ans.object.object.message.reply_message:
+        message = ans.object.object.message
+        rep_msg = message.reply_message
+        if rep_msg is not None:
             await ans.answer(
-                translate_string(msg.text),
+                translate_string(rep_msg.text),
             )
-        for msg in ans.object.object.message.fwd_messages:
-            await ans.answer(translate_string(msg.text))
-        if (
-            not ans.object.object.message.reply_message
-            and not ans.object.object.message.fwd_messages
-        ):
+        for fwd_msg in message.fwd_messages:
+            await ans.answer(translate_string(fwd_msg.text))
+        if not message.reply_message and not message.fwd_messages:
             await ans.answer("Команда используется в ответ на сообщение")
