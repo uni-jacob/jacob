@@ -1,9 +1,4 @@
-"""Блок Призыв."""
-
-# TODO:
-#   - WPS202 Found too many module members: 14 > 7
-#   - WPS210 Found too many local variables: 7 > 5 _confirm_call(...)
-
+"""Главное меню Призыва."""
 
 import os
 import random
@@ -12,123 +7,23 @@ import hyperjson
 from loguru import logger
 from vkwave import api, bots, client
 
-from database import models
+from database import models  # TODO: (?)
 from database import utils as db
-from services import call, decorators, filters
+from services import call, decorators, exceptions, filters
 from services import keyboard as kbs
-from services import media
-from services.exceptions import EmptyCallMessage
-from services.logger.config import config
+from services.logger import config as logger_config
 
-call_router = bots.DefaultRouter()
-api_session = api.API(tokens=os.getenv("VK_TOKEN"), clients=client.AIOHTTPClient())
+call_menu_router = bots.DefaultRouter()
+api_session = api.API(
+    tokens=os.getenv("VK_CANARY_TOKEN"),
+    clients=client.AIOHTTPClient(),
+)
 api_context = api_session.get_context()
-logger.configure(**config)
+logger.configure(**logger_config.config)
 
 
 @bots.simple_bot_message_handler(
-    call_router,
-    filters.PLFilter({"button": "call"}),
-    bots.MessageFromConversationTypeFilter("from_pm"),
-)
-@logger.catch()
-@decorators.context_logger
-async def _start_call(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    group_id = db.admin.get_active_group(admin_id)
-    if db.chats.get_list_of_chats_by_group(group_id):
-        db.shortcuts.update_admin_storage(
-            admin_id,
-            state_id=db.bot.get_id_of_state("wait_call_text"),
-        )
-        await ans.answer(
-            "Отправьте сообщение к призыву. Поддерживаются фотографии и документы",
-            keyboard=kbs.call.skip_call_message(),
-        )
-    else:
-        await ans.answer(
-            "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
-        )
-
-
-@bots.simple_bot_message_handler(
-    call_router,
-    filters.PLFilter({"button": "cancel_call"}),
-    bots.MessageFromConversationTypeFilter("from_pm"),
-)
-@logger.catch()
-@decorators.context_logger
-async def _cancel_call(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    db.shortcuts.clear_admin_storage(admin_id)
-    await ans.answer(
-        "Призыв отменён. Возврат на главную.",
-        keyboard=kbs.main.main_menu(admin_id),
-    )
-
-
-@bots.simple_bot_message_handler(
-    call_router,
-    filters.StateFilter("confirm_call"),
-    filters.PLFilter({"button": "deny"}),
-    bots.MessageFromConversationTypeFilter("from_pm"),
-)
-@logger.catch()
-@decorators.context_logger
-async def _deny_call(ans: bots.SimpleBotEvent):
-    await _cancel_call(ans)
-
-
-@bots.simple_bot_message_handler(
-    call_router,
-    filters.PLFilter({"button": "skip_call_message"}),
-    bots.MessageFromConversationTypeFilter("from_pm"),
-)
-@logger.catch()
-@decorators.context_logger
-async def _skip_register_call_message(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    db.shortcuts.update_admin_storage(
-        admin_id,
-        state_id=db.bot.get_id_of_state("select_mentioned"),
-    )
-    await ans.answer(
-        "Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().menu(),
-    )
-
-
-@bots.simple_bot_message_handler(
-    call_router,
-    filters.StateFilter("wait_call_text"),
-    bots.MessageFromConversationTypeFilter("from_pm"),
-)
-@logger.catch()
-@decorators.context_logger
-async def _register_call_message(ans: bots.SimpleBotEvent):
-    attachments = ""
-    raw_attachments = ans.object.object.message.attachments
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    if raw_attachments is not None:
-        attachments = await media.load_attachments(
-            api_context,
-            raw_attachments,
-            ans.object.object.message.peer_id,
-        )
-    db.shortcuts.update_admin_storage(
-        admin_id,
-        state_id=db.bot.get_id_of_state("select_mentioned"),
-        text=ans.object.object.message.text,
-        attaches=attachments,
-    )
-    await ans.answer(
-        "Сообщение сохранено. Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().menu(),
-    )
-
-
-@bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.PLFilter({"button": "half"}),
     filters.StateFilter("select_mentioned"),
     bots.MessageFromConversationTypeFilter("from_pm"),
@@ -145,7 +40,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.PLFilter({"button": "letter"}),
     filters.StateFilter("select_mentioned"),
     bots.MessageFromConversationTypeFilter("from_pm"),
@@ -163,7 +58,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.PLFilter({"button": "student"}),
     filters.StateFilter("select_mentioned"),
     bots.MessageFromConversationTypeFilter("from_pm"),
@@ -197,7 +92,7 @@ async def _select_student(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.PLFilter({"button": "save_selected"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -216,7 +111,7 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     else:
         chat_name = chat_settings.title
     if not msg and not store.attaches:
-        raise EmptyCallMessage("Сообщение призыва не может быть пустым")
+        raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
     db.shortcuts.update_admin_storage(
         admin_id,
         state_id=db.bot.get_id_of_state("confirm_call"),
@@ -231,7 +126,7 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.PLFilter({"button": "call_all"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -246,7 +141,7 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "confirm"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
@@ -272,29 +167,29 @@ async def _send_call(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "names_usage"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 @decorators.context_logger
-async def _change_names_usage(ans: bots.SimpleBotEvent):
+async def _invert_names_usage(ans: bots.SimpleBotEvent):
     db.shortcuts.invert_names_usage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id)
+        db.students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await _confirm_call(ans)
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "chat_config"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 @decorators.context_logger
-async def _change_chat(ans: bots.SimpleBotEvent):
+async def _select_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
     )
@@ -302,14 +197,14 @@ async def _change_chat(ans: bots.SimpleBotEvent):
 
 
 @bots.simple_bot_message_handler(
-    call_router,
+    call_menu_router,
     filters.StateFilter("confirm_call"),
     filters.PLFilter({"button": "chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
 @decorators.context_logger
-async def _select_chat(ans: bots.SimpleBotEvent):
+async def _change_chat(ans: bots.SimpleBotEvent):
     payload = hyperjson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
