@@ -1,7 +1,7 @@
 import os
 import re
 
-import hyperjson
+import ujson
 from loguru import logger
 from vkwave.api import API
 from vkwave.bots import DefaultRouter
@@ -83,7 +83,7 @@ async def cancel_creating_category(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def register_category(ans: SimpleBotEvent):
-    if re.match("^\w+ \d+$", ans.object.object.message.text):
+    if re.match(r"^\w+ \d+$", ans.object.object.message.text):
         category = db.finances.create_finances_category(
             db.admin.get_active_group(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -112,7 +112,7 @@ async def register_category(ans: SimpleBotEvent):
 @logger.catch()
 async def fin_category_menu(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             category_id=payload.get("category"),
@@ -164,7 +164,7 @@ async def add_income(ans: SimpleBotEvent):
 @logger.catch()
 async def select_half(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         await ans.answer(
             "Выберите студента, сдавшего деньги",
             keyboard=kbs.finances.IncomeNavigator(
@@ -182,7 +182,7 @@ async def select_half(ans: SimpleBotEvent):
 )
 async def select_letter(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         letter = payload["value"]
         await ans.answer(
             f"Список студентов на букву {letter}",
@@ -201,7 +201,7 @@ async def select_letter(ans: SimpleBotEvent):
 )
 async def select_student(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(
                 ans.object.object.message.from_id,
@@ -306,7 +306,7 @@ async def select_chat_debtors(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def save_chat_debtors(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
+    payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
         current_chat_id=payload["chat_id"],

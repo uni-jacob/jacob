@@ -1,7 +1,7 @@
 from json import JSONDecoder
 from typing import Dict
 
-import hyperjson
+import ujson
 from vkwave.bots import BaseEvent
 from vkwave.bots import BotType
 from vkwave.bots import PayloadFilter
@@ -19,7 +19,7 @@ class PLFilter(PayloadFilter):
     def __init__(
         self,
         payload: Dict[str, str],
-        json_loader: JSONDecoder = hyperjson.loads,
+        json_loader: JSONDecoder = ujson.loads,
     ):
         super().__init__(payload, json_loader)
 

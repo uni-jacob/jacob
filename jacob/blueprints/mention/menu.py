@@ -3,7 +3,7 @@
 import os
 import random
 
-import hyperjson
+import ujson
 from loguru import logger
 from vkwave import api, bots, client
 
@@ -31,7 +31,7 @@ logger.configure(**logger_config.config)
 @logger.catch()
 @decorators.context_logger
 async def _select_half(ans: bots.SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
+    payload = ujson.loads(ans.object.object.message.payload)
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
     await ans.answer(
         "Выберите призываемых студентов",
@@ -48,7 +48,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _select_letter(ans: bots.SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
+    payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
     await ans.answer(
@@ -66,7 +66,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _select_student(ans: bots.SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
+    payload = ujson.loads(ans.object.object.message.payload)
     student_id = payload["student_id"]
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
     if student_id in db.shortcuts.get_list_of_calling_students(admin_id):
@@ -205,7 +205,7 @@ async def _select_chat(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _change_chat(ans: bots.SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
+    payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
         current_chat_id=payload["chat_id"],

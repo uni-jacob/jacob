@@ -1,6 +1,6 @@
 import os
 
-import hyperjson
+import ujson
 import requests
 from bs4 import BeautifulSoup
 from loguru import logger
@@ -75,7 +75,7 @@ async def list_of_chats(ans: SimpleBotEvent):
 @logger.catch()
 async def configure_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         chat = Chat.get_by_id(payload["chat_id"])
         chat_object = await api.messages.get_conversations_by_id(
             peer_ids=chat.chat_id,
@@ -99,7 +99,7 @@ async def configure_chat(ans: SimpleBotEvent):
 @logger.catch()
 async def delete_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         db.chats.delete_chat(payload["chat"])
         chats = db.chats.get_list_of_chats_by_group(
             db.admin.get_active_group(
@@ -240,7 +240,7 @@ async def register_chat(ans: SimpleBotEvent):
 @logger.catch()
 async def index_chat(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         chat = Chat.get_by_id(payload["chat"])
 
         chat_members = await api.messages.get_conversation_members(chat.chat_id)
@@ -290,7 +290,7 @@ async def index_chat(ans: SimpleBotEvent):
 @logger.catch()
 async def register_students(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         data = []
         raw_html = requests.get(payload["students"])
         soup = BeautifulSoup(raw_html.text, "html.parser")
@@ -325,7 +325,7 @@ async def register_students(ans: SimpleBotEvent):
 @logger.catch()
 async def delete_students(ans: SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         query = 0
         raw_html = requests.get(payload["students"])
         soup = BeautifulSoup(raw_html.text, "html.parser")
@@ -360,7 +360,7 @@ async def list_of_administrating_groups(ans: SimpleBotEvent):
 )
 @logger.catch()
 async def select_active_group(ans: SimpleBotEvent):
-    payload = hyperjson.loads(ans.object.object.message.payload)
+    payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
         active_group=payload["group_id"],

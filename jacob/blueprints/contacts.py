@@ -1,6 +1,4 @@
-import os
-
-import hyperjson
+import ujson
 from loguru import logger
 from vkvawe import bots
 
@@ -46,7 +44,7 @@ async def _start_contacts(ans: bots.SimpleBotEvent):
 @logger.catch()
 async def _select_half(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         await ans.answer(
             "Выберите студента",
             keyboard=kbs.contacts.ContactsNavigator(
@@ -68,7 +66,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 )
 async def _select_letter(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         letter = payload.get("value")
         await ans.answer(
             f"Список студентов на букву {letter}",
@@ -87,7 +85,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 )
 async def _select_student(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = hyperjson.loads(ans.object.object.message.payload)
+        payload = ujson.loads(ans.object.object.message.payload)
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(
                 ans.object.object.message.from_id,
