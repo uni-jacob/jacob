@@ -1,9 +1,11 @@
+"""Блок Контакты."""
+
 import ujson
 from loguru import logger
-from vkvawe import bots
+from vkwave import bots
 
-from database import utils as db
 from database import models
+from database import utils as db
 from services import filters
 from services import keyboard as kbs
 from services.logger import config as logger_config
@@ -69,7 +71,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
         payload = ujson.loads(ans.object.object.message.payload)
         letter = payload.get("value")
         await ans.answer(
-            f"Список студентов на букву {letter}",
+            "Список студентов на букву {0}".format(letter),
             keyboard=kbs.contacts.ContactsNavigator(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             )
@@ -93,12 +95,15 @@ async def _select_student(ans: bots.SimpleBotEvent):
             state_id=db.bot.get_id_of_state("main"),
         )
         student = models.Student.get_by_id(payload.get("student_id"))
-        contacts = f"""
-        Контакты {student.first_name} {student.second_name}:
-        ВК: @id{student.vk_id}
-        Email: {student.email or "Не указан"}
-        Телефон: {student.phone_number or "Не указан"}
-        """
+        email = student.email or "Не указан"
+        phone_number = student.phone_number or "Не указан"
+        contacts = "Контакты {0} {1}:\nВК: @id{2}\nEmail: {3}Телефон: {4}".format(
+            student.first_name,
+            student.second_name,
+            student.vk_id,
+            email,
+            phone_number,
+        )
         await ans.answer(
             contacts,
             keyboard=kbs.main.main_menu(
