@@ -21,7 +21,7 @@ from services.exceptions import StudentNotFound
 from services.filters import PLFilter
 from services.logger.config import config
 
-__version__ = "2.15.0"
+__version__ = "2.15.1"
 
 from services.logger.handlers import InterceptHandler
 
