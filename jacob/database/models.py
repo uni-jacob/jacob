@@ -65,6 +65,14 @@ class Admin(db.Entity):
     financial_config = Optional("FinancialConfig")
     state_storage = Optional("StateStorage")
 
+    def get_groups(self):
+        """Возвращает объекты групп, администратором которых является пользователь.
+
+        Returns:
+            Set[Group]: Объекты групп
+        """
+        return self.groups
+
 
 class Student(db.Entity):
     """Студенты."""
@@ -80,6 +88,15 @@ class Student(db.Entity):
     financial_incomes = Set("FinancialIncome")
     issues = Set("Issue")
     admins = Set(Admin)
+
+    def is_admin(self) -> bool:
+        """
+        Проверяет, является ли студент администратором.
+
+        Returns:
+            bool: статус администрирования студента
+        """
+        return not self.admins.is_empty()
 
 
 class MentionStorage(db.Entity):
