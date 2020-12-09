@@ -1042,6 +1042,17 @@ python-versions = "*"
 docutils = ">=0.11,<1.0"
 
 [[package]]
+name = "rope"
+version = "0.18.0"
+description = "a python refactoring library..."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.extras]
+dev = ["pytest"]
+
+[[package]]
 name = "six"
 version = "1.15.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1258,7 +1269,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.6"
-content-hash = "35c72fa092021513c5587bd2cb4cd36cf875a170af66b9639b777e23506f78c9"
+content-hash = "0cb8a51aa987dafbea63d7d3e43569a8f4e4114d5fb1a1e213cb9def597f96af"
 
 [metadata.files]
 aiohttp = [
@@ -1867,6 +1878,9 @@ requests = [
 ]
 restructuredtext-lint = [
     {file = "restructuredtext_lint-1.3.2.tar.gz", hash = "sha256:d3b10a1fe2ecac537e51ae6d151b223b78de9fafdd50e5eb6b08c243df173c80"},
+]
+rope = [
+    {file = "rope-0.18.0.tar.gz", hash = "sha256:786b5c38c530d4846aa68a42604f61b4e69a493390e3ca11b88df0fbfdc3ed04"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
