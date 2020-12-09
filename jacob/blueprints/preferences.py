@@ -1,59 +1,54 @@
+"""Модуль Настройки."""
+
 import os
 
-import ujson
 import requests
+import ujson
 from bs4 import BeautifulSoup
 from loguru import logger
-from vkwave.api import API
-from vkwave.bots import DefaultRouter
-from vkwave.bots import MessageFromConversationTypeFilter
-from vkwave.bots import SimpleBotEvent
-from vkwave.bots import simple_bot_message_handler
-from vkwave.client import AIOHTTPClient
+from vkwave import api, bots, client
 
+from database import models
 from database import utils as db
-from database.models import Chat
-from database.models import Student
-from services import filters
+from services import chats, filters
 from services import keyboard as kbs
-from services.chats import get_confirm_message
-from services.chats import prepare_set_from_db
-from services.chats import prepare_set_from_vk
-from services.logger.config import config
+from services.logger import config as logger_config
 
-preferences_router = DefaultRouter()
-api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
-api = api_session.get_context()
-logger.configure(**config)
+preferences_router = bots.DefaultRouter()
+api_session = api.API(tokens=os.getenv("VK_TOKEN"), clients=client.AIOHTTPClient())
+api_context = api_session.get_context()
+logger.configure(**logger_config.config)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "settings"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def open_preferences(ans: SimpleBotEvent):
+async def _open_preferences(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         active_group = db.admin.get_active_group(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
         )
         await ans.answer(
-            f"Настройки\nАктивная группа: {active_group.group_num} ("
-            f"{active_group.specialty})",
+            "Настройки\nАктивная группа: {0} ({1})".format(
+                active_group.group_num,
+                active_group.specialty,
+            ),
             keyboard=kbs.preferences.preferences(
                 db.students.get_system_id_of_student(ans.object.object.message.peer_id),
             ),
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "configure_chats"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def list_of_chats(ans: SimpleBotEvent):
+async def _list_of_chats(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         await ans.answer(
             "Список подключенных чатов",
@@ -65,49 +60,50 @@ async def list_of_chats(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
-    filters.PLFilter({"button": "chat"}),
+    filters.PLFilter({"button": "chat"}),  # TODO: Ввести свой статус этому блоку!
     ~filters.StateFilter("confirm_call"),
     ~filters.StateFilter("confirm_debtors_call"),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-async def configure_chat(ans: SimpleBotEvent):
+@logger.catch()  # TODO: Refactor!
+async def _configure_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        chat = Chat.get_by_id(payload["chat_id"])
-        chat_object = await api.messages.get_conversations_by_id(
-            peer_ids=chat.chat_id,
+        chat_object = models.Chat.get_by_id(payload["chat_id"])
+        query = await api_context.messages.get_conversations_by_id(
+            peer_ids=chat_object.chat_id,
             group_id=os.getenv("GROUP_ID"),
         )
+        chat_objects = query.response.items
         try:
-            chat_title = chat_object.response.items[0].chat_settings.title
+            chat_title = chat_objects[0].chat_settings.title
         except IndexError:
             chat_title = "???"
         await ans.answer(
-            f"Настройки чата {chat_title}",
-            keyboard=kbs.preferences.configure_chat(chat.id),
+            "Настройки чата {0}".format(chat_title),
+            keyboard=kbs.preferences.configure_chat(chat_objects.id),
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "remove_chat"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def delete_chat(ans: SimpleBotEvent):
+async def _delete_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
         db.chats.delete_chat(payload["chat"])
-        chats = db.chats.get_list_of_chats_by_group(
+        chat_objects = db.chats.get_list_of_chats_by_group(
             db.admin.get_active_group(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
             ),
         )
         try:
-            chat_id = chats[0].id
+            chat_id = chat_objects[0].id
         except IndexError:
             chat_id = None
         db.shortcuts.update_admin_storage(
@@ -124,15 +120,15 @@ async def delete_chat(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "reg_chat"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def generate_confirm_message(ans: SimpleBotEvent):
+async def _generate_confirm_message(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
-        confirm_message = get_confirm_message()
+        confirm_message = chats.get_confirm_message()
         db.shortcuts.update_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
             state_id=db.bot.get_id_of_state("confirm_chat_register"),
@@ -146,13 +142,13 @@ async def generate_confirm_message(ans: SimpleBotEvent):
         await ans.answer(confirm_message)
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "cancel"}),
     filters.StateFilter("confirm_chat_register"),
 )
 @logger.catch()
-async def cancel_register_chat(ans: SimpleBotEvent):
+async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     db.shortcuts.clear_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
     )
@@ -166,96 +162,93 @@ async def cancel_register_chat(ans: SimpleBotEvent):
     )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.StateFilter("confirm_chat_register"),
-    MessageFromConversationTypeFilter("from_chat"),
+    bots.MessageFromConversationTypeFilter("from_chat"),
 )
 @logger.catch()
-async def register_chat(ans: SimpleBotEvent):
+async def _register_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         store = db.admin.get_admin_storage(
             db.students.get_system_id_of_student(ans.object.object.message.from_id),
         )
-        if (
-            store.confirm_message in ans.object.object.message.text
-            and ans.object.object.message.from_id == Student.get_by_id(store.id).vk_id
-        ):
+        message = ans.object.object.message
+        admin_vk_id = models.Student.get_by_id(store.id).vk_id
+        if store.confirm_message in message.text and message.from_id == admin_vk_id:
             db.shortcuts.clear_admin_storage(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id),
+                db.students.get_system_id_of_student(message.from_id),
             )
 
             group = db.admin.get_active_group(
                 db.students.get_system_id_of_student(
-                    ans.object.object.message.from_id,
+                    message.from_id,
                 ),
             )
-            if db.chats.is_chat_registered(
-                ans.object.object.message.peer_id,
-                group,
-            ):
-                await api.messages.send(
+            if db.chats.is_chat_registered(message.peer_id, group):
+                await api_context.messages.send(
                     message="Чат уже зарегистрирован в этой группе",
-                    peer_id=ans.object.object.message.from_id,
+                    peer_id=message.from_id,
                     random_id=0,
                     keyboard=await kbs.preferences.connected_chats(
                         db.students.get_system_id_of_student(
-                            ans.object.object.message.from_id,
+                            message.from_id,
                         ),
                     ),
                 )
             else:
-                chat = db.chats.register_chat(ans.object.object.message.peer_id, group)
+                chat = db.chats.register_chat(message.peer_id, group)
                 db.shortcuts.update_admin_storage(
                     db.students.get_system_id_of_student(
-                        ans.object.object.message.from_id,
+                        message.from_id,
                     ),
                     current_chat_id=chat.id,
                 )
+                request = await api_context.messages.get_conversations_by_id(
+                    peer_ids=message.peer_id,
+                )
+                chat_objects = request.response.items
                 try:
-                    chat_object = await api.messages.get_conversations_by_id(
-                        peer_ids=ans.object.object.message.peer_id,
-                    )
-                    chat_name = chat_object.response.items[0].chat_settings.title
+                    chat_name = chat_objects[0].chat_settings.title
                 except IndexError:
                     chat_name = "???"
-                await api.messages.send(
-                    message=f'Чат "{chat_name}" зарегистрирован',
-                    peer_id=ans.object.object.message.from_id,
+                await api_context.messages.send(
+                    message='Чат "{0}" зарегистрирован'.format(chat_name),
+                    peer_id=message.from_id,
                     random_id=0,
                     keyboard=await kbs.preferences.connected_chats(
                         db.students.get_system_id_of_student(
-                            ans.object.object.message.from_id,
+                            message.from_id,
                         ),
                     ),
                 )
                 await ans.answer("Привет!")
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "index_chat"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def index_chat(ans: SimpleBotEvent):
+async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        chat = Chat.get_by_id(payload["chat"])
+        chat = models.Chat.get_by_id(payload["chat"])
 
-        chat_members = await api.messages.get_conversation_members(chat.chat_id)
+        chat_members = await api_context.messages.get_conversation_members(chat.chat_id)
         group_members = db.students.get_active_students(chat.group_id)
 
-        vk_set = prepare_set_from_vk(chat_members.response.items)
-        db_set = prepare_set_from_db(group_members)
+        vk_set = chats.prepare_set_from_vk(chat_members.response.items)
+        db_set = chats.prepare_set_from_db(group_members)
 
         diff_vk_db = vk_set.difference(db_set)  # есть в вк, нет в бд
         diff_db_vk = db_set.difference(vk_set)  # есть в бд, нет в вк
 
-        query = await api.users.get(
+        query = await api_context.users.get(
             user_ids=list(diff_vk_db),
         )
-        students = [Student.get(vk_id=st) for st in diff_db_vk]
+        students = [models.Student.get(vk_id=st) for st in diff_db_vk]
 
         vk_list = [
             f"- @id{st.id} ({st.first_name} {st.last_name})" for st in query.response
@@ -282,24 +275,26 @@ async def index_chat(ans: SimpleBotEvent):
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "register_students"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def register_students(ans: SimpleBotEvent):
+async def _register_students(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        data = []
+        raw_student_data = []
         raw_html = requests.get(payload["students"])
         soup = BeautifulSoup(raw_html.text, "html.parser")
         students_ids = list(map(int, soup.find_all("pre")[1].text.split(",")))
-        students = await api.users.get(user_ids=students_ids)
-        student_last_id = Student.select().order_by(Student.id.desc()).get().id
+        students = await api_context.users.get(user_ids=students_ids)
+        student_last_id = (
+            models.Student.select().order_by(models.Student.id.desc()).get().id
+        )
         for student in students.response:
             student_last_id += 1
-            data.append(
+            raw_student_data.append(
                 {
                     "id": student_last_id,
                     "first_name": student.first_name,
@@ -309,21 +304,21 @@ async def register_students(ans: SimpleBotEvent):
                     "academic_status": 1,
                 },
             )
-        query = Student.insert_many(data).execute()
+        query = models.Student.insert_many(raw_student_data).execute()
 
         await ans.answer(
-            f"{len(query)} студент(ов) зарегистрировано",
+            f"{0} студент(ов) зарегистрировано".format(len(query)),
             keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "purge_students"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def delete_students(ans: SimpleBotEvent):
+async def _delete_students(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
         query = 0
@@ -331,20 +326,20 @@ async def delete_students(ans: SimpleBotEvent):
         soup = BeautifulSoup(raw_html.text, "html.parser")
         students_ids = list(map(int, soup.find_all("pre")[1].text.split(",")))
         for st in students_ids:
-            query += Student.delete().where(Student.vk_id == st).execute()
+            query += models.Student.delete().where(models.Student.vk_id == st).execute()
         await ans.answer(
-            f"{query} студент(ов) удалено",
+            f"{0} студент(ов) удалено".format(query),
             keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
         )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "select_group"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def list_of_administrating_groups(ans: SimpleBotEvent):
+async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Выберите активную группу",
         keyboard=kbs.preferences.list_of_groups(
@@ -353,16 +348,16 @@ async def list_of_administrating_groups(ans: SimpleBotEvent):
     )
 
 
-@simple_bot_message_handler(
+@bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "group"}),
-    MessageFromConversationTypeFilter("from_pm"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
-async def select_active_group(ans: SimpleBotEvent):
+async def _select_active_group(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
         active_group=payload["group_id"],
     )
-    await open_preferences(ans)
+    await _open_preferences(ans)
