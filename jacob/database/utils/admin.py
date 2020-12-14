@@ -1,16 +1,15 @@
-import typing as t
+"""Функции для работы с администратраторской частью базы данных."""
+
+import typing
 
 from loguru import logger
 from pony.orm import select
 
-from jacob.database.models import Administrator
-from jacob.database.models import AdminConfig
-from jacob.database.models import Group
-from jacob.database.models import Storage
-from jacob.services.logger.config import config
-from jacob.services.exceptions import UserIsNotAnAdmin
+from jacob.database import models
+from jacob.services import exceptions
+from jacob.services.logger import config as logger_config
 
-logger.configure(**config)
+logger.configure(**logger_config.config)
 
 
 def is_user_admin(admin_id: int) -> bool:
@@ -20,13 +19,20 @@ def is_user_admin(admin_id: int) -> bool:
     Args:
         admin_id: идентификатор студента в системе
 
+    Raises:
+        UserIsNotAnAdmin: если пользователь не является администратором
+
     Returns:
         bool: статус администрирования студента
     """
-    return Administrator.exists(student=admin_id)
+    if models.Administrator.exists(student=admin_id):
+        return True
+    raise exceptions.UserIsNotAnAdmin(
+        "Пользователь {0} не является администратором".format(admin_id),
+    )
 
 
-def get_admin_feud(admin_id: int) -> t.List[Group]:
+def get_admin_feud(admin_id: int) -> typing.Iterable[models.Group]:
     """
     Возвращает объекты групп в которых пользователь является администратором.
 
@@ -34,19 +40,18 @@ def get_admin_feud(admin_id: int) -> t.List[Group]:
         admin_id: идентификатор администратора
 
     Returns:
-        list[Group]: список объектов групп
+        Iterable[models.Group]: список объектов групп
     """
     if is_user_admin(admin_id):
         groups = select(
-            admin.groups for admin in Administrator if admin.student == admin_id
+            admin.groups for admin in models.Administrator if admin.student == admin_id
         )
-        logger.debug(f"Администрируемое: {groups}")
+        logger.debug("Администрируемое: {0}".format(groups))
         return groups
-    raise UserIsNotAnAdmin(f"Пользователь {admin_id} не является админом")
 
 
-def get_or_create_admin_config(admin_id: int) -> AdminConfig:
-    """Ищет хранилище администратора и возвращает объект класса AdminConfig.
+def get_or_create_admin_config(admin_id: int) -> models.AdminConfig:
+    """Ищет хранилище администратора и возвращает объект класса models.AdminConfig.
 
     Если хранилище не было найдено, оно создается
 
@@ -54,16 +59,15 @@ def get_or_create_admin_config(admin_id: int) -> AdminConfig:
         admin_id: идентификатор администратора
 
     Returns:
-        AdminConfig: объект хранилища настроек администратора
+        models.AdminConfig: объект хранилища настроек администратора
     """
     if is_user_admin(admin_id):
-        if AdminConfig.exists(administrator=admin_id):
-            return AdminConfig.get(administrator=admin_id)
-        return AdminConfig(administrator=admin_id)
-    raise UserIsNotAnAdmin(f"Пользователь {admin_id} не является админом")
+        if models.AdminConfig.exists(admin=admin_id):
+            return models.AdminConfig.get(admin=admin_id)
+        return models.AdminConfig(admin=admin_id)
 
 
-def get_active_group(admin_id: int) -> t.Optional[Group]:
+def get_active_group(admin_id: int) -> typing.Optional[models.Group]:
     """
     Возвращает объект активной группы администратора.
 
@@ -74,10 +78,9 @@ def get_active_group(admin_id: int) -> t.Optional[Group]:
         admin_id: идентификатор администратора
 
     Returns:
-        Optional[Group]: объект активной группы
+        Optional[models.Group]: объект активной группы
     """
     if is_user_admin(admin_id):
         if len(get_admin_feud(admin_id)) > 1:
-            return AdminConfig[admin_id].active_group
-        return Administrator.get(student_id=admin_id).group
-    raise UserIsNotAnAdmin(f"Пользователь {admin_id} не является админом")
+            return models.AdminConfig[admin_id].active_group
+        return models.Administrator.get(student_id=admin_id).group
