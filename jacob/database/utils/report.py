@@ -1,11 +1,13 @@
-from database import utils as db
-from database.models import Issue
+"""Бэкенд модуля 'Сообщить об ошибке'."""
+
+from pony import orm
+
+from jacob.database import utils as db
+from jacob.database.models import Issue
 
 
-def get_or_create_last_issue_of_user(vk_id: int):
-    last_issue = (
-        Issue.select().order_by(Issue.id.desc()).where(Issue.from_id == vk_id).limit(1)
-    )
+def get_issue_storage(vk_id: int):
+    last_issue = Issue.get(author=vk_id)
 
     if last_issue:
         return last_issue[0]
@@ -23,8 +25,9 @@ def update_issue(issue_id: int, **kwargs):
     Returns:
         Issue: Объект ишью
     """
-    Issue.update(**kwargs).where(Issue.id == issue_id).execute()
-    return Issue.get_by_id(issue_id)
+    issue = Issue.update(**kwargs)
+    orm.commit()
+    return issue
 
 
 def generate_issue_text(vk_id: int) -> str:
@@ -45,6 +48,6 @@ def generate_issue_text(vk_id: int) -> str:
     is_admin = db.admin.is_user_admin(
         db.students.get_system_id_of_student(vk_id),
     )
-    text = db.report.get_or_create_last_issue_of_user(vk_id).text
+    text = db.report.get_issue_storage(vk_id).text
 
     return f"{text}\n\n{is_admin=}\n{store=}"
