@@ -1,5 +1,7 @@
-from database.models import State
-from services.exceptions import BotStateNotFound
+"""Методы для работы с внутренними частями бота."""
+
+from jacob.database.models import State
+from jacob.services.exceptions import BotStateNotFound
 
 
 def get_id_of_state(description: str) -> int:
@@ -18,4 +20,4 @@ def get_id_of_state(description: str) -> int:
     state = State.get(description=description)
     if state is not None:
         return state.id
-    raise BotStateNotFound(f'Статус "{description}" не существует')
+    raise BotStateNotFound('Статус "{0}" не существует'.format(description))
