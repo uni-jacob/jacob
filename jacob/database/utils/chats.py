@@ -1,13 +1,14 @@
-import typing as t
+"""Функции для работы с регистрацией чатов."""
 
-from pony.orm import select
+import typing
+
 from pony.orm import db_session
+from pony.orm import select
 
-from database.models import Chat
-from database.utils import shortcuts
+from jacob.database.models import Chat
 
 
-def get_list_of_chats_by_group(group_id: int) -> t.List[Chat]:
+def get_list_of_chats_by_group(group_id: int) -> typing.List[Chat]:
     """
     Возвращает список чатов активной группы.
 
@@ -17,7 +18,7 @@ def get_list_of_chats_by_group(group_id: int) -> t.List[Chat]:
     Returns:
         list[Chat]: Список объектов чатов
     """
-    return select(c for c in Chat if c.group == group_id)[:]
+    return select(chat for chat in Chat if chat.group == group_id)[:]
 
 
 @db_session
