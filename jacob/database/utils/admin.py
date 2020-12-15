@@ -1,4 +1,4 @@
-"""Функции для работы с администратраторской частью базы данных."""
+"""Бэкенд админской части."""
 
 import typing
 
@@ -25,7 +25,7 @@ def is_user_admin(admin_id: int) -> bool:
     Returns:
         bool: статус администрирования студента
     """
-    if models.Administrator.exists(student=admin_id):
+    if models.Admin.exists(student=admin_id):
         return True
     raise exceptions.UserIsNotAnAdmin(
         "Пользователь {0} не является администратором".format(admin_id),
@@ -44,7 +44,7 @@ def get_admin_feud(admin_id: int) -> typing.Iterable[models.Group]:
     """
     if is_user_admin(admin_id):
         groups = select(
-            admin.groups for admin in models.Administrator if admin.student == admin_id
+            admin.groups for admin in models.Admin if admin.student == admin_id
         )
         logger.debug("Администрируемое: {0}".format(groups))
         return groups
@@ -83,4 +83,4 @@ def get_active_group(admin_id: int) -> typing.Optional[models.Group]:
     if is_user_admin(admin_id):
         if len(get_admin_feud(admin_id)) > 1:
             return models.AdminConfig[admin_id].active_group
-        return models.Administrator.get(student_id=admin_id).group
+        return models.Admin.get(student_id=admin_id).group
