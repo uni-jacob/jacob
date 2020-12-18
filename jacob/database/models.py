@@ -3,7 +3,10 @@
 import os
 from datetime import datetime
 
-from pony.orm import Database, Optional, Required, Set
+from pony.orm import Database
+from pony.orm import Optional
+from pony.orm import Required
+from pony.orm import Set
 
 from jacob.services.db import get_db_credentials
 
@@ -60,7 +63,7 @@ class Admin(db.Entity):
     student = Required("Student")
     groups = Set(Group)
     admin_config = Optional(AdminConfig)
-    call_storage = Optional("CallStorage")
+    call_storage = Optional("MentionStorage")
     chat_registrar_config = Optional("ChatRegistrarConfig")
     financial_config = Optional("FinancialConfig")
     state_storage = Optional("StateStorage")
@@ -83,7 +86,7 @@ class Student(db.Entity):
     group = Required(Group)
     subgroup = Optional(int)
     email = Optional(str)
-    phone_number = Required(int)
+    phone_number = Optional(int)
     academic_status = Required(AcademicStatus)
     financial_incomes = Set("FinancialIncome")
     issues = Set("Issue")
