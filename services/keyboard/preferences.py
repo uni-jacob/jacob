@@ -23,7 +23,7 @@ def preferences(admin_id: int) -> JSONStr:
     kb.add_text_button("💬 Настроить чаты", payload={"button": "configure_chats"})
     kb.add_row()
     if len(db.admin.get_admin_feud(admin_id)) > 1:
-        kb.add_text_button("Выбрать группу", payload={"button": "select_group"})
+        kb.add_text_button("👥 Выбрать группу", payload={"button": "select_group"})
         kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
