@@ -106,6 +106,8 @@ class MentionStorage(db.Entity):
     """Хранилище призыва."""
 
     admin = Required(Admin)
+    mention_text = Optional(str)
+    mentioned_students = Optional(str)
 
 
 class ChatRegistrarConfig(db.Entity):
