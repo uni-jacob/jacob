@@ -3,7 +3,7 @@
 import typing
 
 from loguru import logger
-from pony.orm import select
+from pony import orm
 
 from jacob.database import models
 from jacob.services import exceptions
@@ -32,7 +32,7 @@ def is_user_admin(admin_id: int) -> bool:
     )
 
 
-def get_admin_feud(admin_id: int) -> typing.Iterable[models.Group]:
+def get_admin_feud(admin_id: int) -> orm.core.Query[models.Group]:
     """
     Возвращает объекты групп в которых пользователь является администратором.
 
@@ -43,7 +43,7 @@ def get_admin_feud(admin_id: int) -> typing.Iterable[models.Group]:
         Iterable[models.Group]: список объектов групп
     """
     if is_user_admin(admin_id):
-        groups = select(
+        groups = orm.select(
             admin.groups for admin in models.Admin if admin.student == admin_id
         )
         logger.debug("Администрируемое: {0}".format(groups))
