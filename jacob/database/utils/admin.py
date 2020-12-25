@@ -1,6 +1,6 @@
 """Бэкенд админской части."""
 
-import typing
+import warnings
 
 from loguru import logger
 from pony import orm
@@ -25,6 +25,9 @@ def is_user_admin(admin_id: int) -> bool:
     Returns:
         bool: статус администрирования студента
     """
+    warnings.warn(
+        "Функция устарела, используйте models.Student.is_admin.", DeprecationWarning
+    )
     if models.Admin.exists(student=admin_id):
         return True
     raise exceptions.UserIsNotAnAdmin(
@@ -48,39 +51,3 @@ def get_admin_feud(admin_id: int) -> orm.core.Query[models.Group]:
         )
         logger.debug("Администрируемое: {0}".format(groups))
         return groups
-
-
-def get_or_create_admin_config(admin_id: int) -> models.AdminConfig:
-    """Ищет хранилище администратора и возвращает объект класса models.AdminConfig.
-
-    Если хранилище не было найдено, оно создается
-
-    Args:
-        admin_id: идентификатор администратора
-
-    Returns:
-        models.AdminConfig: объект хранилища настроек администратора
-    """
-    if is_user_admin(admin_id):
-        if models.AdminConfig.exists(admin=admin_id):
-            return models.AdminConfig.get(admin=admin_id)
-        return models.AdminConfig(admin=admin_id)
-
-
-def get_active_group(admin_id: int) -> typing.Optional[models.Group]:
-    """
-    Возвращает объект активной группы администратора.
-
-    Если администратор управляет одной группой, возвращается идентификатор группы,
-    которой он принадлежит
-
-    Args:
-        admin_id: идентификатор администратора
-
-    Returns:
-        Optional[models.Group]: объект активной группы
-    """
-    if is_user_admin(admin_id):
-        if len(get_admin_feud(admin_id)) > 1:
-            return models.AdminConfig[admin_id].active_group
-        return models.Admin.get(student_id=admin_id).group
