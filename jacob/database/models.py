@@ -169,9 +169,9 @@ class State(db.Entity):
 
 
 class StateStorage(db.Entity):
-    """Связка состояний ботов с администраторами."""
+    """Связка состояний ботов с пользователями."""
 
-    admin = Required(Admin)
+    student = Required(Student)
     state = Required(State)
 
 
