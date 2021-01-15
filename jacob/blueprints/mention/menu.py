@@ -5,13 +5,18 @@ import random
 
 import ujson
 from loguru import logger
-from vkwave import api, bots, client
+from vkwave import api
+from vkwave import bots
+from vkwave import client
 
-from database import models  # TODO: (?)
-from database import utils as db
-from services import call, decorators, exceptions, filters
-from services import keyboard as kbs
-from services.logger import config as logger_config
+from jacob.database import models  # TODO: (?)
+from jacob.database import utils as db
+from jacob.services import call
+from jacob.services import decorators
+from jacob.services import exceptions
+from jacob.services import filters
+from jacob.services import keyboard as kbs
+from jacob.services.logger import config as logger_config
 
 call_menu_router = bots.DefaultRouter()
 api_session = api.API(

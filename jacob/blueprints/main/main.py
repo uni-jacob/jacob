@@ -5,11 +5,11 @@ import os
 from loguru import logger
 from vkwave import api, bots, client
 
-from database import utils as db
-from services import keyboard as kbs
-from services.exceptions import StudentNotFound
-from services.filters import PLFilter
-from services.logger.config import config
+from jacob.database import utils as db
+from jacob.services import keyboard as kbs
+from jacob.services.exceptions import StudentNotFound
+from jacob.services.filters import PLFilter
+from jacob.services.logger.config import config
 
 main_router = bots.DefaultRouter()
 api_session = api.API(

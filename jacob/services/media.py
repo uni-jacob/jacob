@@ -6,7 +6,7 @@ from vkwave.bots import PhotoUploader
 from vkwave.bots import VoiceUploader
 from vkwave.types.objects import MessagesMessageAttachment
 
-from services.exceptions import AttachmentLimitExceeded
+from jacob.services.exceptions import AttachmentLimitExceeded
 
 
 async def load_attachments(

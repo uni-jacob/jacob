@@ -8,11 +8,11 @@ from vkwave.bots import PayloadFilter
 from vkwave.bots.core import BaseFilter
 from vkwave.bots.core.dispatching.filters.base import FilterResult
 from vkwave.bots.core.dispatching.filters.base import NotFilter
-from vkwave.bots.core.dispatching.filters.builtin import has_payload
+from vkwave.bots.core.dispatching.filters.builtin import get_payload
 from vkwave.types.bot_events import BotEventType
 
-from database import utils as db
-from services.exceptions import StudentNotFound
+from jacob.database import utils as db
+from jacob.services.exceptions import StudentNotFound
 
 
 class PLFilter(PayloadFilter):
@@ -24,7 +24,7 @@ class PLFilter(PayloadFilter):
         super().__init__(payload, json_loader)
 
     async def check(self, event: BaseEvent) -> FilterResult:
-        if not has_payload(event):
+        if get_payload(event) is None:
             return FilterResult(False)
         if event.bot_type is BotType.USER:
             current_payload = self.json_loader(event.object.object.message_data.payload)

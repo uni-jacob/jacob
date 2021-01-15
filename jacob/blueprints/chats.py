@@ -3,9 +3,9 @@
 from loguru import logger
 from vkwave import bots
 
-from services import decorators
-from services.logger import config as logger_config
-from services.media import translate_string
+from jacob.services import decorators
+from jacob.services.logger import config as logger_config
+from jacob.services.media import translate_string
 
 chats_router = bots.DefaultRouter()
 logger.configure(**logger_config.config)

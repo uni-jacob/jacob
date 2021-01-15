@@ -8,8 +8,8 @@ from vkwave.bots import SimpleBotEvent
 from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
-from services import filters
-from services.logger.config import config
+from jacob.services import filters
+from jacob.services.logger.config import config
 
 schedule_router = DefaultRouter()
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())

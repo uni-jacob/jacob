@@ -1,7 +1,7 @@
 import os
 
-from services.logger.handlers import TelegramHandler
-from services.logger.utils import on_production
+from jacob.services.logger.handlers import TelegramHandler
+from jacob.services.logger.utils import on_production
 
 fmt = "{time:YYYY-MM-DD@HH:mm:ss zz} | {module}.{function} | {level} | {message}"
 extra_fmt = (

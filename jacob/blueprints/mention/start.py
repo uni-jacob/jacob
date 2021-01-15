@@ -3,13 +3,16 @@
 import os
 
 from loguru import logger
-from vkwave import api, bots, client
+from vkwave import api
+from vkwave import bots
+from vkwave import client
 
-from database import utils as db
-from services import decorators, filters
-from services import keyboard as kbs
-from services import media
-from services.logger.config import config
+from jacob.database import utils as db
+from jacob.services import decorators
+from jacob.services import filters
+from jacob.services import keyboard as kbs
+from jacob.services import media
+from jacob.services.logger.config import config
 
 call_start_router = bots.DefaultRouter()
 api_session = api.API(

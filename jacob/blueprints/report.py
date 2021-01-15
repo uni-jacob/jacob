@@ -9,10 +9,10 @@ from vkwave.bots import SimpleBotEvent
 from vkwave.bots import simple_bot_message_handler
 from vkwave.client import AIOHTTPClient
 
-from database import utils as db
-from services import filters
-from services import keyboard as kbs
-from services.logger.config import config
+from jacob.database import utils as db
+from jacob.services import filters
+from jacob.services import keyboard as kbs
+from jacob.services.logger.config import config
 
 report_router = DefaultRouter()
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())

@@ -5,14 +5,17 @@ import re
 
 import ujson
 from loguru import logger
-from vkwave import api, bots, client
+from vkwave import api
+from vkwave import bots
+from vkwave import client
 
-from database import models
-from database import utils as db
-from services import decorators, filters
-from services import keyboard as kbs
-from services.finances import generate_debtors_call
-from services.logger.config import config
+from jacob.database import models
+from jacob.database import utils as db
+from jacob.services import decorators
+from jacob.services import filters
+from jacob.services import keyboard as kbs
+from jacob.services.finances import generate_debtors_call
+from jacob.services.logger.config import config
 
 finances_router = bots.DefaultRouter()
 api_session = api.API(tokens=os.getenv("VK_TOKEN"), clients=client.AIOHTTPClient())

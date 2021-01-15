@@ -4,11 +4,12 @@ import ujson
 from loguru import logger
 from vkwave import bots
 
-from database import models
-from database import utils as db
-from services import decorators, filters
-from services import keyboard as kbs
-from services.logger import config as logger_config
+from jacob.database import models
+from jacob.database import utils as db
+from jacob.services import decorators
+from jacob.services import filters
+from jacob.services import keyboard as kbs
+from jacob.services.logger import config as logger_config
 
 contacts_router = bots.DefaultRouter()
 logger.configure(**logger_config.config)
