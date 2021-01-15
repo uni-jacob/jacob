@@ -1,9 +1,8 @@
 import typing as t
 
-from database.models import Student
-from database.utils import admin
-from database.utils import shortcuts
-from services.exceptions import StudentNotFound
+from jacob.database.models import Student
+from jacob.database.utils import admin
+from jacob.services import exceptions
 
 
 def get_system_id_of_student(vk_id: int) -> int:
@@ -20,10 +19,12 @@ def get_system_id_of_student(vk_id: int) -> int:
         StudentNotFound: когда студент с указанным идентификатором ВК не найден в
         системе
     """
-    student = Student.get_or_none(vk_id=vk_id)
+    student = Student.get(vk_id=vk_id)
     if student is not None:
         return student.id
-    raise StudentNotFound(f"Студента с id ВКонтакте {vk_id} не существует в системе")
+    raise exceptions.StudentNotFound(
+        "Студента с id ВКонтакте {0} не существует в системе".format(vk_id)
+    )
 
 
 def get_active_students(group_id: int) -> t.List[Student]:
@@ -39,14 +40,15 @@ def get_active_students(group_id: int) -> t.List[Student]:
     Returns:
         list[Student]: набор активных студентов группы
     """
-    query = Student.select().where(
+    students = Student.select(
         Student.group_id == group_id,
         Student.academic_status > 0,
     )
-    students = shortcuts.generate_list(query)
     if students:
         return students
-    raise StudentNotFound(f"В группе {group_id} нет активных студентов")
+    raise exceptions.StudentNotFound(
+        "В группе {0} нет активных студентов".format(group_id)
+    )
 
 
 def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
@@ -82,7 +84,7 @@ def get_list_of_students_by_letter(admin_id: int, letter: str) -> t.List[Student
         list[Student]: список студентов
     """
     active_group = admin.get_active_group(admin_id)
-    query = (
+    return (
         Student.select()
         .where(
             (Student.second_name.startswith(letter))
@@ -90,4 +92,3 @@ def get_list_of_students_by_letter(admin_id: int, letter: str) -> t.List[Student
         )
         .order_by(Student.second_name.asc())
     )
-    return shortcuts.generate_list(query)

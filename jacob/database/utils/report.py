@@ -1,7 +1,5 @@
 """Бэкенд модуля 'Сообщить об ошибке'."""
 
-from pony import orm
-
 from jacob.database import utils as db
 from jacob.database.models import Issue
 
@@ -10,7 +8,7 @@ def get_issue_storage(vk_id: int):
     last_issue = Issue.get(author=vk_id)
 
     if last_issue:
-        return last_issue[0]
+        return last_issue
     return Issue.create(from_id=vk_id)
 
 
@@ -25,8 +23,7 @@ def update_issue(issue_id: int, **kwargs):
     Returns:
         Issue: Объект ишью
     """
-    issue = Issue.update(**kwargs)
-    orm.commit()
+    issue = Issue[issue_id].set(**kwargs)
     return issue
 
 

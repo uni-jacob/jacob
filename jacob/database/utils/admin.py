@@ -45,9 +45,13 @@ def get_admin_feud(admin_id: int) -> orm.core.Query[models.Group]:
     Returns:
         Iterable[models.Group]: список объектов групп
     """
-    if is_user_admin(admin_id):
+    if models.Student.get(student_id=admin_id).is_admin():
         groups = orm.select(
             admin.groups for admin in models.Admin if admin.student == admin_id
         )
         logger.debug("Администрируемое: {0}".format(groups))
         return groups
+
+
+def get_active_group(admin_id: int) -> models.Group:
+    return models.AdminConfig[admin_id].active_group

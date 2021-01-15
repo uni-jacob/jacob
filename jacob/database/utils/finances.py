@@ -20,7 +20,7 @@ def get_fin_categories(group_id: int) -> typing.List[models.FinancialCategory]:
     Returns:
         List[FinancialCategory]: категории финансов
     """
-    return select(fc for fc in models.FinancialCategory if fc.group == group_id)[:]
+    return select(fc for fc in models.FinancialCategory if fc.group == group_id)
 
 
 def add_or_edit_donate(

@@ -18,7 +18,7 @@ def get_list_of_chats_by_group(group_id: int) -> typing.List[Chat]:
     Returns:
         list[Chat]: Список объектов чатов
     """
-    return select(chat for chat in Chat if chat.group == group_id)[:]
+    return select(chat for chat in Chat if chat.group == group_id)
 
 
 @db_session

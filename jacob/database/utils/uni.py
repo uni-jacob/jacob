@@ -1,7 +1,7 @@
 from pony.orm import db_session
 from pony.orm import select
 
-from database import models
+from jacob.database import models
 
 
 @db_session
