@@ -1,9 +1,11 @@
 """Методы для работы с внутренними частями бота."""
+from pony import orm
 
 from jacob.database.models import State
 from jacob.services.exceptions import BotStateNotFound
 
 
+@orm.db_session
 def get_id_of_state(description: str) -> int:
     """
     Возвращает идентификатор состояния бота по его описанию.
