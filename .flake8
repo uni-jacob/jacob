@@ -1,6 +1,6 @@
 [flake8]
 format = wemake
-exclude = .git,__pycache__,polygon.py,tests
+exclude = .git,__pycache__,polygon.py,tests,generate_test_data.py
 max_complexity = 10
 max_line_length = 88
 max_cognitive_complexity = 10
