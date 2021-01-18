@@ -86,7 +86,7 @@ class Student(db.Entity):
     group = Required(Group)
     subgroup = Optional(int)
     email = Optional(str)
-    phone_number = Optional(int)
+    phone_number = Optional(str)
     academic_status = Required(AcademicStatus)
     financial_incomes = Set("FinancialIncome")
     issues = Set("Issue")
