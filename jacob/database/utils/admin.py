@@ -35,7 +35,7 @@ def is_user_admin(admin_id: int) -> bool:
     )
 
 
-def get_admin_feud(admin_id: int) -> orm.core.Query[models.Group]:
+def get_admin_feud(admin_id: int) -> orm.core.Query:
     """
     Возвращает объекты групп в которых пользователь является администратором.
 
