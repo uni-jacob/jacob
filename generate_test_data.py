@@ -1,4 +1,5 @@
-import random
+"""Генерация тестовых данных для базы данных."""
+
 
 from mimesis import Person
 from mimesis import Text
@@ -9,50 +10,53 @@ from jacob.database import models
 
 
 @orm.db_session
-def generate_ac_statuses():
-    ac_statuses = []
-    for name in [
+def generate_ac_statuses() -> list:
+    ac_statuses_objects = []
+    ac_statuses = [
         "Бюджетная основа",
         "Контрактная основа",
         "Целевой договор",
         "Иностранцы",
         "Отчислен",
-    ]:
-        ac_statuses.append(models.AcademicStatus(description=name))
-    return ac_statuses
+    ]
+    for name in ac_statuses:
+        ac_statuses_objects.append(models.AcademicStatus(description=name))
+    return ac_statuses_objects
 
 
 @orm.db_session
-def generate_universities():
-    p = Person("ru")
+def generate_universities() -> list:
+    person = Person("ru")
     universities = []
     universities_objects = []
-    for i in range(5):
-        university = p.university()
+    for _ in range(5):
+        university = person.university()
         universities.append(university)
         universities_objects.append(models.AlmaMater(name=university))
     return universities_objects
 
 
 @orm.db_session
-def generate_groups():
+def generate_groups() -> list:
     groups_objects = []
     for _ in range(5):
         group_num = Random().custom_code("@@@-###")
         specialty = " ".join(Text("ru").words(quantity=2))
-        alma_mater = random.choice(orm.select(am for am in models.AlmaMater)[:])
+        alma_mater = orm.select(am for am in models.AlmaMater).random(1)[0]
         groups_objects.append(
             models.Group(
-                group_num=group_num, specialty=specialty, alma_mater=alma_mater
-            )
+                group_num=group_num,
+                specialty=specialty,
+                alma_mater=alma_mater,
+            ),
         )
     return groups_objects
 
 
 @orm.db_session
-def generate_bot_statuses():
-    bot_statuses = []
-    for name in [
+def generate_bot_statuses() -> list:
+    bot_statuses_objects = []
+    bot_statuses = [
         "main",
         "fin_select_donater",
         "fin_enter_donate_sum",
@@ -67,12 +71,13 @@ def generate_bot_statuses():
         "common_select_student",
         "common_select_mentioned",
         "fin_wait_category_desc",
-    ]:
+    ]
+    for name in bot_statuses_objects:
         bot_statuses.append(models.State(description=name))
-    return bot_statuses
+    return bot_statuses_objects
 
 
-p = Person("ru")
+person = Person("ru")
 
 with orm.db_session:
     if not orm.select(am for am in models.AlmaMater)[:]:
@@ -81,20 +86,20 @@ with orm.db_session:
         groups = generate_groups()
     else:
         groups = orm.select(gr for gr in models.Group)[:]
-    if not orm.select(acs for acs in models.AcademicStatus)[:]:
-        ac_statuses = generate_ac_statuses()
-    else:
+    if orm.select(acs for acs in models.AcademicStatus)[:]:
         ac_statuses = orm.select(acs for acs in models.AcademicStatus)[:]
-    if not orm.select(st for st in models.State)[:]:
-        bot_statuses = generate_bot_statuses()
     else:
+        ac_statuses = generate_ac_statuses()
+    if orm.select(st for st in models.State)[:]:
         bot_statuses = orm.select(st for st in models.State)[:]
+    else:
+        bot_statuses = generate_bot_statuses()
 
 for i in range(20):
     vk_id = Random().custom_code(mask="#########")
-    name, surname = p.full_name().split()
-    email = p.email()
-    phone = p.telephone(mask="9#########")
+    name, surname = person.full_name().split()
+    email = person.email()
+    phone = person.telephone(mask="9#########")
     with orm.db_session:
         ac_status = orm.select(ac for ac in models.AcademicStatus).random(1)[0]
         group = orm.select(gr for gr in models.Group).random(1)[0]
