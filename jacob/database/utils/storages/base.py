@@ -9,14 +9,14 @@ from jacob.database import models
 class BaseStorageManager(object):
     """Базовый менеджер хранилищ."""
 
-    def __init__(self, admin: models.Admin):
+    def __init__(self, owner: models.Admin):
         """Создаёт объект менеджера хранилищ.
 
         Args:
-            admin: объект администратора
+            owner: объект администратора
         """
         self.model = None
-        self.admin = admin
+        self.owner = owner
 
     @orm.db_session
     def get_or_create(self) -> orm.Database().Entity:
@@ -28,7 +28,7 @@ class BaseStorageManager(object):
         storage = self.model.get()
 
         if storage is None:
-            storage = self.model(admin=self.admin)
+            storage = self.model(owner=self.owner)
 
         return storage
 

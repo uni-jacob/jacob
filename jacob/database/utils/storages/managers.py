@@ -47,9 +47,7 @@ class MentionStorageManager(base.BaseStorageManager):
         Args:
             new_text: Новый текст Призыва
         """
-        storage = self.get_or_create()
-
-        storage.set(mention_text=new_text)
+        self.update(mention_text=new_text)
 
     @orm.db_session
     def append_to_mentioned_students(self, new_item: int):
@@ -90,9 +88,7 @@ class MentionStorageManager(base.BaseStorageManager):
         Args:
             new_list: Новый список призываемых студентов
         """
-        storage = self.get_or_create()
-
-        storage.set(mentioned_students=",".join(map(str, new_list)))
+        self.update(mentioned_students=",".join(map(str, new_list)))
 
 
 class StateStorageManager(base.BaseStorageManager):
