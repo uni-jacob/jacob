@@ -25,10 +25,15 @@ class BaseStorageManager(object):
         Returns:
             orm.Database().Entity: Объект хранилища
         """
+        if isinstance(self.owner, int):
+            owner = models.Admin[self.owner]
+        else:
+            owner = self.owner
+
         storage = self.model.get()
 
         if storage is None:
-            storage = self.model(owner=self.owner)
+            storage = self.model(owner=owner)
 
         return storage
 
