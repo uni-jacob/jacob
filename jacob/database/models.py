@@ -3,76 +3,73 @@
 import os
 from datetime import datetime
 
-from pony.orm import Database
-from pony.orm import Optional
-from pony.orm import Required
-from pony.orm import Set
+from pony import orm
 
 from jacob.services.db import get_db_credentials
 
-db = Database()
+db = orm.Database()
 
 
 class AcademicStatus(db.Entity):
     """Формы обучения студентов."""
 
-    description = Optional(str, unique=True)
-    students = Set("Student")
+    description = orm.Optional(str, unique=True)
+    students = orm.Set("Student")
 
 
 class AdminConfig(db.Entity):
     """Хранилище конфигов админов."""
 
-    admin = Required("Admin")
-    names_usage = Optional(bool, default=True)
-    active_group = Optional("Group")
-    active_chat = Optional("Chat")
+    owner = orm.Required("Admin")
+    names_usage = orm.Optional(bool, default=True)
+    active_group = orm.Optional("Group")
+    active_chat = orm.Optional("Chat")
 
 
 class AlmaMater(db.Entity):
     """Университеты."""
 
-    name = Required(str)
-    groups = Set("Group")
+    name = orm.Required(str)
+    groups = orm.Set("Group")
 
 
 class Group(db.Entity):
     """Студенческие группы."""
 
-    group_num = Required(str)
-    specialty = Required(str)
-    alma_mater = Required(AlmaMater)
-    admin_configs = Set(AdminConfig)
-    chats = Set("Chat")
-    admins = Set("Admin")
-    students = Set("Student")
-    financial_categories = Set("FinancialCategory")
+    group_num = orm.Required(str)
+    specialty = orm.Required(str)
+    alma_mater = orm.Required(AlmaMater)
+    admin_configs = orm.Set(AdminConfig)
+    chats = orm.Set("Chat")
+    admins = orm.Set("Admin")
+    students = orm.Set("Student")
+    financial_categories = orm.Set("FinancialCategory")
 
 
 class Chat(db.Entity):
     """Зарегистрированные чаты."""
 
-    vk_id = Required(int)
-    group = Required(Group)
-    admin_configs = Set(AdminConfig)
+    vk_id = orm.Required(int)
+    group = orm.Required(Group)
+    admin_configs = orm.Set(AdminConfig)
 
 
 class Admin(db.Entity):
     """Админы бота."""
 
-    student = Required("Student")
-    groups = Set(Group)
-    admin_config = Optional(AdminConfig)
-    call_storage = Optional("MentionStorage")
-    chat_registrar_config = Optional("ChatRegistrarConfig")
-    financial_config = Optional("FinancialConfig")
-    state_storage = Optional("StateStorage")
+    student = orm.Required("Student")
+    groups = orm.Set(Group)
+    admin_config = orm.Optional(AdminConfig)
+    call_storage = orm.Optional("MentionStorage")
+    chat_registrar_config = orm.Optional("ChatRegistrarConfig")
+    financial_config = orm.Optional("FinancialConfig")
+    state_storage = orm.Optional("StateStorage")
 
     def get_groups(self):
         """Возвращает объекты групп, администратором которых является пользователь.
 
         Returns:
-            Set[Group]: Объекты групп
+            orm.Set[Group]: Объекты групп
         """
         return self.groups
 
@@ -80,17 +77,17 @@ class Admin(db.Entity):
 class Student(db.Entity):
     """Студенты."""
 
-    vk_id = Required(int)
-    first_name = Required(str)
-    last_name = Required(str)
-    group = Required(Group)
-    subgroup = Optional(int)
-    email = Optional(str)
-    phone_number = Optional(str)
-    academic_status = Required(AcademicStatus)
-    financial_incomes = Set("FinancialIncome")
-    issues = Set("Issue")
-    admins = Set(Admin)
+    vk_id = orm.Required(int)
+    first_name = orm.Required(str)
+    last_name = orm.Required(str)
+    group = orm.Required(Group)
+    subgroup = orm.Optional(int)
+    email = orm.Optional(str)
+    phone_number = orm.Optional(str)
+    academic_status = orm.Required(AcademicStatus)
+    financial_incomes = orm.Set("FinancialIncome")
+    issues = orm.Set("Issue")
+    admins = orm.Set(Admin)
 
     def is_admin(self) -> bool:
         """
@@ -105,74 +102,74 @@ class Student(db.Entity):
 class MentionStorage(db.Entity):
     """Хранилище призыва."""
 
-    admin = Required(Admin)
-    mention_text = Optional(str)
-    mentioned_students = Optional(str)
+    owner = orm.Required(Admin)
+    mention_text = orm.Optional(str)
+    mentioned_students = orm.Optional(str)
 
 
 class ChatRegistrarConfig(db.Entity):
     """Хранилище регистратора чатов."""
 
-    admin = Required(Admin)
-    phrase = Optional(str, default="")
+    owner = orm.Required(Admin)
+    phrase = orm.Optional(str, default="")
 
 
 class FinancialCategory(db.Entity):
     """Финансовые категории."""
 
-    name = Optional(str)
-    summ = Optional(int)
-    group = Required(Group)
-    financial_configs = Set("FinancialConfig")
-    financial_incomes = Set("FinancialIncome")
-    financial_expenses = Set("FinancialExpense")
+    name = orm.Optional(str)
+    summ = orm.Optional(int)
+    group = orm.Required(Group)
+    financial_configs = orm.Set("FinancialConfig")
+    financial_incomes = orm.Set("FinancialIncome")
+    financial_expenses = orm.Set("FinancialExpense")
 
 
 class FinancialConfig(db.Entity):
     """Временное хранилище активной финансовой категории."""
 
-    admin = Required(Admin)
-    financial_category = Required(FinancialCategory)
+    owner = orm.Required(Admin)
+    financial_category = orm.Required(FinancialCategory)
 
 
 class FinancialIncome(db.Entity):
     """Доходы."""
 
-    financial_category = Required(FinancialCategory)
-    student = Required(Student)
-    summ = Required(int)
-    create_date = Required(datetime, default=lambda: datetime.now())
-    update_date = Optional(datetime)
+    financial_category = orm.Required(FinancialCategory)
+    student = orm.Required(Student)
+    summ = orm.Required(int)
+    create_date = orm.Required(datetime, default=lambda: datetime.now())
+    update_date = orm.Optional(datetime)
 
 
 class FinancialExpense(db.Entity):
     """Расходы."""
 
-    financial_category = Required(FinancialCategory)
-    summ = Required(int)
-    create_date = Optional(datetime, default=lambda: datetime.now())
+    financial_category = orm.Required(FinancialCategory)
+    summ = orm.Required(int)
+    create_date = orm.Optional(datetime, default=lambda: datetime.now())
 
 
 class Issue(db.Entity):
     """Баги."""
 
-    author = Required(Student)
-    title = Required(str)
-    text = Optional(str)
+    author = orm.Required(Student)
+    title = orm.Required(str)
+    text = orm.Optional(str)
 
 
 class State(db.Entity):
     """Статусы боты."""
 
-    description = Optional(str, unique=True)
-    state_storages = Set("StateStorage")
+    description = orm.Optional(str, unique=True)
+    state_storages = orm.Set("StateStorage")
 
 
 class StateStorage(db.Entity):
     """Связка состояний ботов с пользователями."""
 
-    admin = Required(Admin)
-    state = Required(State)
+    owner = orm.Required(Admin)
+    state = orm.Required(State)
 
 
 db.bind(provider="postgres", **get_db_credentials(os.getenv("DATABASE_URL")))
