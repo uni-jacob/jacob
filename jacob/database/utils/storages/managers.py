@@ -30,6 +30,16 @@ class AdminConfigManager(base.BaseStorageManager):
             return self.get_or_create().active_group
         return models.Admin.get(student_id=self.admin).group
 
+    def invert_names_usage(self) -> models.AdminConfig:
+        """Шорткат, инвертирующий использование имён в Призыве.
+
+        Returns:
+            models.AdminConfig: объект хранилища администратора
+        """
+        store = self.get_or_create()
+        state = not store.names_usage
+        return self.update(names_usage=state)
+
     @orm.db_session
     def get_active_chat(self) -> models.Chat:
         """Получает активный чат администратора.
