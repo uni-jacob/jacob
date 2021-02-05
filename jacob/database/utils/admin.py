@@ -1,6 +1,5 @@
 """Бэкенд админской части."""
 
-import warnings
 
 from loguru import logger
 from pony import orm
@@ -12,6 +11,7 @@ from jacob.services.logger import config as logger_config
 logger.configure(**logger_config.config)
 
 
+@orm.db_session
 def is_user_admin(admin_id: int) -> bool:
     """
     Проверяет, является ли студент администратором.
@@ -25,9 +25,6 @@ def is_user_admin(admin_id: int) -> bool:
     Returns:
         bool: статус администрирования студента
     """
-    warnings.warn(
-        "Функция устарела, используйте models.Student.is_admin.", DeprecationWarning
-    )
     if models.Admin.exists(student=admin_id):
         return True
     raise exceptions.UserIsNotAnAdmin(
@@ -35,9 +32,9 @@ def is_user_admin(admin_id: int) -> bool:
     )
 
 
+@orm.db_session
 def get_admin_feud(admin_id: int) -> orm.core.Query:
-    """
-    Возвращает объекты групп в которых пользователь является администратором.
+    """Возвращает объекты групп в которых пользователь является администратором.
 
     Args:
         admin_id: идентификатор администратора
@@ -53,5 +50,14 @@ def get_admin_feud(admin_id: int) -> orm.core.Query:
         return groups
 
 
+@orm.db_session
 def get_active_group(admin_id: int) -> models.Group:
+    """Получает выбранную группу администратора.
+
+    Args:
+        admin_id: идентификатор администратора
+
+    Returns:
+        Group: объект группы
+    """
     return models.AdminConfig[admin_id].active_group
