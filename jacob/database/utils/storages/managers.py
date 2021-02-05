@@ -2,6 +2,7 @@
 from pony import orm
 
 from jacob.database import models
+from jacob.database.utils import admin as admin_utils
 from jacob.database.utils.storages import base
 from jacob.services.exceptions import BotStateNotFound
 
@@ -17,6 +18,27 @@ class AdminConfigManager(base.BaseStorageManager):
         """
         super().__init__(admin)
         self.model = models.AdminConfig
+
+    @orm.db_session
+    def get_active_group(self) -> models.Group:
+        """Получить объект активной группы администратора.
+
+        Returns:
+            Group: объект группы
+        """
+        if len(admin_utils.get_admin_feud(self.admin)) > 1:
+            return self.get_or_create().active_group
+        return models.Admin.get(student_id=self.admin).group
+
+    @orm.db_session
+    def get_active_chat(self) -> models.Chat:
+        """Получает активный чат администратора.
+
+        Returns:
+            Chat: объект чата
+        """
+        # TODO: Что делать, если активный чат не выбран?
+        return self.get_or_create().active_chat
 
 
 class MentionStorageManager(base.BaseStorageManager):
