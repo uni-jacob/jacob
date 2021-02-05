@@ -81,7 +81,7 @@ def index_chat(
     chat_id: int,
     vk_students: t.List[int],
     db_students: t.List[int],
-) -> JSONStr:
+) -> JSONStr:  # TODO: Refactor this shit!
     """
     Меню индексации чата.
 
