@@ -5,16 +5,11 @@ import random
 
 import ujson
 from loguru import logger
-from vkwave import api
-from vkwave import bots
-from vkwave import client
+from vkwave import api, bots, client
 
 from jacob.database import models  # TODO: (?)
 from jacob.database import utils as db
-from jacob.services import call
-from jacob.services import decorators
-from jacob.services import exceptions
-from jacob.services import filters
+from jacob.services import call, decorators, exceptions, filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
 
@@ -30,7 +25,7 @@ logger.configure(**logger_config.config)
 @bots.simple_bot_message_handler(
     call_menu_router,
     filters.PLFilter({"button": "half"}),
-    filters.StateFilter("select_mentioned"),
+    filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -47,7 +42,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     call_menu_router,
     filters.PLFilter({"button": "letter"}),
-    filters.StateFilter("select_mentioned"),
+    filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -65,7 +60,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     call_menu_router,
     filters.PLFilter({"button": "student"}),
-    filters.StateFilter("select_mentioned"),
+    filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -147,7 +142,7 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
-    filters.StateFilter("confirm_call"),
+    filters.StateFilter("mention_confirm"),
     filters.PLFilter({"button": "confirm"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -173,7 +168,7 @@ async def _send_call(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
-    filters.StateFilter("confirm_call"),
+    filters.StateFilter("mention_confirm"),
     filters.PLFilter({"button": "names_usage"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -188,7 +183,7 @@ async def _invert_names_usage(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
-    filters.StateFilter("confirm_call"),
+    filters.StateFilter("mention_confirm"),
     filters.PLFilter({"button": "chat_config"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -203,7 +198,7 @@ async def _select_chat(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
-    filters.StateFilter("confirm_call"),
+    filters.StateFilter("mention_confirm"),
     filters.PLFilter({"button": "chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )

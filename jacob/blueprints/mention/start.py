@@ -3,13 +3,10 @@
 import os
 
 from loguru import logger
-from vkwave import api
-from vkwave import bots
-from vkwave import client
+from vkwave import api, bots, client
 
 from jacob.database import utils as db
-from jacob.services import decorators
-from jacob.services import filters
+from jacob.services import decorators, filters
 from jacob.services import keyboard as kbs
 from jacob.services import media
 from jacob.services.logger.config import config
@@ -66,7 +63,7 @@ async def _cancel_call(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_start_router,
-    filters.StateFilter("confirm_call"),
+    filters.StateFilter("mention_confirm"),
     filters.PLFilter({"button": "deny"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -97,7 +94,7 @@ async def _skip_register_call_message(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_start_router,
-    filters.StateFilter("wait_call_text"),
+    filters.StateFilter("mention_wait_text"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()

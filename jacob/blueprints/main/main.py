@@ -5,7 +5,7 @@ import os
 from loguru import logger
 from vkwave import api, bots, client
 
-from jacob.database import utils as db
+from jacob.database.utils import students
 from jacob.services import keyboard as kbs
 from jacob.services.exceptions import StudentNotFound
 from jacob.services.filters import PLFilter
@@ -13,7 +13,8 @@ from jacob.services.logger.config import config
 
 main_router = bots.DefaultRouter()
 api_session = api.API(
-    tokens=os.getenv("VK_CANARY_TOKEN"), clients=client.AIOHTTPClient()
+    tokens=os.getenv("VK_CANARY_TOKEN"),
+    clients=client.AIOHTTPClient(),
 )
 api_context = api_session.get_context()
 logger.configure(**config)
@@ -29,7 +30,7 @@ logger.configure(**config)
 async def _greeting(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         try:
-            student_id = db.students.get_system_id_of_student(
+            student_id = students.get_system_id_of_student(
                 ans.object.object.message.peer_id,
             )
         except StudentNotFound:

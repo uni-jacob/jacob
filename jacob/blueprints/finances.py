@@ -5,14 +5,11 @@ import re
 
 import ujson
 from loguru import logger
-from vkwave import api
-from vkwave import bots
-from vkwave import client
+from vkwave import api, bots, client
 
 from jacob.database import models
 from jacob.database import utils as db
-from jacob.services import decorators
-from jacob.services import filters
+from jacob.services import decorators, filters
 from jacob.services import keyboard as kbs
 from jacob.services.finances import generate_debtors_call
 from jacob.services.logger.config import config
@@ -79,7 +76,7 @@ async def _cancel_creating_category(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("wait_for_finances_category_description"),
+    filters.StateFilter("fin_wait_category_desc"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -161,7 +158,7 @@ async def _add_income(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.PLFilter({"button": "half"}) & filters.StateFilter("select_donater"),
+    filters.PLFilter({"button": "half"}) & filters.StateFilter("fin_select_donater"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -180,7 +177,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.PLFilter({"button": "letter"}) & filters.StateFilter("select_donater"),
+    filters.PLFilter({"button": "letter"}) & filters.StateFilter("fin_select_donater"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch
@@ -200,7 +197,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.PLFilter({"button": "student"}) & filters.StateFilter("select_donater"),
+    filters.PLFilter({"button": "student"}) & filters.StateFilter("fin_select_donater"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch
@@ -219,7 +216,7 @@ async def _select_student(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("enter_donate_sum"),
+    filters.StateFilter("fin_enter_donate_sum"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -286,7 +283,7 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("confirm_debtors_call"),
+    filters.StateFilter("fin_confirm_debtors_call"),
     filters.PLFilter({"button": "chat_config"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -301,7 +298,7 @@ async def _select_chat_debtors(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("confirm_debtors_call"),
+    filters.StateFilter("fin_confirm_debtors_call"),
     filters.PLFilter({"button": "chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -318,7 +315,7 @@ async def _save_chat_debtors(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("confirm_debtors_call"),
+    filters.StateFilter("fin_confirm_debtors_call"),
     filters.PLFilter({"button": "confirm"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -342,7 +339,7 @@ async def _confirm_call_debtors(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("confirm_debtors_call"),
+    filters.StateFilter("fin_confirm_debtors_call"),
     filters.PLFilter({"button": "deny"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -373,7 +370,7 @@ async def _add_expense(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("enter_expense_summ"),
+    filters.StateFilter("fin_enter_expense_summ"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -407,6 +404,7 @@ async def _get_statistics(ans: bots.SimpleBotEvent):
     expenses_summ = db.finances.calculate_expenses_in_category(store.category_id)
     await ans.answer(
         "Статистика\nСобрано: {0} руб.\nПотрачено: {1} руб.".format(
-            donates_summ, expenses_summ
+            donates_summ,
+            expenses_summ,
         ),
     )

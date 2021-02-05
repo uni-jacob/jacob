@@ -6,8 +6,7 @@ from vkwave import bots
 
 from jacob.database import models
 from jacob.database import utils as db
-from jacob.services import decorators
-from jacob.services import filters
+from jacob.services import decorators, filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
 
@@ -41,7 +40,7 @@ async def _start_contacts(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     contacts_router,
-    filters.PLFilter({"button": "half"}) & filters.StateFilter("select_student"),
+    filters.PLFilter({"button": "half"}) & filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -64,7 +63,8 @@ async def _select_half(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     contacts_router,
-    filters.PLFilter({"button": "letter"}) & filters.StateFilter("select_student"),
+    filters.PLFilter({"button": "letter"})
+    & filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
@@ -84,7 +84,8 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     contacts_router,
-    filters.PLFilter({"button": "student"}) & filters.StateFilter("select_student"),
+    filters.PLFilter({"button": "student"})
+    & filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch
