@@ -33,6 +33,7 @@ PyGithub = "^1.53"
 pony = "^0.7.14"
 vkwave = {git = "https://github.com/fscdev/vkwave.git"}
 ujson = "^4.0.1"
+aioredis = "^1.3.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
