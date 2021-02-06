@@ -72,8 +72,8 @@ def generate_bot_statuses() -> list:
         "common_select_mentioned",
         "fin_wait_category_desc",
     ]
-    for name in bot_statuses_objects:
-        bot_statuses.append(models.State(description=name))
+    for name in bot_statuses:
+        bot_statuses_objects.append(models.State(description=name))
     return bot_statuses_objects
 
 
@@ -81,18 +81,25 @@ person = Person("ru")
 
 with orm.db_session:
     if not orm.select(am for am in models.AlmaMater)[:]:
+        print("Генерация универов")
         unies = generate_universities()
     if not orm.select(gr for gr in models.Group)[:]:
+        print("Генерация групп")
         groups = generate_groups()
     else:
+        print("Селектинг групп")
         groups = orm.select(gr for gr in models.Group)[:]
     if orm.select(acs for acs in models.AcademicStatus)[:]:
+        print("Селектинг форм обучения")
         ac_statuses = orm.select(acs for acs in models.AcademicStatus)[:]
     else:
+        print("Генерация форм обучения")
         ac_statuses = generate_ac_statuses()
     if orm.select(st for st in models.State)[:]:
+        print("Селектинг статусов")
         bot_statuses = orm.select(st for st in models.State)[:]
     else:
+        print("Генерация статусов")
         bot_statuses = generate_bot_statuses()
 
 for i in range(20):
