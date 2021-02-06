@@ -104,7 +104,7 @@ class MentionStorageManager(base.BaseStorageManager):
         self._update_mentioned_students(mentioned_students)
 
     @orm.db_session
-    def _get_mentioned_students(self) -> list:
+    def get_mentioned_students(self) -> list:
         """Получает список призываемых студентов.
 
         Returns:
