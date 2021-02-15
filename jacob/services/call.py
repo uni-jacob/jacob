@@ -1,8 +1,10 @@
-from database import utils as db
-from database.models import Student
+"""Вспомогательные функции Призыва."""
+
+from jacob.database.models import Student
+from jacob.database.utils.storages import managers
 
 
-def generate_mentions(names_usage: bool, students: str) -> str:
+def generate_mentions(names_usage: bool, students: list) -> str:
     """
     Генерирует призыв студентов.
 
@@ -15,11 +17,11 @@ def generate_mentions(names_usage: bool, students: str) -> str:
     """
     mentions = []
     sep = ", " if names_usage else ""
-    for student in students.split(","):
+    for student in students:
         if student:
             st = Student.get(id=int(student))
             hint = st.first_name if names_usage else "!"
-            mentions.append(f"@id{st.vk_id} ({hint})")
+            mentions.append("@id{0} ({1})".format(st.vk_id, hint))
     return sep.join(mentions)
 
 
@@ -33,8 +35,10 @@ def generate_message(admin_id: int) -> str:
     Returns:
         str: Сообщение призыва
     """
-    store = db.admin.get_admin_storage(admin_id)
-    message = store.text or ""
-    students = store.selected_students or ""
-    mentions = generate_mentions(store.names_usage, students)
-    return f"{mentions}\n{message}"
+    mention_storage = managers.MentionStorageManager(admin_id)
+    admin_storage = managers.AdminConfigManager(admin_id)
+
+    message = mention_storage.get_text() or ""
+    students = mention_storage.get_mentioned_students() or ""
+    mentions = generate_mentions(admin_storage.get_names_usage(), students)
+    return "\n".join((mentions, message))
