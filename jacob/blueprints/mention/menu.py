@@ -8,7 +8,8 @@ from loguru import logger
 from vkwave import api, bots, client
 
 from jacob.database import models  # TODO: (?)
-from jacob.database import utils as db
+from jacob.database.utils import students
+from jacob.database.utils.storages import managers
 from jacob.services import call, decorators, exceptions, filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
@@ -32,7 +33,7 @@ logger.configure(**logger_config.config)
 @decorators.context_logger
 async def _select_half(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     await ans.answer(
         "Выберите призываемых студентов",
         keyboard=kbs.call.CallNavigator(admin_id).render().submenu(payload["half"]),
@@ -50,7 +51,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     await ans.answer(
         "Список студентов на букву {0}".format(letter),
         keyboard=kbs.call.CallNavigator(admin_id).render().students(letter),
@@ -68,16 +69,15 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 async def _select_student(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     student_id = payload["student_id"]
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
-    if student_id in db.shortcuts.get_list_of_calling_students(admin_id):
-        db.shortcuts.pop_student_from_calling_list(
-            admin_id,
+    admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
+    mention_manager = managers.MentionStorageManager(admin_id)
+    if student_id in mention_manager.get_mentioned_students():
+        mention_manager.remove_from_mentioned(
             student_id,
         )
         label = "удален из списка призыва"
     else:
-        db.shortcuts.add_student_to_calling_list(
-            admin_id,
+        mention_manager.append_to_mentioned_students(
             student_id,
         )
         label = "добавлен в список призыва"
@@ -99,10 +99,14 @@ async def _select_student(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _confirm_call(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
-    store = db.admin.get_admin_storage(admin_id)
-    chat_id = models.Chat.get_by_id(store.current_chat_id).chat_id
+
+    admin_storage = managers.AdminConfigManager(admin_id)
+    mention_storage = managers.MentionStorageManager(admin_id)
+    state_storage = managers.StateStorageManager(admin_id)
+
+    chat_id = admin_storage.get_active_chat().chat_id
     query = await api_context.messages.get_conversations_by_id(chat_id)
     try:
         chat_settings = query.response.items[0].chat_settings
@@ -110,18 +114,17 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
         chat_name = "???"
     else:
         chat_name = chat_settings.title
-    if not msg and not store.attaches:
+    if not msg and not mention_storage.get_attaches():
         raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
-    db.shortcuts.update_admin_storage(
-        admin_id,
-        state_id=db.bot.get_id_of_state("confirm_call"),
+    state_storage.update(
+        state_id=state_storage.get_id_of_state("confirm_call"),
     )
     await ans.answer(
         'Сообщение будет отправлено в чат "{0}":\n{1}'.format(chat_name, msg),
         keyboard=kbs.call.call_prompt(
             admin_id,
         ),
-        attachment=store.attaches or "",
+        attachment=mention_storage.get_attaches() or "",
     )
 
 
@@ -133,10 +136,11 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _call_them_all(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
     student = models.Student.get_by_id(admin_id)
-    students = [st.id for st in db.students.get_active_students(student.group_id)]
-    db.shortcuts.update_calling_list(admin_id, students)
+    mentioned_list = [st.id for st in students.get_active_students(student.group_id)]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
     await _confirm_call(ans)
 
 
@@ -149,17 +153,19 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _send_call(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.peer_id)
-    store = db.admin.get_admin_storage(admin_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
+
+    mention_storage = managers.MentionStorageManager(admin_id)
+
     msg = call.generate_message(admin_id)
     bits = 64
     await api_context.messages.send(
-        peer_id=models.Chat.get_by_id(store.current_chat_id).chat_id,
+        peer_id=mention_storage.get_active_chat().chat_id,
         message=msg,
         random_id=random.getrandbits(bits),
-        attachment=store.attaches or "",
+        attachment=mention_storage.get_attaches() or "",
     )
-    db.shortcuts.clear_admin_storage(admin_id)
+    # TODO: очистка хранилища Призыва
     await ans.answer(
         "Сообщение отправлено",
         keyboard=kbs.main.main_menu(admin_id),
@@ -175,9 +181,10 @@ async def _send_call(ans: bots.SimpleBotEvent):
 @logger.catch()
 @decorators.context_logger
 async def _invert_names_usage(ans: bots.SimpleBotEvent):
-    db.shortcuts.invert_names_usage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+    admin_storage = managers.AdminConfigManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
+    admin_storage.invert_names_usage()
     await _confirm_call(ans)
 
 
@@ -191,7 +198,7 @@ async def _invert_names_usage(ans: bots.SimpleBotEvent):
 @decorators.context_logger
 async def _select_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
 
@@ -206,8 +213,10 @@ async def _select_chat(ans: bots.SimpleBotEvent):
 @decorators.context_logger
 async def _change_chat(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
-    db.shortcuts.update_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        current_chat_id=payload["chat_id"],
+    admin_storage = managers.AdminConfigManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id),
+    )
+    admin_storage.update(
+        active_chat=payload["chat_id"],
     )
     await _confirm_call(ans)
