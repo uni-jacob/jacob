@@ -105,6 +105,7 @@ class MentionStorage(db.Entity):
     owner = orm.Required(Admin)
     mention_text = orm.Optional(str)
     mentioned_students = orm.Optional(str)
+    mention_attaches = orm.Optional(str)
 
 
 class ChatRegistrarConfig(db.Entity):
