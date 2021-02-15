@@ -30,14 +30,21 @@ class AdminConfigManager(base.BaseStorageManager):
             return self.get_or_create().active_group
         return models.Admin.get(student_id=self.admin).group
 
+    def get_names_usage(self) -> bool:
+        """Получает флаг использования имён.
+
+        Returns:
+            bool: использование имён
+        """
+        return self.get_or_create().names_usage
+
     def invert_names_usage(self) -> models.AdminConfig:
         """Шорткат, инвертирующий использование имён в Призыве.
 
         Returns:
             models.AdminConfig: объект хранилища администратора
         """
-        store = self.get_or_create()
-        state = not store.names_usage
+        state = not self.get_names_usage()
         return self.update(names_usage=state)
 
     @orm.db_session
@@ -90,7 +97,7 @@ class MentionStorageManager(base.BaseStorageManager):
         """
         mentioned_students = self._get_mentioned_students()
         mentioned_students.append(new_item)
-        self._update_mentioned_students(mentioned_students)
+        self.update_mentioned_students(mentioned_students)
 
     @orm.db_session
     def remove_from_mentioned(self, item_to_remove: int):
@@ -101,7 +108,7 @@ class MentionStorageManager(base.BaseStorageManager):
         """
         mentioned_students = self._get_mentioned_students()
         mentioned_students.remove(item_to_remove)
-        self._update_mentioned_students(mentioned_students)
+        self.update_mentioned_students(mentioned_students)
 
     @orm.db_session
     def get_mentioned_students(self) -> list:
@@ -114,13 +121,25 @@ class MentionStorageManager(base.BaseStorageManager):
         return list(map(int, storage.mentioned_students.split(",")))
 
     @orm.db_session
-    def _update_mentioned_students(self, new_list: list):
+    def update_mentioned_students(self, new_list: list):
         """Обновляет список призываемых студентов.
 
         Args:
             new_list: Новый список призываемых студентов
         """
         self.update(mentioned_students=",".join(map(str, new_list)))
+
+    def get_attaches(self) -> str:
+        """Получает список вложений.
+
+        Returns:
+            str: Список вложений
+        """
+        return self.get_or_create().mention_attaches
+
+    def update_attaches(self, new_attaches: list):
+        """Обновляет список вложений."""
+        return self.update(mention_attaches=new_attaches)
 
 
 class StateStorageManager(base.BaseStorageManager):
