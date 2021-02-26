@@ -1,14 +1,11 @@
 """Функции для работы с регистрацией чатов."""
 
-import typing
-
-from pony.orm import db_session
-from pony.orm import select
+from pony import orm
 
 from jacob.database.models import Chat
 
 
-def get_list_of_chats_by_group(group_id: int) -> typing.List[Chat]:
+def get_list_of_chats_by_group(group_id: int) -> orm.core.Query:
     """
     Возвращает список чатов активной группы.
 
@@ -16,12 +13,12 @@ def get_list_of_chats_by_group(group_id: int) -> typing.List[Chat]:
         group_id: Идентификатор группы
 
     Returns:
-        list[Chat]: Список объектов чатов
+        orm.core.Query[Chat]: Список объектов чатов
     """
-    return select(chat for chat in Chat if chat.group == group_id)
+    return orm.select(chat for chat in Chat if chat.group == group_id)
 
 
-@db_session
+@orm.db_session
 def delete_chat(chat_id: int):
     """
     Удаляет чат из зарегистрированных.
@@ -33,7 +30,7 @@ def delete_chat(chat_id: int):
     Chat[chat_id].delete()
 
 
-@db_session
+@orm.db_session
 def register_chat(chat_id: int, group_id: int) -> Chat:
     """
     Зарегистрировать чат.
@@ -60,6 +57,4 @@ def is_chat_registered(chat_id: int, group_id: int) -> bool:
         bool: Флаг регистрации чата
     """
     chat = Chat.get(chat_id=chat_id, group_id=group_id)
-    if chat is not None:
-        return True
-    return False
+    return chat is not None
