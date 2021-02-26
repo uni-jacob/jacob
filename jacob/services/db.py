@@ -1,14 +1,15 @@
-import os
-import typing as t
+"""Мелкие утилиты для работы с базой данных."""
+
+
+import typing
 from urllib import parse as urlparse
 
+StrInt = typing.TypeVar("StrInt", str, int)
 
-StrInt = t.TypeVar("StrInt", str, int)
 
-
-def get_db_credentials(source: str) -> t.Dict[str, StrInt]:
+def get_db_credentials(source: str) -> typing.Dict[str, StrInt]:
     """
-    Создает словарь с учетными данными базы данных из переменной окружения DATABASE_URL.
+    Создает словарь с учетными данными базы данных из ссылки.
 
     Args:
         source: URL базы данных
