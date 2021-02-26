@@ -3,13 +3,13 @@
 import typing
 from datetime import datetime
 
-from pony.orm import db_session
-from pony.orm import select
+from pony import orm
 
 from jacob.database import models
 from jacob.database.utils.students import get_active_students
 
 
+@orm.db_session
 def get_fin_categories(group_id: int) -> typing.List[models.FinancialCategory]:
     """
     Возвращает список категорий финансов группы.
@@ -20,9 +20,10 @@ def get_fin_categories(group_id: int) -> typing.List[models.FinancialCategory]:
     Returns:
         List[FinancialCategory]: категории финансов
     """
-    return select(fc for fc in models.FinancialCategory if fc.group == group_id)
+    return orm.select(fc for fc in models.FinancialCategory if fc.group == group_id)
 
 
+@orm.db_session
 def add_or_edit_donate(
     category_id: int,
     student_id: int,
@@ -41,19 +42,18 @@ def add_or_edit_donate(
     """
     donate = models.FinancialIncome.get(category=category_id, student=student_id)
     if donate is not None:
-        with db_session:
-            donate.summ = (donate.summ + summ,)
-            donate.update_date = (datetime.now(),)
+        donate.summ = (donate.summ + summ,)
+        donate.update_date = (datetime.now(),)
         return donate
-    with db_session:
-        return models.FinancialIncome(
-            category_id=category_id,
-            student_id=student_id,
-            summ=summ,
-            update_date=None,
-        )
+    return models.FinancialIncome(
+        category_id=category_id,
+        student_id=student_id,
+        summ=summ,
+        update_date=None,
+    )
 
 
+@orm.db_session
 def get_debtors(category_id: int) -> typing.List[int]:
     """
     Ищет должников (не сдавших деньги на категорию вообще или не всю сумму).
@@ -75,6 +75,7 @@ def get_debtors(category_id: int) -> typing.List[int]:
     return debtors
 
 
+@orm.db_session
 def add_expense(category_id: int, summ: int) -> models.FinancialExpense:
     """
     Создает новый расход.
@@ -86,13 +87,13 @@ def add_expense(category_id: int, summ: int) -> models.FinancialExpense:
     Returns:
         FinancialExpense: объект расхода
     """
-    with db_session:
-        return models.FinancialExpense(
-            category_id=category_id,
-            summ=summ,
-        )
+    return models.FinancialExpense(
+        category_id=category_id,
+        summ=summ,
+    )
 
 
+@orm.db_session
 def calculate_incomes_in_category(category_id: int) -> int:
     """
     Вычисляет сумму собранных в категории денег.
@@ -106,6 +107,7 @@ def calculate_incomes_in_category(category_id: int) -> int:
     return sum(fi.summ for fi in models.FinancialIncome if fi.category == category_id)
 
 
+@orm.db_session
 def calculate_expenses_in_category(category_id: int) -> int:
     """
     Вычисляет сумму расходов в категории.
@@ -119,6 +121,7 @@ def calculate_expenses_in_category(category_id: int) -> int:
     return sum(fe.summ for fe in models.FinancialExpense if fe.category == category_id)
 
 
+@orm.db_session
 def get_or_create_finances_category(
     group_id: int,
     name: str,
@@ -137,5 +140,4 @@ def get_or_create_finances_category(
     """
     if models.FinancialCategory.exists(group_id=group_id, name=name, summ=summ):
         return models.FinancialCategory.get(group_id=group_id, name=name, summ=summ)
-    with db_session:
-        return models.FinancialCategory(group_id=group_id, name=name, summ=summ)
+    return models.FinancialCategory(group_id=group_id, name=name, summ=summ)
