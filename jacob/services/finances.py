@@ -1,12 +1,13 @@
-import typing as t
-
-from database import utils as db
-from database.models import FinancialCategory
-from database.models import FinancialDonate
-from database.models import Student
+"""Утилиты для работы с работы с БД модуля 'Финансы'."""
 
 
-def generate_debtors_call(admin_id: int) -> t.List[str]:
+import typing
+
+from jacob.database import models
+from jacob.database import utils as db
+
+
+def generate_debtors_call(admin_id: int) -> typing.List[str]:
     """
     Генерирует сообщение призыва должников.
 
@@ -16,26 +17,33 @@ def generate_debtors_call(admin_id: int) -> t.List[str]:
     Returns:
         List[str]: сообщение(я) призыва должников
     """
+    message_len_limit = 2000
+
     store = db.admin.get_admin_storage(admin_id)
     debtors = db.finances.get_debtors(store.category_id)
-    category = FinancialCategory.get_by_id(store.category_id)
+    category = models.FinancialCategory.get_by_id(store.category_id)
     messages = [
-        f"Вы не сдали на {category.name} сумму, указанную напротив вашего имени\n",
+        "Вы не сдали на {0} сумму, указанную напротив вашего имени\n".format(
+            category.name,
+        ),
     ]
     for debtor_id in debtors:
-        if donate := FinancialDonate.get_or_none(
+        donate = models.FinancialIncome.get_or_none(
             category=category.id,
             student=debtor_id,
-        ):
+        )
+        if donate:
             summ = category.summ - donate.summ
         else:
             summ = category.summ
-        student = Student.get_by_id(debtor_id)
-        tmp = (
-            f"@id{student.vk_id} ({student.first_name} {student.second_name}) - "
-            f"{summ} руб.\n"
+        student = models.Student.get_by_id(debtor_id)
+        tmp = "@id{0} ({1} {2}) - {3} руб.\n".format(
+            student.vk_id,
+            student.first_name,
+            student.second_name,
+            summ,
         )
-        if len(messages[-1]) < 2000:
+        if len(messages[-1]) < message_len_limit:
             messages[-1] += tmp
         else:
             messages.append("")
