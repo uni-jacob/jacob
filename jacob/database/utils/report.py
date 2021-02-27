@@ -5,6 +5,14 @@ from jacob.database.models import Issue
 
 
 def get_issue_storage(vk_id: int):
+    """Получает хранилище отчёта об ошибке.
+
+    Args:
+        vk_id: Идентификатор пользователя
+
+    Returns:
+        Issue: объект отчёта об ошибке
+    """
     last_issue = Issue.get(author=vk_id)
 
     if last_issue:
@@ -23,8 +31,7 @@ def update_issue(issue_id: int, **kwargs):
     Returns:
         Issue: Объект ишью
     """
-    issue = Issue[issue_id].set(**kwargs)
-    return issue
+    return Issue[issue_id].set(**kwargs)
 
 
 def generate_issue_text(vk_id: int) -> str:
@@ -47,4 +54,4 @@ def generate_issue_text(vk_id: int) -> str:
     )
     text = db.report.get_issue_storage(vk_id).text
 
-    return f"{text}\n\n{is_admin=}\n{store=}"
+    return "{0}\n\n{1}\n{2}".format(text, is_admin, store)
