@@ -370,7 +370,7 @@ async def _add_expense(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("fin_enter_expense_summ"),
+    filters.StateFilter("fin_enter_expense_sum"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 @logger.catch()
