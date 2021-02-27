@@ -95,7 +95,7 @@ class MentionStorageManager(base.BaseStorageManager):
         Args:
             new_item: Новый элемент списка
         """
-        mentioned_students = self._get_mentioned_students()
+        mentioned_students = self.get_mentioned_students()
         mentioned_students.append(new_item)
         self.update_mentioned_students(mentioned_students)
 
@@ -106,7 +106,7 @@ class MentionStorageManager(base.BaseStorageManager):
         Args:
             item_to_remove: Элемент для удаления
         """
-        mentioned_students = self._get_mentioned_students()
+        mentioned_students = self.get_mentioned_students()
         mentioned_students.remove(item_to_remove)
         self.update_mentioned_students(mentioned_students)
 
@@ -138,7 +138,14 @@ class MentionStorageManager(base.BaseStorageManager):
         return self.get_or_create().mention_attaches
 
     def update_attaches(self, new_attaches: list):
-        """Обновляет список вложений."""
+        """Обновляет список вложений.
+
+        Args:
+            new_attaches: Новый список вложений
+
+        Returns:
+            orm.Database().Entity: объект хранилища MentionStorage
+        """
         return self.update(mention_attaches=new_attaches)
 
 
