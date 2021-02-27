@@ -2,11 +2,14 @@
 
 import typing
 
+from pony import orm
+
 from jacob.database.models import Student
 from jacob.database.utils import admin
 from jacob.services import exceptions
 
 
+@orm.db_session
 def get_system_id_of_student(vk_id: int) -> int:
     """
     Возвращает идентификатор студента в системе.
@@ -28,6 +31,7 @@ def get_system_id_of_student(vk_id: int) -> int:
     )
 
 
+@orm.db_session
 def get_active_students(group_id: int) -> typing.List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
@@ -52,6 +56,7 @@ def get_active_students(group_id: int) -> typing.List[Student]:
     )
 
 
+@orm.db_session
 def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     """
     Возвращает список первых букв фамилий в активной группе.
@@ -73,6 +78,7 @@ def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
         return list(dict.fromkeys(snd_names))
 
 
+@orm.db_session
 def get_list_of_students_by_letter(admin_id: int, letter: str) -> typing.List[Student]:
     """
     Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
