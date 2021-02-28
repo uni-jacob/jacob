@@ -5,10 +5,10 @@ import random
 
 import ujson
 from loguru import logger
+from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database import models  # TODO: (?)
-from jacob.database.utils import students
+from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, exceptions, filters
 from jacob.services import keyboard as kbs
@@ -16,7 +16,7 @@ from jacob.services.logger import config as logger_config
 
 call_menu_router = bots.DefaultRouter()
 api_session = api.API(
-    tokens=os.getenv("VK_CANARY_TOKEN"),
+    tokens=os.getenv("VK_TOKEN"),
     clients=client.AIOHTTPClient(),
 )
 api_context = api_session.get_context()
@@ -98,18 +98,22 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     mention_storage = managers.MentionStorageManager(admin_id)
     state_storage = managers.StateStorageManager(admin_id)
 
-    chat_id = admin_storage.get_active_chat().chat_id
-    query = await api_context.messages.get_conversations_by_id(chat_id)
+    # TODO: вернуть обработанный ответ, когда в vkwave починят схемы
+    with orm.db_session:
+        chat_id = admin_storage.get_active_chat().vk_id
+    query = await api_context.messages.get_conversations_by_id(
+        chat_id, return_raw_response=True
+    )
     try:
-        chat_settings = query.response.items[0].chat_settings
+        chat_settings = query["response"]["items"][0]["chat_settings"]
     except IndexError:
         chat_name = "???"
     else:
-        chat_name = chat_settings.title
+        chat_name = chat_settings["title"]
     if not msg and not mention_storage.get_attaches():
         raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
     state_storage.update(
-        state_id=state_storage.get_id_of_state("confirm_call"),
+        state=state_storage.get_id_of_state("mention_confirm"),
     )
     await ans.answer(
         'Сообщение будет отправлено в чат "{0}":\n{1}'.format(chat_name, msg),
@@ -127,8 +131,9 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
 )
 async def _call_them_all(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
-    student = models.Student.get_by_id(admin_id)
-    mentioned_list = [st.id for st in students.get_active_students(student.group_id)]
+    with orm.db_session:
+        active_students = students.get_active_students(admin.get_active_group(admin_id))
+        mentioned_list = [st.id for st in active_students]
     mention_storage = managers.MentionStorageManager(admin_id)
     mention_storage.update_mentioned_students(mentioned_list)
     await _confirm_call(ans)
@@ -144,16 +149,19 @@ async def _send_call(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
 
     mention_storage = managers.MentionStorageManager(admin_id)
+    admin_storage = managers.AdminConfigManager(admin_id)
 
     msg = call.generate_message(admin_id)
     bits = 64
+    with orm.db_session:
+        chat_id = admin_storage.get_active_chat().vk_id
     await api_context.messages.send(
-        peer_id=mention_storage.get_active_chat().chat_id,
+        peer_id=chat_id,
         message=msg,
         random_id=random.getrandbits(bits),
         attachment=mention_storage.get_attaches() or "",
     )
-    # TODO: очистка хранилища Призыва
+    mention_storage.clear()
     await ans.answer(
         "Сообщение отправлено",
         keyboard=kbs.main.main_menu(admin_id),

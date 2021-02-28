@@ -1,9 +1,8 @@
 from vkwave.bots import Keyboard
 
-from database import utils as db
-from services import keyboard as kbs
-from services.keyboard.common import Keyboards
-from services.keyboard.common import StudentsNavigator
+from jacob.database.utils.storages import managers
+from jacob.services import keyboard as kbs
+from jacob.services.keyboard.common import Keyboards, StudentsNavigator
 
 JSONStr = str
 
@@ -95,8 +94,8 @@ def call_prompt(admin_id: int) -> JSONStr:
     """
     kb = kbs.common.prompt()
     kb.add_row()
-    store = db.admin.get_admin_storage(admin_id)
-    if store.names_usage:
+    store = managers.AdminConfigManager(admin_id)
+    if store.get_names_usage():
         names_emoji = "✅"
     else:
         names_emoji = "🚫"

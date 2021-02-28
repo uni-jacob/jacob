@@ -3,6 +3,7 @@ from pony import orm
 
 from jacob.database import models
 from jacob.database.utils import admin as admin_utils
+from jacob.database.utils import chats
 from jacob.database.utils.storages import base
 from jacob.services.exceptions import BotStateNotFound
 
@@ -26,9 +27,9 @@ class AdminConfigManager(base.BaseStorageManager):
         Returns:
             Group: объект группы
         """
-        if len(admin_utils.get_admin_feud(self.admin)) > 1:
+        if len(admin_utils.get_admin_feud(self.owner)) > 1:
             return self.get_or_create().active_group
-        return models.Admin.get(student_id=self.admin).group
+        return models.Admin.get(student=self.owner).group
 
     def get_names_usage(self) -> bool:
         """Получает флаг использования имён.
@@ -55,7 +56,13 @@ class AdminConfigManager(base.BaseStorageManager):
             Chat: объект чата
         """
         # TODO: Что делать, если активный чат не выбран?
-        return self.get_or_create().active_chat
+        active_chat = self.get_or_create().active_chat
+        if active_chat is None:
+            active_group = self.get_active_group()
+            active_chat = chats.get_list_of_chats_by_group(active_group).random(1)[0]
+            self.update(active_chat=active_chat)
+
+        return active_chat
 
 
 class MentionStorageManager(base.BaseStorageManager):
