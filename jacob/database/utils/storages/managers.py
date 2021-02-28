@@ -146,7 +146,17 @@ class MentionStorageManager(base.BaseStorageManager):
         Returns:
             orm.Database().Entity: объект хранилища MentionStorage
         """
-        return self.update(mention_attaches=new_attaches)
+        return self.update(mention_attaches=",".join(new_attaches))
+
+    def clear(self):
+        """Очищает хранилище Призыва.
+
+        Returns:
+            orm.Database().Entity: объект хранилища MentionStorage
+        """
+        self.update_mentioned_students([])
+        self.update_attaches([])
+        return self.update_text("")
 
 
 class StateStorageManager(base.BaseStorageManager):
@@ -175,7 +185,7 @@ class StateStorageManager(base.BaseStorageManager):
         Raises:
             BotStateNotFound: если переданный статус бота не был найден в БД
         """
-        state = self.model.get(description=description)
+        state = models.State.get(description=description)
         if state is not None:
             return state.id
         raise BotStateNotFound('Статус "{0}" не существует'.format(description))
