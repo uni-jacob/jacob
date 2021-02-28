@@ -1,8 +1,7 @@
 from pyshould import it
 
-from database.models import Chat
-from database.utils import admin
-from database.utils import shortcuts
+from jacob.database.models import Chat
+from jacob.database.utils import admin, shortcuts
 
 
 class TestShortcuts:

@@ -1,6 +1,6 @@
 from pyshould import it
 
-from services.media import translate_string
+from jacob.services.media import translate_string
 
 
 class TestMedia:

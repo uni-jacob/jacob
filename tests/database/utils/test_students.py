@@ -1,10 +1,9 @@
 import pytest
 from pyshould import it
 
-from database.models import Student
-from database.utils import admin
-from database.utils import students
-from services.exceptions import StudentNotFound
+from jacob.database.models import Student
+from jacob.database.utils import admin, students
+from jacob.services.exceptions import StudentNotFound
 
 
 class TestStudents:

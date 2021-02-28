@@ -1,9 +1,10 @@
+import pytest
 from pyshould import it
 from pyshould.expect import expect_all
 
-from database.models import Group
-from database.models import Storage
-from database.utils import admin
+from jacob.database.models import AdminConfig, Group
+from jacob.database.utils import admin
+from jacob.services.exceptions import UserIsNotAnAdmin
 
 
 class TestAdmin:
@@ -19,9 +20,8 @@ class TestAdmin:
 
         test_student_id = 3
 
-        status = admin.is_user_admin(test_student_id)
-
-        it(status).should.be_equal(False)
+        with pytest.raises(UserIsNotAnAdmin):
+            admin.is_user_admin(test_student_id)
 
     def test_get_admin_feud(self):
 

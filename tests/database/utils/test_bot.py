@@ -1,8 +1,8 @@
 import pytest
 from pyshould import it
 
-from database.utils import bot
-from services.exceptions import BotStateNotFound
+from jacob.database.utils import bot
+from jacob.services.exceptions import BotStateNotFound
 
 
 class TestBot:
