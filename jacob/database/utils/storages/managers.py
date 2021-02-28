@@ -118,7 +118,7 @@ class MentionStorageManager(base.BaseStorageManager):
             list: Список призываемых студентов
         """
         storage = self.get_or_create()
-        return list(map(int, storage.mentioned_students.split(",")))
+        return list(map(int, filter(bool, storage.mentioned_students.split(","))))
 
     @orm.db_session
     def update_mentioned_students(self, new_list: list):
