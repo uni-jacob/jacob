@@ -1,9 +1,12 @@
 """Вспомогательные функции Призыва."""
 
+from pony import orm
+
 from jacob.database.models import Student
 from jacob.database.utils.storages import managers
 
 
+@orm.db_session
 def generate_mentions(names_usage: bool, students: list) -> str:
     """
     Генерирует призыв студентов.

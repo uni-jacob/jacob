@@ -45,9 +45,8 @@ def get_active_students(group_id: int) -> typing.List[Student]:
     Returns:
         list[Student]: набор активных студентов группы
     """
-    students = Student.select(
-        Student.group_id == group_id,
-        Student.academic_status > 0,
+    students = orm.select(
+        st for st in Student if st.group == group_id and st.academic_status.id > 0
     )
     if students:
         return students
@@ -86,11 +85,6 @@ def get_list_of_students_by_letter(admin_id: int, letter: str) -> typing.List[St
         list[Student]: список студентов
     """
     active_group = admin.get_active_group(admin_id)
-    return (
-        Student.select()
-        .where(
-            (Student.second_name.startswith(letter))
-            & (Student.group_id == active_group),
-        )
-        .order_by(Student.second_name.asc())
-    )
+    return orm.select(
+        st for st in Student if st.group == active_group and st.last_name[0] == letter
+    ).order_by(Student.last_name)

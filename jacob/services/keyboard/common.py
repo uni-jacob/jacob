@@ -3,11 +3,12 @@ import typing as t
 from abc import ABC
 from abc import abstractmethod
 
+from pony import orm
 from vkwave.api import API
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
-from jacob.database.utils import admin, students
+from jacob.database.utils import admin, chats, students
 from jacob.database.utils.storages import managers
 
 JSONStr = str
@@ -54,6 +55,7 @@ class Keyboards(ABC):
 
         return kb.get_keyboard()
 
+    @orm.db_session
     @abstractmethod
     def students(self, letter: str) -> str:
         data = students.get_list_of_students_by_letter(self.admin_id, letter)
@@ -69,12 +71,12 @@ class Keyboards(ABC):
             if item.id in selected:
                 label = "✅ "
             kb.add_text_button(
-                text=f"{label}{item.second_name} {item.first_name}",
+                text=f"{label}{item.last_name} {item.first_name}",
                 payload={
                     "button": "student",
                     "student_id": item.id,
                     "letter": letter,
-                    "name": f"{item.second_name} {item.first_name}",
+                    "name": f"{item.last_name} {item.first_name}",
                 },
             )
         if kb.buttons[-1]:
@@ -165,26 +167,29 @@ async def list_of_chats(admin_id: int):
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
-
-    chats = chats.get_list_of_chats_by_group(
-        admin.get_active_group(admin_id),
-    )
-    for chat in chats:
-        chat_object = await api.messages.get_conversations_by_id(
-            peer_ids=chat.chat_id,
-            group_id=os.getenv("GROUP_ID"),
+    with orm.db_session:
+        chat_objects = chats.get_list_of_chats_by_group(
+            admin.get_active_group(admin_id),
         )
-        try:
-            chat_title = chat_object.response.items[0].chat_settings.title
-        except (AttributeError, IndexError):
-            chat_title = "???"
-        kb.add_text_button(
-            chat_title,
-            payload={
-                "button": "chat",
-                "chat_id": chat.id,
-            },
-        )
+        for chat in chat_objects:
+            chat_object = await api.messages.get_conversations_by_id(
+                peer_ids=chat.vk_id,
+                group_id=os.getenv("GROUP_ID"),
+                return_raw_response=True,
+            )
+            try:
+                chat_title = chat_object["response"]["items"][0]["chat_settings"][
+                    "title"
+                ]
+            except (AttributeError, IndexError):
+                chat_title = "???"
+            kb.add_text_button(
+                chat_title,
+                payload={
+                    "button": "chat",
+                    "chat_id": chat.id,
+                },
+            )
     return kb
 
 
