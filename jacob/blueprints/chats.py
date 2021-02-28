@@ -3,7 +3,6 @@
 from loguru import logger
 from vkwave import bots
 
-from jacob.services import decorators
 from jacob.services.logger import config as logger_config
 from jacob.services.media import translate_string
 
@@ -15,8 +14,6 @@ logger.configure(**logger_config.config)
     chats_router,
     bots.ChatActionFilter("chat_invite_user"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _greeting(ans: bots.SimpleBotEvent):
     await ans.answer("Привет!")
 
@@ -26,8 +23,6 @@ async def _greeting(ans: bots.SimpleBotEvent):
     bots.CommandsFilter("tr"),
     bots.MessageFromConversationTypeFilter("from_chat"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _tr_command(ans: bots.SimpleBotEvent):
     message = ans.object.object.message
     rep_msg = message.reply_message

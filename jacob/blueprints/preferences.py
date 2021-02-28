@@ -25,7 +25,6 @@ logger.configure(**logger_config.config)
     filters.PLFilter({"button": "settings"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _open_preferences(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         active_group = db.admin.get_active_group(
@@ -47,7 +46,6 @@ async def _open_preferences(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "configure_chats"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _list_of_chats(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         await ans.answer(
@@ -67,7 +65,7 @@ async def _list_of_chats(ans: bots.SimpleBotEvent):
     ~filters.StateFilter("fin_confirm_debtors_call"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()  # TODO: Refactor!
+# TODO: Refactor!
 async def _configure_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
@@ -92,7 +90,6 @@ async def _configure_chat(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "remove_chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _delete_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
@@ -125,7 +122,6 @@ async def _delete_chat(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "reg_chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _generate_confirm_message(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         confirm_message = chats.get_confirm_message()
@@ -147,7 +143,6 @@ async def _generate_confirm_message(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "cancel"}),
     filters.StateFilter("pref_confirm_chat_register"),
 )
-@logger.catch()
 async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     db.shortcuts.clear_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -167,7 +162,6 @@ async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     filters.StateFilter("pref_confirm_chat_register"),
     bots.MessageFromConversationTypeFilter("from_chat"),
 )
-@logger.catch()
 async def _register_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         store = db.admin.get_admin_storage(
@@ -230,7 +224,6 @@ async def _register_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     filters.PLFilter({"button": "index_chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
@@ -299,7 +292,6 @@ async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     filters.PLFilter({"button": "register_students"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _register_students(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     # Сохранять данные о студентах в Redis
     with logger.contextualize(user_id=ans.object.object.message.from_id):
@@ -344,7 +336,6 @@ async def _register_students(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     filters.PLFilter({"button": "purge_students"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _delete_students(ans: bots.SimpleBotEvent):  # TODO: Refactor this!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
@@ -373,7 +364,6 @@ async def _delete_students(ans: bots.SimpleBotEvent):  # TODO: Refactor this!
     filters.PLFilter({"button": "select_group"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Выберите активную группу",
@@ -388,7 +378,6 @@ async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "group"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _select_active_group(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(

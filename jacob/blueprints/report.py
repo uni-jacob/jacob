@@ -23,7 +23,6 @@ logger.configure(**logger_config.config)
     filters.PLFilter({"button": "report_error"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _start_reporting(ans: bots.SimpleBotEvent):
     state_manager = managers.StateStorageManager(
         students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -42,7 +41,6 @@ async def _start_reporting(ans: bots.SimpleBotEvent):
     filters.StateFilter("report_wait_title"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _ask_for_issue_text(ans: bots.SimpleBotEvent):
     issue = report.get_or_create_last_issue_of_user(
         ans.object.object.message.from_id,
@@ -64,7 +62,6 @@ async def _ask_for_issue_text(ans: bots.SimpleBotEvent):
     filters.StateFilter("report_wait_text"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _create_issue(ans: bots.SimpleBotEvent):
 
     gith = Github(os.getenv("GITHUB_TOKEN"))

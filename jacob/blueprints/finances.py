@@ -9,7 +9,7 @@ from vkwave import api, bots, client
 
 from jacob.database import models
 from jacob.database import utils as db
-from jacob.services import decorators, filters
+from jacob.services import filters
 from jacob.services import keyboard as kbs
 from jacob.services.finances import generate_debtors_call
 from jacob.services.logger.config import config
@@ -25,8 +25,6 @@ logger.configure(**config)
     filters.PLFilter({"button": "finances"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _finances(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Список финансовых категорий",
@@ -41,8 +39,6 @@ async def _finances(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "create_finances_category"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _create_category(ans: bots.SimpleBotEvent):
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -59,8 +55,6 @@ async def _create_category(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "cancel"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _cancel_creating_category(ans: bots.SimpleBotEvent):
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -79,8 +73,6 @@ async def _cancel_creating_category(ans: bots.SimpleBotEvent):
     filters.StateFilter("fin_wait_category_desc"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _register_category(ans: bots.SimpleBotEvent):
     if re.match(r"^\w+ \d+$", ans.object.object.message.text):
         message = ans.object.object.message
@@ -109,8 +101,6 @@ async def _register_category(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "fin_category"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _fin_category_menu(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
@@ -139,8 +129,6 @@ async def _fin_category_menu(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "add_income"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _add_income(ans: bots.SimpleBotEvent):
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -161,8 +149,6 @@ async def _add_income(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "half"}) & filters.StateFilter("fin_select_donater"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_half(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     await ans.answer(
@@ -180,8 +166,6 @@ async def _select_half(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "letter"}) & filters.StateFilter("fin_select_donater"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch
-@decorators.context_logger
 async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
@@ -200,8 +184,6 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "student"}) & filters.StateFilter("fin_select_donater"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch
-@decorators.context_logger
 async def _select_student(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
@@ -219,8 +201,6 @@ async def _select_student(ans: bots.SimpleBotEvent):
     filters.StateFilter("fin_enter_donate_sum"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _save_donate(ans: bots.SimpleBotEvent):
     text = ans.object.object.message.text
     if re.match(r"^\d+$", text):
@@ -245,8 +225,6 @@ async def _save_donate(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "show_debtors"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _call_debtors(ans: bots.SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
     group_id = db.admin.get_active_group(admin_id)
@@ -287,8 +265,6 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "chat_config"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_chat_debtors(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -302,8 +278,6 @@ async def _select_chat_debtors(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _save_chat_debtors(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(
@@ -319,8 +293,6 @@ async def _save_chat_debtors(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "confirm"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _confirm_call_debtors(ans: bots.SimpleBotEvent):
     msgs = generate_debtors_call(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -343,8 +315,6 @@ async def _confirm_call_debtors(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "deny"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _deny_call_debtors(ans: bots.SimpleBotEvent):
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -358,7 +328,6 @@ async def _deny_call_debtors(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "add_expense"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _add_expense(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         db.shortcuts.update_admin_storage(
@@ -373,7 +342,6 @@ async def _add_expense(ans: bots.SimpleBotEvent):
     filters.StateFilter("fin_enter_expense_sum"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _save_expense(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         text = ans.object.object.message.text
@@ -395,7 +363,6 @@ async def _save_expense(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "show_stats"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _get_statistics(ans: bots.SimpleBotEvent):
     store = db.admin.get_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),

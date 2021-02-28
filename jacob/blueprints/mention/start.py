@@ -25,8 +25,6 @@ logger.configure(**config)
     filters.PLFilter({"button": "call"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _start_call(ans: bots.SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
     group_id = db.admin.get_active_group(admin_id)
@@ -50,8 +48,6 @@ async def _start_call(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "cancel_call"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _cancel_call(ans: bots.SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
     db.shortcuts.clear_admin_storage(admin_id)
@@ -67,8 +63,6 @@ async def _cancel_call(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "deny"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _deny_call(ans: bots.SimpleBotEvent):
     await _cancel_call(ans)
 
@@ -78,8 +72,6 @@ async def _deny_call(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "skip_call_message"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _skip_register_call_message(ans: bots.SimpleBotEvent):
     admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
     db.shortcuts.update_admin_storage(
@@ -97,8 +89,6 @@ async def _skip_register_call_message(ans: bots.SimpleBotEvent):
     filters.StateFilter("mention_wait_text"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _register_call_message(ans: bots.SimpleBotEvent):
     attachments = ""
     raw_attachments = ans.object.object.message.attachments

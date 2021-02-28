@@ -6,7 +6,7 @@ from vkwave import bots
 
 from jacob.database import models
 from jacob.database import utils as db
-from jacob.services import decorators, filters
+from jacob.services import filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
 
@@ -19,8 +19,6 @@ logger.configure(**logger_config.config)
     filters.PLFilter({"button": "contacts"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _start_contacts(ans: bots.SimpleBotEvent):
     db.shortcuts.update_admin_storage(
         db.students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -43,8 +41,6 @@ async def _start_contacts(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "half"}) & filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_half(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     await ans.answer(
@@ -67,8 +63,6 @@ async def _select_half(ans: bots.SimpleBotEvent):
     & filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload.get("value")
@@ -88,8 +82,6 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     & filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch
-@decorators.context_logger
 async def _select_student(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     db.shortcuts.update_admin_storage(

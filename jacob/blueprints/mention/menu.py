@@ -10,7 +10,7 @@ from vkwave import api, bots, client
 from jacob.database import models  # TODO: (?)
 from jacob.database.utils import students
 from jacob.database.utils.storages import managers
-from jacob.services import call, decorators, exceptions, filters
+from jacob.services import call, exceptions, filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
 
@@ -29,8 +29,6 @@ logger.configure(**logger_config.config)
     filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_half(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
@@ -46,8 +44,6 @@ async def _select_half(ans: bots.SimpleBotEvent):
     filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
@@ -64,8 +60,6 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     filters.StateFilter("common_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_student(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     student_id = payload["student_id"]
@@ -96,8 +90,6 @@ async def _select_student(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "save_selected"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _confirm_call(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
     msg = call.generate_message(admin_id)
@@ -133,8 +125,6 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "call_all"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _call_them_all(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
     student = models.Student.get_by_id(admin_id)
@@ -150,8 +140,6 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "confirm"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _send_call(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
 
@@ -178,8 +166,6 @@ async def _send_call(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "names_usage"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _invert_names_usage(ans: bots.SimpleBotEvent):
     admin_storage = managers.AdminConfigManager(
         students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -194,8 +180,6 @@ async def _invert_names_usage(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "chat_config"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _select_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
         students.get_system_id_of_student(ans.object.object.message.from_id),
@@ -209,8 +193,6 @@ async def _select_chat(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
-@decorators.context_logger
 async def _change_chat(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     admin_storage = managers.AdminConfigManager(

@@ -26,7 +26,6 @@ logger.configure(**config)
     | PLFilter({"button": "main_menu"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _greeting(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         try:
@@ -53,7 +52,6 @@ async def _greeting(ans: bots.SimpleBotEvent):
     PLFilter({"button": "create_new_group"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-@logger.catch()
 async def _show_universities(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         # режим: выбор универа
