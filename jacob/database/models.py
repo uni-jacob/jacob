@@ -20,7 +20,7 @@ class AcademicStatus(db.Entity):
 class AdminConfig(db.Entity):
     """Хранилище конфигов админов."""
 
-    owner = orm.Required("Admin")
+    owner = orm.Required("Student")
     names_usage = orm.Optional(bool, default=True)
     active_group = orm.Optional("Group")
     active_chat = orm.Optional("Chat")
@@ -58,12 +58,7 @@ class Admin(db.Entity):
     """Админы бота."""
 
     student = orm.Required("Student")
-    groups = orm.Set(Group)
-    admin_config = orm.Optional(AdminConfig)
-    call_storage = orm.Optional("MentionStorage")
-    chat_registrar_config = orm.Optional("ChatRegistrarConfig")
-    financial_config = orm.Optional("FinancialConfig")
-    state_storage = orm.Optional("StateStorage")
+    group = orm.Required(Group)
 
     def get_groups(self):
         """Возвращает объекты групп, администратором которых является пользователь.
@@ -88,6 +83,11 @@ class Student(db.Entity):
     financial_incomes = orm.Set("FinancialIncome")
     issues = orm.Set("Issue")
     admins = orm.Set(Admin)
+    state_storage = orm.Optional("StateStorage")
+    admin_config = orm.Optional(AdminConfig)
+    call_storage = orm.Optional("MentionStorage")
+    chat_registrar_config = orm.Optional("ChatRegistrarConfig")
+    financial_config = orm.Optional("FinancialConfig")
 
     def is_admin(self) -> bool:
         """
@@ -102,7 +102,7 @@ class Student(db.Entity):
 class MentionStorage(db.Entity):
     """Хранилище призыва."""
 
-    owner = orm.Required(Admin)
+    owner = orm.Required(Student)
     mention_text = orm.Optional(str)
     mentioned_students = orm.Optional(str)
     mention_attaches = orm.Optional(str)
@@ -111,7 +111,7 @@ class MentionStorage(db.Entity):
 class ChatRegistrarConfig(db.Entity):
     """Хранилище регистратора чатов."""
 
-    owner = orm.Required(Admin)
+    owner = orm.Required(Student)
     phrase = orm.Optional(str, default="")
 
 
@@ -129,7 +129,7 @@ class FinancialCategory(db.Entity):
 class FinancialConfig(db.Entity):
     """Временное хранилище активной финансовой категории."""
 
-    owner = orm.Required(Admin)
+    owner = orm.Required(Student)
     financial_category = orm.Required(FinancialCategory)
 
 
@@ -169,8 +169,8 @@ class State(db.Entity):
 class StateStorage(db.Entity):
     """Связка состояний ботов с пользователями."""
 
-    owner = orm.Required(Admin)
-    state = orm.Required(State)
+    owner = orm.Required(Student)
+    state = orm.Required(State, default=1)
 
 
 db.bind(provider="postgres", **get_db_credentials(os.getenv("DATABASE_URL")))

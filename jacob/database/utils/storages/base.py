@@ -26,7 +26,7 @@ class BaseStorageManager(object):
             orm.Database().Entity: Объект хранилища
         """
         if isinstance(self.owner, int):
-            owner = models.Admin[self.owner]
+            owner = models.Student[self.owner]
         else:
             owner = self.owner
 
