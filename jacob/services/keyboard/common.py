@@ -7,7 +7,8 @@ from vkwave.api import API
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
-from database import utils as db
+from jacob.database.utils import admin, students
+from jacob.database.utils.storages import managers
 
 JSONStr = str
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -35,8 +36,8 @@ class Keyboards(ABC):
 
     @abstractmethod
     def submenu(self, half: int) -> str:
-        alphabet = db.students.get_unique_second_name_letters_in_a_group(
-            db.admin.get_active_group(self.admin_id),
+        alphabet = students.get_unique_second_name_letters_in_a_group(
+            admin.get_active_group(self.admin_id),
         )
         half_len = len(alphabet) // 2
         halfs = alphabet[:half_len], alphabet[half_len:]
@@ -55,8 +56,10 @@ class Keyboards(ABC):
 
     @abstractmethod
     def students(self, letter: str) -> str:
-        data = db.students.get_list_of_students_by_letter(self.admin_id, letter)
-        selected = db.shortcuts.get_list_of_calling_students(self.admin_id)
+        data = students.get_list_of_students_by_letter(self.admin_id, letter)
+        selected = managers.MentionStorageManager(
+            self.admin_id
+        ).get_mentioned_students()
         half_index = self._find_half_index_of_letter(letter)
         kb = Keyboard()
         for item in data:
@@ -90,8 +93,8 @@ class Keyboards(ABC):
         Returns:
             t.Tuple[t.List[str]]: Половины алфавита
         """
-        alphabet = db.students.get_unique_second_name_letters_in_a_group(
-            db.admin.get_active_group(self.admin_id),
+        alphabet = students.get_unique_second_name_letters_in_a_group(
+            admin.get_active_group(self.admin_id),
         )
         half_len = len(alphabet) // 2
 
@@ -137,8 +140,8 @@ def alphabet(admin_id: int) -> Keyboard:
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
-    alphabet = db.students.get_unique_second_name_letters_in_a_group(
-        db.admin.get_active_group(admin_id),
+    alphabet = students.get_unique_second_name_letters_in_a_group(
+        admin.get_active_group(admin_id),
     )
     half_len = len(alphabet) // 2
     f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
@@ -163,8 +166,8 @@ async def list_of_chats(admin_id: int):
     """
     kb = Keyboard()
 
-    chats = db.chats.get_list_of_chats_by_group(
-        db.admin.get_active_group(admin_id),
+    chats = chats.get_list_of_chats_by_group(
+        admin.get_active_group(admin_id),
     )
     for chat in chats:
         chat_object = await api.messages.get_conversations_by_id(

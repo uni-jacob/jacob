@@ -6,6 +6,7 @@ from loguru import logger
 from vkwave import api, bots, client
 
 from jacob.database.utils import students
+from jacob.database.utils.storages import managers
 from jacob.services import keyboard as kbs
 from jacob.services.exceptions import StudentNotFound
 from jacob.services.filters import PLFilter
@@ -39,6 +40,8 @@ async def _greeting(ans: bots.SimpleBotEvent):
                 keyboard=kbs.main.choose_register_way(),
             )
         else:
+            state_store = managers.StateStorageManager(student_id)
+            state_store.update(state=state_store.get_id_of_state("main"))
             await ans.answer(
                 "Привет!",
                 keyboard=kbs.main.main_menu(

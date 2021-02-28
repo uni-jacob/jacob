@@ -2,6 +2,7 @@ from json import JSONDecoder
 from typing import Dict
 
 import ujson
+from pony import orm
 from vkwave.bots import BaseEvent
 from vkwave.bots import BotType
 from vkwave.bots import PayloadFilter
@@ -9,10 +10,10 @@ from vkwave.bots.core import BaseFilter
 from vkwave.bots.core.dispatching import filters
 from vkwave.types.bot_events import BotEventType
 
-from jacob.database import utils as db
 from jacob.database.utils import admin
 from jacob.database.utils import bot
 from jacob.database.utils import students
+from jacob.database.utils.storages import managers
 from jacob.services.exceptions import StudentNotFound
 
 
@@ -45,19 +46,20 @@ class PLFilter(PayloadFilter):
 
 class StateFilter(BaseFilter):
     def __init__(self, state):
-        self.state = db.bot.get_id_of_state(state)
+        self.state = bot.get_id_of_state(state)
 
     def __invert__(self):
         return filters.base.NotFilter(self)
 
     async def check(self, event: BaseEvent) -> filters.base.FilterResult:
         try:
-            admin_id = db.students.get_system_id_of_student(
-                event.object.object.message.from_id,
-            )
+            with orm.db_session:
+                admin_id = students.get_system_id_of_student(
+                    event.object.object.message.from_id,
+                )
         except StudentNotFound:
             return filters.base.FilterResult(False)
-        if not db.admin.is_user_admin(admin_id):
+        if not admin.is_user_admin(admin_id):
             return filters.base.FilterResult(False)
-        current_state = db.admin.get_admin_storage(admin_id).state_id.id
-        return filters.base.FilterResult(current_state == self.state)
+        current_state = managers.StateStorageManager(admin_id).get_or_create().state.id
+        return current_state == self.state

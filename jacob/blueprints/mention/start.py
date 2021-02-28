@@ -3,10 +3,12 @@
 import os
 
 from loguru import logger
+from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database import utils as db
-from jacob.services import decorators, filters
+from jacob.database.utils import students, admin, chats
+from jacob.database.utils.storages import managers
+from jacob.services import filters
 from jacob.services import keyboard as kbs
 from jacob.services import media
 from jacob.services.logger.config import config
@@ -26,21 +28,22 @@ logger.configure(**config)
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _start_call(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    group_id = db.admin.get_active_group(admin_id)
-    if db.chats.get_list_of_chats_by_group(group_id):
-        db.shortcuts.update_admin_storage(
-            admin_id,
-            state_id=db.bot.get_id_of_state("wait_call_text"),
-        )
-        await ans.answer(
-            "Отправьте сообщение к призыву. Поддерживаются фотографии и документы",
-            keyboard=kbs.call.skip_call_message(),
-        )
-    else:
-        await ans.answer(
-            "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
-        )
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    group_id = admin.get_active_group(admin_id)
+    with orm.db_session:
+        if chats.get_list_of_chats_by_group(group_id):
+            state_store = managers.StateStorageManager(admin_id)
+            state_store.update(
+                state=state_store.get_id_of_state("mention_wait_text"),
+            )
+            await ans.answer(
+                "Отправьте сообщение к призыву. Поддерживаются фотографии и документы",
+                keyboard=kbs.call.skip_call_message(),
+            )
+        else:
+            await ans.answer(
+                "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
+            )
 
 
 @bots.simple_bot_message_handler(
@@ -49,8 +52,8 @@ async def _start_call(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _cancel_call(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    db.shortcuts.clear_admin_storage(admin_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    managers.MentionStorageManager(admin_id).clear()
     await ans.answer(
         "Призыв отменён. Возврат на главную.",
         keyboard=kbs.main.main_menu(admin_id),
@@ -73,10 +76,10 @@ async def _deny_call(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _skip_register_call_message(ans: bots.SimpleBotEvent):
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
-    db.shortcuts.update_admin_storage(
-        admin_id,
-        state_id=db.bot.get_id_of_state("select_mentioned"),
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(
+        state=state_store.get_id_of_state("select_mentioned"),
     )
     await ans.answer(
         "Выберите призываемых студентов",
@@ -92,19 +95,20 @@ async def _skip_register_call_message(ans: bots.SimpleBotEvent):
 async def _register_call_message(ans: bots.SimpleBotEvent):
     attachments = ""
     raw_attachments = ans.object.object.message.attachments
-    admin_id = db.students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     if raw_attachments is not None:
         attachments = await media.load_attachments(
             api_context,
             raw_attachments,
             ans.object.object.message.peer_id,
         )
-    db.shortcuts.update_admin_storage(
-        admin_id,
-        state_id=db.bot.get_id_of_state("select_mentioned"),
-        text=ans.object.object.message.text,
-        attaches=attachments,
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(
+        state=state_store.get_id_of_state("common_select_mentioned"),
     )
+    mention_store = managers.MentionStorageManager(admin_id)
+    mention_store.update_text(ans.object.object.message.text)
+    mention_store.update_attaches(attachments)
     await ans.answer(
         "Сообщение сохранено. Выберите призываемых студентов",
         keyboard=kbs.call.CallNavigator(admin_id).render().menu(),
