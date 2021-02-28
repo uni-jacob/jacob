@@ -1,7 +1,7 @@
 from loguru import logger
 from vkwave.bots import Keyboard
 
-from database import utils as db
+from jacob.database import utils
 
 JSONStr = str
 
@@ -17,7 +17,7 @@ def main_menu(admin_id: int) -> JSONStr:
         JSONStr: Строка с клавиатурой
 
     """
-    is_admin = db.admin.is_user_admin(admin_id)
+    is_admin = utils.admin.is_user_admin(admin_id)
     logger.debug(f"{is_admin=}")
     kb = Keyboard()
     if is_admin:
