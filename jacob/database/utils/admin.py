@@ -5,6 +5,7 @@ from loguru import logger
 from pony import orm
 
 from jacob.database import models
+from jacob.database.utils.storages import managers
 from jacob.services import exceptions
 from jacob.services.logger import config as logger_config
 
@@ -60,4 +61,7 @@ def get_active_group(admin_id: int) -> models.Group:
     Returns:
         Group: объект группы
     """
-    return models.AdminConfig[admin_id].active_group
+    active_group = managers.AdminConfigManager(admin_id).get_or_create().active_group
+    if active_group is None:
+        active_group = models.Admin.get(student=admin_id).group
+    return active_group
