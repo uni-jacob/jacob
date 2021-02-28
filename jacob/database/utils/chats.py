@@ -5,6 +5,7 @@ from pony import orm
 from jacob.database.models import Chat
 
 
+@orm.db_session()
 def get_list_of_chats_by_group(group_id: int) -> orm.core.Query:
     """
     Возвращает список чатов активной группы.
@@ -45,6 +46,7 @@ def register_chat(chat_id: int, group_id: int) -> Chat:
     return Chat(chat_id=chat_id, group_id=group_id)
 
 
+@orm.db_session
 def is_chat_registered(chat_id: int, group_id: int) -> bool:
     """
     Проверяет, был ли зарегистрирован чат для группы.

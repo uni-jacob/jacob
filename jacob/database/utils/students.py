@@ -67,13 +67,8 @@ def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     Returns:
         list: список первых букв фамилий
     """
-    query = (
-        Student.select(Student.second_name)
-        .where(Student.group_id == group_id)
-        .order_by(Student.second_name)
-        .distinct()
-    )
-    snd_names = [name.second_name[0] for name in query]
+    query = orm.select(st.last_name for st in Student if st.group == group_id)
+    snd_names = [name[0] for name in query]
     if snd_names:
         return list(dict.fromkeys(snd_names))
 
