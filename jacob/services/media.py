@@ -46,20 +46,19 @@ async def load_attachments(
                 from_id,
                 max_url,
             )
-            atchs += atch.split(",")
+            atchs.append(atch)
         if attach.doc:
             atch = await doc_uploader.get_attachment_from_link(
                 from_id,
                 attach.doc.url,
             )
-            atchs += atch.split(",")
+            atchs.append(atch)
         if attach.audio_message:
             atch = await am_uploader.get_attachment_from_link(
                 from_id,
                 attach.audio_message.link_ogg,
             )
-            atchs += atch.split(",")
-
+            atchs.append(atch)
     return ",".join(atchs)
 
 

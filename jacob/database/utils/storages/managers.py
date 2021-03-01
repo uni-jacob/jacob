@@ -144,7 +144,7 @@ class MentionStorageManager(base.BaseStorageManager):
         """
         return self.get_or_create().mention_attaches
 
-    def update_attaches(self, new_attaches: list):
+    def update_attaches(self, new_attaches: str):
         """Обновляет список вложений.
 
         Args:
@@ -153,7 +153,7 @@ class MentionStorageManager(base.BaseStorageManager):
         Returns:
             orm.Database().Entity: объект хранилища MentionStorage
         """
-        return self.update(mention_attaches=",".join(new_attaches))
+        return self.update(mention_attaches=new_attaches)
 
     def clear(self):
         """Очищает хранилище Призыва.
@@ -162,7 +162,7 @@ class MentionStorageManager(base.BaseStorageManager):
             orm.Database().Entity: объект хранилища MentionStorage
         """
         self.update_mentioned_students([])
-        self.update_attaches([])
+        self.update_attaches("")
         return self.update_text("")
 
 
