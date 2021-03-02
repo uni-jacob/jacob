@@ -24,9 +24,7 @@ logger.configure(**logger_config.config)
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _start_reporting(ans: bots.SimpleBotEvent):
-    state_manager = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
-    )
+    state_manager = managers.StateStorageManager(students.get_system_id_of_student(ans.object.object.message.from_id))
     state_manager.update(
         state_id=bot.get_id_of_state("wait_issue_title"),
     )

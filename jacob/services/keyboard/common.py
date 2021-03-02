@@ -59,9 +59,7 @@ class Keyboards(ABC):
     @abstractmethod
     def students(self, letter: str) -> str:
         data = students.get_list_of_students_by_letter(self.admin_id, letter)
-        selected = managers.MentionStorageManager(
-            self.admin_id
-        ).get_mentioned_students()
+        selected = managers.MentionStorageManager(self.admin_id).get_mentioned_students()
         half_index = self._find_half_index_of_letter(letter)
         kb = Keyboard()
         for item in data:

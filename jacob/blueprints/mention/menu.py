@@ -175,9 +175,7 @@ async def _send_call(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _invert_names_usage(ans: bots.SimpleBotEvent):
-    admin_storage = managers.AdminConfigManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
-    )
+    admin_storage = managers.AdminConfigManager(students.get_system_id_of_student(ans.object.object.message.from_id))
     admin_storage.invert_names_usage()
     await _confirm_call(ans)
 
@@ -203,9 +201,7 @@ async def _select_chat(ans: bots.SimpleBotEvent):
 )
 async def _change_chat(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
-    admin_storage = managers.AdminConfigManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
-    )
+    admin_storage = managers.AdminConfigManager(students.get_system_id_of_student(ans.object.object.message.from_id))
     admin_storage.update(
         active_chat=payload["chat_id"],
     )
