@@ -101,15 +101,13 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     # TODO: вернуть обработанный ответ, когда в vkwave починят схемы
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
-    query = await api_context.messages.get_conversations_by_id(
-        chat_id, return_raw_response=True
-    )
+    query = await api_context.messages.get_conversations_by_id(chat_id)
     try:
-        chat_settings = query["response"]["items"][0]["chat_settings"]
+        chat_settings = query.response.items[0].chat_settings
     except IndexError:
         chat_name = "???"
     else:
-        chat_name = chat_settings["title"]
+        chat_name = chat_settings.title
     if not msg and not mention_storage.get_attaches():
         raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
     state_storage.update(
@@ -175,7 +173,9 @@ async def _send_call(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _invert_names_usage(ans: bots.SimpleBotEvent):
-    admin_storage = managers.AdminConfigManager(students.get_system_id_of_student(ans.object.object.message.from_id))
+    admin_storage = managers.AdminConfigManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
     admin_storage.invert_names_usage()
     await _confirm_call(ans)
 
@@ -201,7 +201,9 @@ async def _select_chat(ans: bots.SimpleBotEvent):
 )
 async def _change_chat(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
-    admin_storage = managers.AdminConfigManager(students.get_system_id_of_student(ans.object.object.message.from_id))
+    admin_storage = managers.AdminConfigManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
     admin_storage.update(
         active_chat=payload["chat_id"],
     )
