@@ -1,4 +1,6 @@
 """Описание менеджеров хранилищ."""
+import typing
+
 from pony import orm
 
 from jacob.database import models
@@ -11,13 +13,13 @@ from jacob.services.exceptions import BotStateNotFound
 class AdminConfigManager(base.BaseStorageManager):
     """Менеджер хранилища конфигов админа."""
 
-    def __init__(self, admin: models.Admin):
+    def __init__(self, owner: typing.Union[models.Admin, int]):
         """Создаёт объект менеджера хранилища.
 
         Args:
-            admin: объект администратора
+            owner: объект администратора
         """
-        super().__init__(admin)
+        super().__init__(owner)
         self.model = models.AdminConfig
 
     @orm.db_session
@@ -68,13 +70,13 @@ class AdminConfigManager(base.BaseStorageManager):
 class MentionStorageManager(base.BaseStorageManager):
     """Менеджер хранилища призыва."""
 
-    def __init__(self, admin: models.Admin):
+    def __init__(self, owner: typing.Union[models.Admin, int]):
         """Создаёт объект менеджера хранилища.
 
         Args:
-            admin: объект администратора
+            owner: объект администратора
         """
-        super().__init__(admin)
+        super().__init__(owner)
         self.model = models.MentionStorage
 
     @orm.db_session
@@ -169,13 +171,13 @@ class MentionStorageManager(base.BaseStorageManager):
 class StateStorageManager(base.BaseStorageManager):
     """Менеджер хранилищ состояний."""
 
-    def __init__(self, admin: models.Student):
+    def __init__(self, owner: typing.Union[models.Admin, int]):
         """Создаёт объект менеджера хранилища.
 
         Args:
-            admin: объект администратора
+            owner: объект администратора
         """
-        super().__init__(admin)
+        super().__init__(owner)
         self.model = models.StateStorage
 
     @orm.db_session
@@ -201,24 +203,24 @@ class StateStorageManager(base.BaseStorageManager):
 class ChatRegistrarConfigManager(base.BaseStorageManager):
     """Менеджер хранилища конфигов регистратора чатов."""
 
-    def __init__(self, admin: models.Admin):
+    def __init__(self, owner: typing.Union[models.Admin, int]):
         """Создаёт объект менеджера хранилища.
 
         Args:
-            admin: объект администратора
+            owner: объект администратора
         """
-        super().__init__(admin)
+        super().__init__(owner)
         self.model = models.ChatRegistrarConfig
 
 
 class FinancialConfigManager(base.BaseStorageManager):
     """Менеджер хранилища финансовых конфигов."""
 
-    def __init__(self, admin: models.Admin):
+    def __init__(self, owner: typing.Union[models.Admin, int]):
         """Создаёт объект менеджера хранилища.
 
         Args:
-            admin: объект администратора
+            owner: объект администратора
         """
-        super().__init__(admin)
+        super().__init__(owner)
         self.model = models.FinancialConfig

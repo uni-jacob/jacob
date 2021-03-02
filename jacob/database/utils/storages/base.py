@@ -1,5 +1,6 @@
 """Описание базового менеджера хранилищ."""
 
+import typing
 
 from pony import orm
 
@@ -9,7 +10,7 @@ from jacob.database import models
 class BaseStorageManager(object):
     """Базовый менеджер хранилищ."""
 
-    def __init__(self, owner: models.Admin):
+    def __init__(self, owner: typing.Union[models.Admin, int]):
         """Создаёт объект менеджера хранилищ.
 
         Args:
