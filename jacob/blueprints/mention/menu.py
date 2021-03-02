@@ -26,7 +26,7 @@ logger.configure(**logger_config.config)
 @bots.simple_bot_message_handler(
     call_menu_router,
     filters.PLFilter({"button": "half"}),
-    filters.StateFilter("common_select_student"),
+    filters.StateFilter("common_select_mentioned"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_half(ans: bots.SimpleBotEvent):
@@ -41,7 +41,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     call_menu_router,
     filters.PLFilter({"button": "letter"}),
-    filters.StateFilter("common_select_student"),
+    filters.StateFilter("common_select_mentioned"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_letter(ans: bots.SimpleBotEvent):
@@ -57,7 +57,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     call_menu_router,
     filters.PLFilter({"button": "student"}),
-    filters.StateFilter("common_select_student"),
+    filters.StateFilter("common_select_mentioned"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):

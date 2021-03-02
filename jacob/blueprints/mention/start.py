@@ -109,7 +109,7 @@ async def _register_call_message(ans: bots.SimpleBotEvent):
         await ans.answer("Загрузка вложений может занять некоторое время")
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(
-        state=state_store.get_id_of_state("common_select_student"),
+        state=state_store.get_id_of_state("common_select_mentioned"),
     )
     mention_store = managers.MentionStorageManager(admin_id)
     mention_store.update_text(ans.object.object.message.text)
