@@ -94,14 +94,19 @@ async def _skip_register_call_message(ans: bots.SimpleBotEvent):
 )
 async def _register_call_message(ans: bots.SimpleBotEvent):
     attachments = ""
-    raw_attachments = ans.object.object.message.attachments
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    message = ans.object.object.message
+    raw_attachments = message.attachments
+    admin_id = students.get_system_id_of_student(message.from_id)
+    if message.is_cropped:
+        extended_message = await ans.api_ctx.messages.get_by_id(message.id)
+        raw_attachments = extended_message.response.items[0].attachments
     if raw_attachments is not None:
         attachments = await media.load_attachments(
             api_context,
             raw_attachments,
             ans.object.object.message.peer_id,
         )
+        await ans.answer("Загрузка вложений может занять некоторое время")
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(
         state=state_store.get_id_of_state("common_select_student"),
