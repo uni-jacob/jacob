@@ -40,14 +40,16 @@ def add_or_edit_donate(
     Returns:
         FinancialIncome: Объект дохода
     """
-    donate = models.FinancialIncome.get(category=category_id, student=student_id)
+    donate = models.FinancialIncome.get(
+        financial_category=category_id, student=student_id
+    )
     if donate is not None:
-        donate.summ = (donate.summ + summ,)
-        donate.update_date = (datetime.now(),)
+        donate.summ = donate.summ + summ
+        donate.update_date = datetime.now()
         return donate
     return models.FinancialIncome(
-        category_id=category_id,
-        student_id=student_id,
+        financial_category=category_id,
+        student=student_id,
         summ=summ,
         update_date=None,
     )
@@ -68,7 +70,9 @@ def get_debtors(category_id: int) -> typing.List[int]:
     students = get_active_students(category.group)
     debtors = []
     for student in students:
-        donate = models.FinancialIncome.get(category=category_id, student=student.id)
+        donate = models.FinancialIncome.get(
+            financial_category=category_id, student=student.id
+        )
         if donate is None or donate.summ < category.summ:
             debtors.append(student.id)
 
@@ -88,7 +92,7 @@ def add_expense(category_id: int, summ: int) -> models.FinancialExpense:
         FinancialExpense: объект расхода
     """
     return models.FinancialExpense(
-        category_id=category_id,
+        financial_category=category_id,
         summ=summ,
     )
 
@@ -104,7 +108,9 @@ def calculate_incomes_in_category(category_id: int) -> int:
     Returns:
         int: Сумма сборов
     """
-    return sum(fi.summ for fi in models.FinancialIncome if fi.category == category_id)
+    return orm.sum(
+        fi.summ for fi in models.FinancialIncome if fi.financial_category == category_id
+    )
 
 
 @orm.db_session
@@ -118,7 +124,11 @@ def calculate_expenses_in_category(category_id: int) -> int:
     Returns:
         int: сумма расходов
     """
-    return sum(fe.summ for fe in models.FinancialExpense if fe.category == category_id)
+    return orm.sum(
+        fe.summ
+        for fe in models.FinancialExpense
+        if fe.financial_category == category_id
+    )
 
 
 @orm.db_session
