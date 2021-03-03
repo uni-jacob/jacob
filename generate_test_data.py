@@ -71,6 +71,7 @@ def generate_bot_statuses() -> list:
         "common_select_student",
         "common_select_mentioned",
         "fin_wait_category_desc",
+        "send_alert_fin_started",
     ]
     for name in bot_statuses:
         bot_statuses_objects.append(models.State(description=name))
