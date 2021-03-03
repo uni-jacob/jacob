@@ -5,23 +5,18 @@ import re
 
 import aioredis
 import ujson
-from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database.utils import admin
-from jacob.database.utils import chats as chats_utils
-from jacob.database.utils import finances, students
+from jacob.database.utils import admin, chats, finances, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
 from jacob.services.finances import generate_debtors_call
-from jacob.services.logger.config import config
 
 finances_router = bots.DefaultRouter()
 api_session = api.API(tokens=os.getenv("VK_TOKEN"), clients=client.AIOHTTPClient())
 api_context = api_session.get_context()
-logger.configure(**config)
 
 
 @bots.simple_bot_message_handler(
@@ -45,7 +40,7 @@ async def _finances(ans: bots.SimpleBotEvent):
 )
 async def _create_category(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     state_storage.update(state=state_storage.get_id_of_state("fin_wait_category_desc"))
     await ans.answer(
@@ -88,14 +83,14 @@ async def _register_category(ans: bots.SimpleBotEvent):
         state_storage = managers.StateStorageManager(student_id)
         admin_store = managers.AdminConfigManager(student_id)
         state_storage.update(
-            state=state_storage.get_id_of_state("send_alert_fin_started")
+            state=state_storage.get_id_of_state("send_alert_fin_started"),
         )
         with orm.db_session:
             chat_id = admin_store.get_active_chat().vk_id
         chat_object = await api_context.messages.get_conversations_by_id(chat_id)
-        chats = chat_object.response.items
+        response = chat_object.response.items
         try:
-            chat_title = chats[0].chat_settings.title
+            chat_title = response[0].chat_settings.title
         except IndexError:
             chat_title = "???"
 
@@ -110,7 +105,8 @@ async def _register_category(ans: bots.SimpleBotEvent):
 
         await ans.answer(
             "Категория {0} зарегистрирована. Вы можете отправить сообщение о начале сбора в чат {1}".format(
-                category.name, chat_title
+                category.name,
+                chat_title,
             ),
             keyboard=kbs.common.confirm_with_chat_update(),
         )
@@ -135,15 +131,16 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
         chat_id = admin_store.get_active_chat().vk_id
 
     chat_object = await api_context.messages.get_conversations_by_id(chat_id)
-    chats = chat_object.response.items
+    response = chat_object.response.items
     try:
-        chat_title = chats[0].chat_settings.title
+        chat_title = response[0].chat_settings.title
     except IndexError:
         chat_title = "???"
 
     await ans.answer(
-        "Сообщение о начале сбора будет отправлено в чат {1}".format(
-            category_name, chat_title
+        "Сообщение о начале сбора на {0} будет отправлено в чат {1}".format(
+            category_name,
+            chat_title,
         ),
         keyboard=kbs.common.confirm_with_chat_update(),
     )
@@ -179,7 +176,8 @@ async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
         peer_id=admin_store.get_active_chat().vk_id,
         random_id=0,
         message="Начат сбор средств на {0}. Сумма {1} руб.".format(
-            category_name, category_sum
+            category_name,
+            category_sum,
         ),
     )
 
@@ -190,12 +188,13 @@ async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "deny"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
+async def _cancel_send_alarm(ans: bots.SimpleBotEvent):
     student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("main"))
     await ans.answer(
-        "Хорошо, уведемление отправлено не будет", keyboard=kbs.finances.fin_category()
+        "Хорошо, уведемление отправлено не будет",
+        keyboard=kbs.finances.fin_category(),
     )
 
 
@@ -234,7 +233,7 @@ async def _send_alert_change_chat(ans: bots.SimpleBotEvent):
 async def _fin_category_menu(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     fin_storage = managers.FinancialConfigManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     fin_storage.update(financial_category=payload.get("category"))
 
@@ -369,17 +368,17 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
     admin_store = managers.AdminConfigManager(admin_id)
     fin_store = managers.FinancialConfigManager(admin_id)
     with orm.db_session:
-        if chats_utils.get_list_of_chats_by_group(group_id):
+        if chats.get_list_of_chats_by_group(group_id):
             category_id = fin_store.get_or_create().financial_category.id
             msgs = generate_debtors_call(category_id)
             state_store.update(
-                state=state_store.get_id_of_state("fin_confirm_debtors_call")
+                state=state_store.get_id_of_state("fin_confirm_debtors_call"),
             )
             chat_id = admin_store.get_active_chat().vk_id
             chat_object = await api_context.messages.get_conversations_by_id(chat_id)
-            chats = chat_object.response.items
+            response = chat_object.response.items
             try:
-                chat_title = chats[0].chat_settings.title
+                chat_title = response[0].chat_settings.title
             except IndexError:
                 chat_title = "???"
             for msg in msgs:
@@ -514,10 +513,10 @@ async def _get_statistics(ans: bots.SimpleBotEvent):
     fin_store = managers.FinancialConfigManager(admin_id)
     with orm.db_session:
         donates_summ = finances.calculate_incomes_in_category(
-            fin_store.get_or_create().financial_category
+            fin_store.get_or_create().financial_category,
         )
         expenses_summ = finances.calculate_expenses_in_category(
-            fin_store.get_or_create().financial_category
+            fin_store.get_or_create().financial_category,
         )
     await ans.answer(
         "Статистика\nСобрано: {0} руб.\nПотрачено: {1} руб.".format(
