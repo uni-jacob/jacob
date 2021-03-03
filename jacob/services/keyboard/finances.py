@@ -128,19 +128,3 @@ def fin_category() -> JSONStr:
     kb.add_text_button("◀️ Назад", payload={"button": "finances"})
 
     return kb.get_keyboard()
-
-
-def confirm_debtors_call():
-
-    kb = kbs.common.prompt()
-
-    if kb.buttons[-1]:
-        kb.add_row()
-
-    chat_emoji = "📡"
-    kb.add_text_button(
-        text=f"{chat_emoji} Переключить чат",
-        payload={"button": "chat_config"},
-    )
-
-    return kb.get_keyboard()

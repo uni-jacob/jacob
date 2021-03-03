@@ -227,3 +227,19 @@ def cancel():
     kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
 
     return kb.get_keyboard()
+
+
+def confirm_with_chat_update():
+
+    kb = prompt()
+
+    if kb.buttons[-1]:
+        kb.add_row()
+
+    chat_emoji = "📡"
+    kb.add_text_button(
+        text=f"{chat_emoji} Переключить чат",
+        payload={"button": "chat_config"},
+    )
+
+    return kb.get_keyboard()
