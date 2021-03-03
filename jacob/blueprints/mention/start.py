@@ -15,7 +15,7 @@ from jacob.services.logger.config import config
 
 call_start_router = bots.DefaultRouter()
 api_session = api.API(
-    tokens=os.getenv("VK_CANARY_TOKEN"),
+    tokens=os.getenv("VK_TOKEN"),
     clients=client.AIOHTTPClient(),
 )
 api_context = api_session.get_context()
