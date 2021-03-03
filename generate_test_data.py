@@ -120,9 +120,19 @@ for i in range(20):
             academic_status=ac_status,
         )
 with orm.db_session:
+    me = models.Student(
+        vk_id=549350532,
+        first_name="Даниил",
+        last_name="Голубев",
+        group=1,
+        academic_status=1,
+    )
+    models.Admin(student=me, group=me.group)
     for group in orm.select(gr for gr in models.Group):
+        random_student = orm.select(
+            st for st in models.Student if st.group == group
+        ).random(1)[0]
         models.Admin(
-            student=orm.select(st for st in models.Student if st.group == group).random(
-                1
-            )[0],
+            student=random_student,
+            group=group,
         )
