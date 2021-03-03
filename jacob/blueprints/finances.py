@@ -55,6 +55,7 @@ async def _create_category(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
+    filters.StateFilter("fin_wait_category_desc"),
     filters.PLFilter({"button": "cancel"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -339,7 +340,20 @@ async def _add_expense(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("fin_enter_expense_sum"))
-    await ans.answer("Введите сумму расхода")
+    await ans.answer(
+        "Введите сумму расхода",
+        keyboard=kbs.common.cancel(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("fin_enter_expense_sum"),
+    filters.PLFilter({"button": "cancel"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_adding_expense(ans: bots.SimpleBotEvent):
+    await ans.answer("Отмена создания расхода", keyboard=kbs.finances.fin_category())
 
 
 @bots.simple_bot_message_handler(
