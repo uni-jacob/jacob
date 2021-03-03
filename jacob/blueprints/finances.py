@@ -9,8 +9,9 @@ from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
+from jacob.database.utils import admin
 from jacob.database.utils import chats as chats_utils
-from jacob.database.utils import students, finances, admin
+from jacob.database.utils import finances, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
@@ -85,15 +86,144 @@ async def _register_category(ans: bots.SimpleBotEvent):
             *message.text.split(),
         )
         state_storage = managers.StateStorageManager(student_id)
-        state_storage.update(state=state_storage.get_id_of_state("main"))
+        admin_store = managers.AdminConfigManager(student_id)
+        state_storage.update(
+            state=state_storage.get_id_of_state("send_alert_fin_started")
+        )
+        with orm.db_session:
+            chat_id = admin_store.get_active_chat().vk_id
+        chat_object = await api_context.messages.get_conversations_by_id(chat_id)
+        chats = chat_object.response.items
+        try:
+            chat_title = chats[0].chat_settings.title
+        except IndexError:
+            chat_title = "???"
+
+        redis = await aioredis.create_redis_pool("redis://localhost")
+        await redis.hmset_dict(
+            "new_category:{0}".format(ans.object.object.message.peer_id),
+            category_name=category.name,
+            category_sum=category.summ,
+        )
+        redis.close()
+        await redis.wait_closed()
+
         await ans.answer(
-            "Категория {0} зарегистрирована".format(category.name),
-            keyboard=kbs.finances.list_of_fin_categories(
-                student_id,
+            "Категория {0} зарегистрирована. Вы можете отправить сообщение о начале сбора в чат {1}".format(
+                category.name, chat_title
             ),
+            keyboard=kbs.common.confirm_with_chat_update(),
         )
     else:
         await ans.answer("Неверный формат данных")
+
+
+async def _offer_alert(ans: bots.SimpleBotEvent):
+    redis = await aioredis.create_redis_pool("redis://localhost")
+    category_name = await redis.hget(
+        "new_category:{0}".format(ans.object.object.message.peer_id),
+        "category_name",
+        encoding="utf-8",
+    )
+    redis.close()
+    await redis.wait_closed()
+
+    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_store = managers.AdminConfigManager(student_id)
+
+    with orm.db_session:
+        chat_id = admin_store.get_active_chat().vk_id
+
+    chat_object = await api_context.messages.get_conversations_by_id(chat_id)
+    chats = chat_object.response.items
+    try:
+        chat_title = chats[0].chat_settings.title
+    except IndexError:
+        chat_title = "???"
+
+    await ans.answer(
+        "Сообщение о начале сбора будет отправлено в чат {1}".format(
+            category_name, chat_title
+        ),
+        keyboard=kbs.common.confirm_with_chat_update(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("send_alert_fin_started"),
+    filters.PLFilter({"button": "confirm"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
+    redis = await aioredis.create_redis_pool("redis://localhost")
+    category_name = await redis.hget(
+        "new_category:{0}".format(ans.object.object.message.peer_id),
+        "category_name",
+        encoding="utf-8",
+    )
+
+    category_sum = await redis.hget(
+        "new_category:{0}".format(ans.object.object.message.peer_id),
+        "category_sum",
+        encoding="utf-8",
+    )
+    redis.close()
+    await redis.wait_closed()
+
+    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_store = managers.AdminConfigManager(student_id)
+    state_storage = managers.StateStorageManager(student_id)
+    state_storage.update(state=state_storage.get_id_of_state("main"))
+    await ans.api_ctx.messages.send(
+        peer_id=admin_store.get_active_chat().vk_id,
+        random_id=0,
+        message="Начат сбор средств на {0}. Сумма {1} руб.".format(
+            category_name, category_sum
+        ),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("send_alert_fin_started"),
+    filters.PLFilter({"button": "deny"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
+    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    state_storage = managers.StateStorageManager(student_id)
+    state_storage.update(state=state_storage.get_id_of_state("main"))
+    await ans.answer(
+        "Хорошо, уведемление отправлено не будет", keyboard=kbs.finances.fin_category()
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("send_alert_fin_started"),
+    filters.PLFilter({"button": "chat_config"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _select_chat_alert(ans: bots.SimpleBotEvent):
+    kb = await kbs.common.list_of_chats(
+        students.get_system_id_of_student(ans.object.object.message.from_id),
+    )
+    await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("send_alert_fin_started"),
+    filters.PLFilter({"button": "chat"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _send_alert_change_chat(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    payload = ujson.loads(ans.object.object.message.payload)
+    admin_store = managers.AdminConfigManager(admin_id)
+    admin_store.update(active_chat=payload["chat_id"])
+    await _offer_alert(ans)
 
 
 @bots.simple_bot_message_handler(
@@ -260,7 +390,7 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
                 text = "Сообщение будет отправлено в {0}"
             await ans.answer(
                 text.format(chat_title),
-                keyboard=kbs.finances.confirm_debtors_call(),
+                keyboard=kbs.common.confirm_with_chat_update(),
             )
         else:
             await ans.answer(
