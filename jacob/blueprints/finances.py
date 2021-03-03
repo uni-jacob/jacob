@@ -336,11 +336,10 @@ async def _deny_call_debtors(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _add_expense(ans: bots.SimpleBotEvent):
-    with logger.contextualize(user_id=ans.object.object.message.from_id):
-        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
-        state_store = managers.StateStorageManager(admin_id)
-        state_store.update(state=state_store.get_id_of_state("fin_enter_expense_sum"))
-        await ans.answer("Введите сумму расхода")
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("fin_enter_expense_sum"))
+    await ans.answer("Введите сумму расхода")
 
 
 @bots.simple_bot_message_handler(
@@ -349,19 +348,16 @@ async def _add_expense(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _save_expense(ans: bots.SimpleBotEvent):
-    with logger.contextualize(user_id=ans.object.object.message.from_id):
-        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
-        text = ans.object.object.message.text
-        if re.match(r"^\d+$", text):
-            fin_store = managers.FinancialConfigManager(admin_id)
-            finances.add_expense(
-                fin_store.get_or_create().financial_category.id, int(text)
-            )
-            state_store = managers.StateStorageManager(admin_id)
-            state_store.update(state=state_store.get_id_of_state("main"))
-            await ans.answer("Расход сохранен", keyboard=kbs.finances.fin_category())
-        else:
-            await ans.answer("Введите только число")
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    text = ans.object.object.message.text
+    if re.match(r"^\d+$", text):
+        fin_store = managers.FinancialConfigManager(admin_id)
+        finances.add_expense(fin_store.get_or_create().financial_category.id, int(text))
+        state_store = managers.StateStorageManager(admin_id)
+        state_store.update(state=state_store.get_id_of_state("main"))
+        await ans.answer("Расход сохранен", keyboard=kbs.finances.fin_category())
+    else:
+        await ans.answer("Введите только число")
 
 
 @bots.simple_bot_message_handler(
