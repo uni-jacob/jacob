@@ -100,7 +100,7 @@ async def _register_call_message(ans: bots.SimpleBotEvent):
     if message.is_cropped:
         extended_message = await ans.api_ctx.messages.get_by_id(message.id)
         raw_attachments = extended_message.response.items[0].attachments
-    if raw_attachments is not None:
+    if raw_attachments:
         attachments = await media.load_attachments(
             api_context,
             raw_attachments,
