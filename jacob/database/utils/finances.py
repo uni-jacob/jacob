@@ -138,6 +138,7 @@ def get_or_create_finances_category(
     Returns:
         FinancialCategory: объект категории
     """
-    if models.FinancialCategory.exists(group_id=group_id, name=name, summ=summ):
-        return models.FinancialCategory.get(group_id=group_id, name=name, summ=summ)
-    return models.FinancialCategory(group_id=group_id, name=name, summ=summ)
+    fin_cat = models.FinancialCategory.get(group=group_id, name=name, summ=summ)
+    if fin_cat is not None:
+        return fin_cat
+    return models.FinancialCategory(group=group_id, name=name, summ=summ)
