@@ -130,7 +130,7 @@ class FinancialConfig(db.Entity):
     """Временное хранилище активной финансовой категории."""
 
     owner = orm.Required(Student)
-    financial_category = orm.Required(FinancialCategory)
+    financial_category = orm.Optional(FinancialCategory)
 
 
 class FinancialIncome(db.Entity):
