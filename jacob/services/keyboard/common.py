@@ -59,7 +59,9 @@ class Keyboards(ABC):
     @abstractmethod
     def students(self, letter: str) -> str:
         data = students.get_list_of_students_by_letter(self.admin_id, letter)
-        selected = managers.MentionStorageManager(self.admin_id).get_mentioned_students()
+        selected = managers.MentionStorageManager(
+            self.admin_id
+        ).get_mentioned_students()
         half_index = self._find_half_index_of_letter(letter)
         kb = Keyboard()
         for item in data:
@@ -147,7 +149,10 @@ def alphabet(admin_id: int) -> Keyboard:
     f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
     index = 0
     for half in f_alphabet, s_alphabet:
-        title = f"{half[0]}..{half[-1]}"
+        if half[0] == half[-1]:
+            title = f"{half[0]}"
+        else:
+            title = f"{half[0]}..{half[-1]}"
         kb.add_text_button(title, payload={"button": "half", "half": index})
         index += 1
 
