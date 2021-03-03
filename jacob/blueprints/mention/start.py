@@ -37,7 +37,7 @@ async def _start_call(ans: bots.SimpleBotEvent):
                 state=state_store.get_id_of_state("mention_wait_text"),
             )
             await ans.answer(
-                "Отправьте сообщение к призыву. Поддерживаются фотографии и документы",
+                "Отправьте сообщение к призыву. Можно добавить до 10 фотографий",
                 keyboard=kbs.call.skip_call_message(),
             )
         else:
