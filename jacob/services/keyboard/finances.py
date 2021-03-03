@@ -1,15 +1,16 @@
 import os
 
 from loguru import logger
+from pony import orm
 from vkwave.api import API
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
-from database import utils as db
-from services import keyboard as kbs
-from services.keyboard.common import Keyboards
-from services.keyboard.common import StudentsNavigator
-from services.logger.config import config
+from jacob.database.utils import admin, finances
+from jacob.database.utils.storages import managers
+from jacob.services import keyboard as kbs
+from jacob.services.keyboard.common import Keyboards, StudentsNavigator
+from jacob.services.logger.config import config
 
 JSONStr = str
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -32,12 +33,12 @@ class IncomeKeyboards(Keyboards):
             str: Клавиатура
         """
         kb = kbs.common.alphabet(self.admin_id)
-        store = db.admin.get_admin_storage(self.admin_id)
+        store = managers.FinancialConfigManager(self.admin_id).get_or_create()
         if len(kb.buttons[-1]):
             kb.add_row()
         kb.add_text_button(
             text="🚫 Отмена",
-            payload={"button": "fin_category", "category": store.category_id},
+            payload={"button": "fin_category", "category": store.financial_category.id},
         )
 
         return kb.get_keyboard()
@@ -88,14 +89,15 @@ def list_of_fin_categories(admin_id: int) -> JSONStr:
         JSONStr: клавиатура
     """
     kb = Keyboard()
-    categories = db.finances.get_fin_categories(db.admin.get_active_group(admin_id))
-    for category in categories:
-        if len(kb.buttons[-1]) == 2:
-            kb.add_row()
-        kb.add_text_button(
-            category.name,
-            payload={"button": "fin_category", "category": category.id},
-        )
+    with orm.db_session:
+        categories = finances.get_fin_categories(admin.get_active_group(admin_id))
+        for category in categories:
+            if len(kb.buttons[-1]) == 2:
+                kb.add_row()
+            kb.add_text_button(
+                category.name,
+                payload={"button": "fin_category", "category": category.id},
+            )
     if kb.buttons[-1]:
         kb.add_row()
     kb.add_text_button(
