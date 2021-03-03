@@ -46,7 +46,7 @@ def get_active_students(group_id: int) -> typing.List[Student]:
         list[Student]: набор активных студентов группы
     """
     students = orm.select(
-        st for st in Student if st.group == group_id and st.academic_status.id > 0
+        st for st in Student if st.group == group_id and st.academic_status.id < 5
     )
     if students:
         return students
