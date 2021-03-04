@@ -10,6 +10,8 @@ from vkwave import api, bots, client
 
 from jacob.database import models
 from jacob.database import utils as db
+from jacob.database.utils import students, admin
+from jacob.database.utils.storages import managers
 from jacob.services import chats, filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
@@ -26,19 +28,22 @@ logger.configure(**logger_config.config)
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _open_preferences(ans: bots.SimpleBotEvent):
-    with logger.contextualize(user_id=ans.object.object.message.from_id):
-        active_group = db.admin.get_active_group(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+    with orm.db_session:
+        active_group = admin.get_active_group(
+            students.get_system_id_of_student(ans.object.object.message.from_id),
         )
-        await ans.answer(
-            "Настройки\nАктивная группа: {0} ({1})".format(
-                active_group.group_num,
-                active_group.specialty,
-            ),
-            keyboard=kbs.preferences.preferences(
-                db.students.get_system_id_of_student(ans.object.object.message.peer_id),
-            ),
-        )
+        group_num = active_group.group_num
+        specialty = active_group.specialty
+
+    await ans.answer(
+        "Настройки\nАктивная группа: {0} ({1})".format(
+            group_num,
+            specialty,
+        ),
+        keyboard=kbs.preferences.preferences(
+            students.get_system_id_of_student(ans.object.object.message.peer_id),
+        ),
+    )
 
 
 @bots.simple_bot_message_handler(
@@ -48,10 +53,13 @@ async def _open_preferences(ans: bots.SimpleBotEvent):
 )
 async def _list_of_chats(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
+        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+        state_store = managers.StateStorageManager(admin_id)
+        state_store.update(state=state_store.get_id_of_state("pref_select_chat"))
         await ans.answer(
             "Список подключенных чатов",
             keyboard=await kbs.preferences.connected_chats(
-                db.students.get_system_id_of_student(
+                students.get_system_id_of_student(
                     ans.object.object.message.from_id,
                 ),
             ),
@@ -60,18 +68,19 @@ async def _list_of_chats(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     preferences_router,
-    filters.PLFilter({"button": "chat"}),  # TODO: Ввести свой статус этому блоку!
-    ~filters.StateFilter("mention_confirm"),
-    ~filters.StateFilter("fin_confirm_debtors_call"),
+    filters.PLFilter({"button": "chat"}),
+    filters.StateFilter("pref_select_chat"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-# TODO: Refactor!
 async def _configure_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        chat_object = models.Chat.get(id=payload["chat_id"])
+
+        with orm.db_session:
+            chat_object = models.Chat[payload["chat_id"]]
+
         query = await api_context.messages.get_conversations_by_id(
-            peer_ids=chat_object.chat_id,
+            peer_ids=chat_object.vk_id,
             group_id=os.getenv("GROUP_ID"),
         )
         chat_objects = query.response.items
@@ -79,9 +88,10 @@ async def _configure_chat(ans: bots.SimpleBotEvent):
             chat_title = chat_objects[0].chat_settings.title
         except IndexError:
             chat_title = "???"
+
         await ans.answer(
             "Настройки чата {0}".format(chat_title),
-            keyboard=kbs.preferences.configure_chat(chat_objects.id),
+            keyboard=kbs.preferences.configure_chat(chat_object.id),
         )
 
 
@@ -93,8 +103,8 @@ async def _configure_chat(ans: bots.SimpleBotEvent):
 async def _delete_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        db.chats.delete_chat(payload["chat"])
-        chat_objects = db.chats.get_list_of_chats_by_group(
+        chats.delete_chat(payload["chat"])
+        chat_objects = chats.get_list_of_chats_by_group(
             db.admin.get_active_group(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
             ),
@@ -227,10 +237,12 @@ async def _register_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
 async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        chat = models.Chat.get(id=payload["chat"])
 
-        chat_members = await api_context.messages.get_conversation_members(chat.chat_id)
-        group_members = db.students.get_active_students(chat.group_id)
+        with orm.db_session:
+            chat = models.Chat.get(id=payload["chat"])
+
+        chat_members = await api_context.messages.get_conversation_members(chat.vk_id)
+        group_members = db.students.get_active_students(chat.group)
 
         vk_set = chats.prepare_set_from_vk(chat_members.response.items)
         db_set = chats.prepare_set_from_db(group_members)
@@ -241,32 +253,34 @@ async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
         query = await api_context.users.get(
             user_ids=list(diff_vk_db),
         )
-        students = [models.Student.get(vk_id=st) for st in diff_db_vk]
 
-        vk_list = [
-            "- @id{0} ({1} {2})".format(
-                st.id,
-                st.first_name,
-                st.last_name,
-            )
-            for st in query.response
-        ]
-        db_list = [
-            "- @id{0} ({1} {2})".format(
-                st.vk_id,
-                st.first_name,
-                st.second_name,
-            )
-            for st in students
-        ]
+        with orm.db_session:
+            student_objects = [models.Student.get(vk_id=st) for st in diff_db_vk]
+
+            vk_list = [
+                "- @id{0} ({1} {2})".format(
+                    st.id,
+                    st.first_name,
+                    st.last_name,
+                )
+                for st in query.response
+            ]
+            db_list = [
+                "- @id{0} ({1} {2})".format(
+                    st.vk_id,
+                    st.first_name,
+                    st.last_name,
+                )
+                for st in student_objects
+            ]
 
         sep = "\n"
 
         redis = await aioredis.create_redis_pool("redis://localhost")
         await redis.hmset_dict(
             "index:{0}".format(ans.object.object.message.peer_id),
-            diff_vk_db=diff_vk_db,
-            diff_db_vk=diff_db_vk,
+            diff_vk_db=",".join(map(str, diff_vk_db)),
+            diff_db_vk=",".join(map(str, diff_db_vk)),
         )
         redis.close()
         await redis.wait_closed()
@@ -281,8 +295,6 @@ async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
             ),
             keyboard=kbs.preferences.index_chat(
                 chat.id,
-                list(diff_vk_db),
-                list(diff_db_vk),
             ),
         )
 
@@ -292,43 +304,37 @@ async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
     filters.PLFilter({"button": "register_students"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-async def _register_students(ans: bots.SimpleBotEvent):  # TODO: Refactor!
-    # Сохранять данные о студентах в Redis
-    with logger.contextualize(user_id=ans.object.object.message.from_id):
-        payload = ujson.loads(ans.object.object.message.payload)
-        raw_student_data = []
+async def _register_students(ans: bots.SimpleBotEvent):
+    payload = ujson.loads(ans.object.object.message.payload)
 
-        redis = await aioredis.create_redis_pool("redis://localhost")
-        students_ids = await redis.hget(
-            "index:{0}".format(ans.object.object.message.peer_id),
-            "diff_vk_db",
-            encoding="utf-8",
-        )
-        redis.close()
-        await redis.wait_closed()
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    group = managers.AdminConfigManager(admin_id).get_active_group()
 
-        students = await api_context.users.get(user_ids=students_ids)
-        student_last_id = orm.select(student for student in models.Student).order_by(
-            orm.desc(models.Student.id).first().id,
-        )
-        for student in students.response:
-            student_last_id += 1
-            raw_student_data.append(
-                {
-                    "id": student_last_id,
-                    "first_name": student.first_name,
-                    "second_name": student.last_name,
-                    "vk_id": student.id,
-                    "group_id": payload["group"],
-                    "academic_status": 1,
-                },
+    redis = await aioredis.create_redis_pool("redis://localhost")
+    students_ids = await redis.hget(
+        "index:{0}".format(ans.object.object.message.peer_id),
+        "diff_vk_db",
+        encoding="utf-8",
+    )
+    redis.close()
+    await redis.wait_closed()
+
+    student_objects = await api_context.users.get(user_ids=students_ids.split(","))
+    students_count = 0
+    with orm.db_session:
+        for student in student_objects.response:
+            models.Student(
+                first_name=student.first_name,
+                last_name=student.last_name,
+                vk_id=student.id,
+                group=group.id,
+                academic_status=1,
             )
-        query = models.Student.insert_many(raw_student_data).execute()
-
-        await ans.answer(
-            "{0} студент(ов) зарегистрировано".format(len(query)),
-            keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
-        )
+            students_count += 1
+    await ans.answer(
+        "{0} студент(ов) зарегистрировано".format(students_count),
+        keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
+    )
 
 
 @bots.simple_bot_message_handler(
@@ -349,10 +355,13 @@ async def _delete_students(ans: bots.SimpleBotEvent):  # TODO: Refactor this!
         redis.close()
         await redis.wait_closed()
 
-        for st in students_ids:
-            orm.delete(
-                student for student in models.Student if models.Student.vk_id == st
-            )
+        with orm.db_session:
+            students_ids = students_ids.split(",")
+            for st in students_ids:
+                orm.delete(
+                    student for student in models.Student if student.vk_id == int(st)
+                )
+
         await ans.answer(
             "{0} студент(ов) удалено".format(len(students_ids)),
             keyboard=kbs.preferences.configure_chat(payload["chat_id"]),
@@ -368,7 +377,7 @@ async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Выберите активную группу",
         keyboard=kbs.preferences.list_of_groups(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
+            students.get_system_id_of_student(ans.object.object.message.from_id),
         ),
     )
 
@@ -380,8 +389,8 @@ async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
 )
 async def _select_active_group(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
-    db.shortcuts.update_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        active_group=payload["group_id"],
+    admin_store = managers.AdminConfigManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
+    admin_store.update(active_group=payload["group_id"])
     await _open_preferences(ans)
