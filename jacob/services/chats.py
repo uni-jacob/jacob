@@ -2,9 +2,10 @@ import re
 import typing as t
 
 import requests
+from pony import orm
 from vkwave.types.objects import MessagesConversationMember
 
-from database.models import Student
+from jacob.database.models import Student
 
 
 def prepare_set_from_vk(data: t.List[MessagesConversationMember]) -> t.Set[int]:
@@ -20,6 +21,7 @@ def prepare_set_from_vk(data: t.List[MessagesConversationMember]) -> t.Set[int]:
     return {student.member_id for student in data if student.member_id > 0}
 
 
+@orm.db_session
 def prepare_set_from_db(data: t.List[Student]) -> t.Set[int]:
     """
     Формирует список идентификаторов студентов из базы данных.
@@ -44,6 +46,6 @@ def get_confirm_message() -> str:
     query = requests.get("https://fish-text.ru/get", params={"type": "title"})
     if query.status_code == 200:
         text = query.json()["text"]
-        text = re.sub('[!@"#№$;%^:&?*()\-_=+{}\[\]|/,<.>]', "", text)
+        text = re.sub(r'[!@"#№$;%^:&?*()\-_=+{}\[\]|/,<.>]', "", text)
         text = text.split(" ")[:3]
     return "-".join(text).lower()
