@@ -27,7 +27,7 @@
 
 ## Документация
 
-[https://dadyarri.github.io/jacob](https://dadyarri.github.io/jacob)
+[https://uni-jacob.github.io/jacob](https://uni-jacob.github.io/jacob/)
 
 ## Бот
 
