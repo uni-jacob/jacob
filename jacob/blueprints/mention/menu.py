@@ -98,7 +98,6 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     mention_storage = managers.MentionStorageManager(admin_id)
     state_storage = managers.StateStorageManager(admin_id)
 
-    # TODO: вернуть обработанный ответ, когда в vkwave починят схемы
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
     query = await api_context.messages.get_conversations_by_id(chat_id)
