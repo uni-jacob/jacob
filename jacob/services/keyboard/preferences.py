@@ -1,10 +1,8 @@
-import typing as t
-
-import requests
+from pony import orm
 from vkwave.bots import Keyboard
 
-from database import utils as db
-from services.keyboard import common
+from jacob.database.utils import admin
+from jacob.services.keyboard import common
 
 JSONStr = str
 
@@ -22,9 +20,12 @@ def preferences(admin_id: int) -> JSONStr:
     kb = Keyboard()
     kb.add_text_button("💬 Настроить чаты", payload={"button": "configure_chats"})
     kb.add_row()
-    if len(db.admin.get_admin_feud(admin_id)) > 1:
-        kb.add_text_button("Выбрать группу", payload={"button": "select_group"})
-        kb.add_row()
+
+    with orm.db_session:
+        feud = admin.get_admin_feud(admin_id)
+        if len(feud) > 1:
+            kb.add_text_button("Выбрать группу", payload={"button": "select_group"})
+            kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
@@ -79,57 +80,33 @@ def configure_chat(chat_id: int):
 
 def index_chat(
     chat_id: int,
-    vk_students: t.List[int],
-    db_students: t.List[int],
-) -> JSONStr:  # TODO: Refactor this shit!
+) -> JSONStr:
     """
     Меню индексации чата.
 
     Args:
         chat_id: Идентификатор чата
-        vk_students: Список студентов, присутствующих в чате
-        db_students: Список студентов, присутствующих в БД
 
     Returns:
         JSONStr: Клавиатура
     """
     kb = Keyboard()
-    if vk_students:
-        query = requests.post(
-            "https://dpaste.com/api/v2/",
-            data={
-                "content": ",".join(map(str, vk_students)),
-                "syntax": {"text": "Plain " "text"},
-            },
-        )
-        link = query.text.strip("\n")
-        kb.add_text_button(
-            "➕ Зарегистрировать студентов",
-            payload={
-                "button": "register_students",
-                "chat_id": chat_id,
-                "students": link,
-            },
-        )
-        kb.add_row()
-    if db_students:
-        query = requests.post(
-            "https://dpaste.com/api/v2/",
-            data={
-                "content": ",".join(map(str, db_students)),
-                "syntax": {"text": "Plain text"},
-            },
-        )
-        link = query.text.strip("\n")
-        kb.add_text_button(
-            "➖ Удалить студентов",
-            payload={
-                "button": "purge_students",
-                "chat_id": chat_id,
-                "students": link,
-            },
-        )
-        kb.add_row()
+    kb.add_text_button(
+        "➕ Зарегистрировать студентов",
+        payload={
+            "button": "register_students",
+            "chat_id": chat_id,
+        },
+    )
+    kb.add_row()
+    kb.add_text_button(
+        "➖ Удалить студентов",
+        payload={
+            "button": "purge_students",
+            "chat_id": chat_id,
+        },
+    )
+    kb.add_row()
     kb.add_text_button(
         "◀️ Назад",
         payload={"button": "chat", "chat_id": chat_id},
@@ -149,7 +126,7 @@ def list_of_groups(admin_id: int) -> JSONStr:
     """
     kb = Keyboard()
 
-    groups = db.admin.get_admin_feud(admin_id)
+    groups = admin.get_admin_feud(admin_id)
     for group in groups:
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
