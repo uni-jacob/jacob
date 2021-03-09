@@ -2,12 +2,11 @@ version: "3.7"
 services:
   db:
     image: postgres
-    environment:
-      - POSTGRES_DB=jacob
-      - POSTGRES_USER=dadyarri
-      - POSTGRES_PASSWORD=mjro10011
-    ports:
-      - "5432:5432"
+    networks:
+      - default
+      - my-net
+    volumes:
+      - pg_data:/var/lib/postgres/data
   bot:
     build: .
     env_file: .env
@@ -16,3 +15,12 @@ services:
       - .:/code
     depends_on:
       - db
+    networks:
+      - default
+      - my-net
+
+networks:
+  my-net:
+
+volumes:
+  pg_data:
