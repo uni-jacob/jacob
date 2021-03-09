@@ -1,5 +1,18 @@
 version: "3.7"
 services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=jacob
+      - POSTGRES_USER=dadyarri
+      - POSTGRES_PASSWORD=mjro10011
+    ports:
+      - "5432:5432"
   bot:
     build: .
     env_file: .env
+    command: python /code/jacob/main.py
+    volumes:
+      - .:/code
+    depends_on:
+      - db
