@@ -1,12 +1,16 @@
 version: "3.7"
 services:
   db:
-    image: postgres
+    container_name: postgres_database
+    build: database
     networks:
       - default
       - my-net
-    volumes:
-      - pg_data:/var/lib/postgres/data
+    restart: always
+    environment:
+      - POSTGRES_DB=jacob
+      - POSTGRES_PASSWORD=mjro10011
+      - POSTGRES_USER=dadyarri
   bot:
     build: .
     env_file: .env
@@ -19,8 +23,11 @@ services:
       - default
       - my-net
 
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
 networks:
   my-net:
-
-volumes:
-  pg_data:
