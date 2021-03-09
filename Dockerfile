@@ -1,4 +1,4 @@
-FROM python:3.9.0-alpine3.12
+FROM python:3.9-alpine
 
 # System deps
 RUN apk add build-base curl git openssl postgresql-libs postgresql-dev libressl-dev musl-dev libffi-dev
