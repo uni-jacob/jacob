@@ -10,6 +10,7 @@ from vkwave import api, bots, client
 
 from jacob.database import models
 from jacob.database import utils as db
+from jacob.database.utils import chats as db_chats
 from jacob.database.utils import students, admin
 from jacob.database.utils.storages import managers
 from jacob.services import chats, filters
@@ -103,8 +104,11 @@ async def _configure_chat(ans: bots.SimpleBotEvent):
 async def _delete_chat(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
-        chats.delete_chat(payload["chat"])
-        chat_objects = chats.get_list_of_chats_by_group(
+        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+        admin_store = managers.AdminConfigManager(admin_id)
+
+        db_chats.delete_chat(payload["chat"])
+        chat_objects = db_chats.get_list_of_chats_by_group(
             db.admin.get_active_group(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
             ),
@@ -113,10 +117,7 @@ async def _delete_chat(ans: bots.SimpleBotEvent):
             chat_id = chat_objects[0].id
         except IndexError:
             chat_id = None
-        db.shortcuts.update_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
-            current_chat_id=chat_id,
-        )
+        admin_store.update(active_chat=chat_id)
         await ans.answer(
             "Чат удален",
             keyboard=await kbs.preferences.connected_chats(
@@ -135,11 +136,22 @@ async def _delete_chat(ans: bots.SimpleBotEvent):
 async def _generate_confirm_message(ans: bots.SimpleBotEvent):
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         confirm_message = chats.get_confirm_message()
-        db.shortcuts.update_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
-            state_id=db.bot.get_id_of_state("confirm_chat_register"),
+        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+        state_store = managers.StateStorageManager(admin_id)
+        state_store.update(
+            state=state_store.get_id_of_state("pref_confirm_chat_register")
+        )
+
+        print(f"{ans.object.object.message.peer_id=}")
+
+        redis = await aioredis.create_redis_pool("redis://localhost")
+        await redis.hmset_dict(
+            "register_chat:{0}".format(ans.object.object.message.peer_id),
             confirm_message=confirm_message,
         )
+        redis.close()
+        await redis.wait_closed()
+
         await ans.answer(
             "Отправьте сообщение с кодовой фразой в чат, который нужно зарегистрировать",
             keyboard=kbs.common.cancel(),
@@ -154,15 +166,13 @@ async def _generate_confirm_message(ans: bots.SimpleBotEvent):
     filters.StateFilter("pref_confirm_chat_register"),
 )
 async def _cancel_register_chat(ans: bots.SimpleBotEvent):
-    db.shortcuts.clear_admin_storage(
-        db.students.get_system_id_of_student(ans.object.object.message.from_id),
-    )
+    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
     await ans.answer(
         "Регистрация чата отменена",
         keyboard=await kbs.preferences.connected_chats(
-            db.students.get_system_id_of_student(
-                ans.object.object.message.from_id,
-            ),
+            admin_id,
         ),
     )
 
@@ -172,61 +182,67 @@ async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     filters.StateFilter("pref_confirm_chat_register"),
     bots.MessageFromConversationTypeFilter("from_chat"),
 )
-async def _register_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
-    with logger.contextualize(user_id=ans.object.object.message.from_id):
-        store = db.admin.get_admin_storage(
-            db.students.get_system_id_of_student(ans.object.object.message.from_id),
-        )
-        message = ans.object.object.message
-        admin_vk_id = models.Student.get(id=store.id).vk_id
-        if store.confirm_message in message.text and message.from_id == admin_vk_id:
-            db.shortcuts.clear_admin_storage(
-                db.students.get_system_id_of_student(message.from_id),
-            )
+async def _register_chat(ans: bots.SimpleBotEvent):
+    redis = await aioredis.create_redis_pool("redis://localhost")
 
-            group = db.admin.get_active_group(
-                db.students.get_system_id_of_student(
-                    message.from_id,
-                ),
-            )
-            if db.chats.is_chat_registered(message.peer_id, group):
-                await ans.answer(
-                    message="Чат уже зарегистрирован в этой группе",
-                    peer_id=message.from_id,
-                    random_id=0,
-                    keyboard=await kbs.preferences.connected_chats(
-                        db.students.get_system_id_of_student(
-                            message.from_id,
-                        ),
+    confirm_message = await redis.hget(
+        "register_chat:{0}".format(ans.object.object.message.from_id),
+        "confirm_message",
+        encoding="utf-8",
+    )
+    redis.close()
+    await redis.wait_closed()
+
+    message = ans.object.object.message
+    if confirm_message in message.text:
+        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+
+        state_store = managers.StateStorageManager(admin_id)
+        state_store.update(state=state_store.get_id_of_state("main"))
+
+        admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+        admin_store = managers.AdminConfigManager(admin_id)
+
+        group = db.admin.get_active_group(
+            db.students.get_system_id_of_student(
+                message.from_id,
+            ),
+        )
+        if db_chats.is_chat_registered(message.peer_id, group.id):
+            await ans.api_ctx.messages.send(
+                peer_id=message.from_id,
+                message="Чат уже зарегистрирован в этой группе",
+                keyboard=await kbs.preferences.connected_chats(
+                    students.get_system_id_of_student(
+                        message.from_id,
                     ),
-                )
-            else:
-                chat = db.chats.register_chat(message.peer_id, group)
-                db.shortcuts.update_admin_storage(
+                ),
+                random_id=0,
+            )
+        else:
+            chat = db_chats.register_chat(message.peer_id, group.id)
+            admin_store.update(active_chat=chat.id)
+            request = await api_context.messages.get_conversations_by_id(
+                peer_ids=message.peer_id,
+            )
+            chat_objects = request.response.items
+            try:
+                chat_name = chat_objects[0].chat_settings.title
+            except IndexError:
+                chat_name = "???"
+            await ans.api_ctx.messages.send(
+                peer_id=message.from_id,
+                message='Чат "{0}" зарегистрирован'.format(chat_name),
+                keyboard=await kbs.preferences.connected_chats(
                     db.students.get_system_id_of_student(
                         message.from_id,
                     ),
-                    current_chat_id=chat.id,
-                )
-                request = await api_context.messages.get_conversations_by_id(
-                    peer_ids=message.peer_id,
-                )
-                chat_objects = request.response.items
-                try:
-                    chat_name = chat_objects[0].chat_settings.title
-                except IndexError:
-                    chat_name = "???"
-                await ans.answer(
-                    message='Чат "{0}" зарегистрирован'.format(chat_name),
-                    peer_id=message.from_id,
-                    random_id=0,
-                    keyboard=await kbs.preferences.connected_chats(
-                        db.students.get_system_id_of_student(
-                            message.from_id,
-                        ),
-                    ),
-                )
-                await ans.answer("Привет!")
+                ),
+                random_id=0,
+            )
+            await ans.answer(
+                "Привет!",
+            )
 
 
 @bots.simple_bot_message_handler(
