@@ -43,7 +43,7 @@ def register_chat(chat_id: int, group_id: int) -> Chat:
     Returns:
         Chat: объект чата
     """
-    return Chat(chat_id=chat_id, group_id=group_id)
+    return Chat(vk_id=chat_id, group=group_id)
 
 
 @orm.db_session
@@ -58,5 +58,5 @@ def is_chat_registered(chat_id: int, group_id: int) -> bool:
     Returns:
         bool: Флаг регистрации чата
     """
-    chat = Chat.get(chat_id=chat_id, group_id=group_id)
+    chat = Chat.get(vk_id=chat_id, group=group_id)
     return chat is not None
