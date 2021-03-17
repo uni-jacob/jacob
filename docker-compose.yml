@@ -1,17 +1,25 @@
 version: "3.7"
+
 services:
+
   db:
-    container_name: postgres_database
+    container_name: postgres
+    env_file: .env
     build: database
-    networks:
-      - default
-      - my-net
     restart: always
+    volumes:
+      - db_data: /var/lib/postgres/data
     environment:
       - POSTGRES_DB=jacob
       - POSTGRES_PASSWORD=mjro10011
       - POSTGRES_USER=dadyarri
+
+  redis:
+    container_name: redis
+    image: redis
+
   bot:
+    container_name: jacob
     build: .
     env_file: .env
     command: python /code/jacob/main.py
@@ -19,9 +27,7 @@ services:
       - .:/code
     depends_on:
       - db
-    networks:
-      - default
-      - my-net
+      - redis
 
   adminer:
     image: adminer
@@ -29,5 +35,5 @@ services:
     ports:
       - 8080:8080
 
-networks:
-  my-net:
+volumes:
+  db_data: {}
