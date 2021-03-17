@@ -4,11 +4,11 @@ services:
 
   db:
     container_name: postgres
+    image: postgres
     env_file: .env
-    build: database
     restart: always
     volumes:
-      - db_data: /var/lib/postgres/data
+      - db_data:/var/lib/postgres/data
     environment:
       - POSTGRES_DB=jacob
       - POSTGRES_PASSWORD=mjro10011
