@@ -94,7 +94,7 @@ async def _register_category(ans: bots.SimpleBotEvent):
         except IndexError:
             chat_title = "???"
 
-        redis = await aioredis.create_redis_pool("redis://localhost")
+        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         await redis.hmset_dict(
             "new_category:{0}".format(ans.object.object.message.peer_id),
             category_name=category.name,
@@ -115,7 +115,7 @@ async def _register_category(ans: bots.SimpleBotEvent):
 
 
 async def _offer_alert(ans: bots.SimpleBotEvent):
-    redis = await aioredis.create_redis_pool("redis://localhost")
+    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     category_name = await redis.hget(
         "new_category:{0}".format(ans.object.object.message.peer_id),
         "category_name",
@@ -153,7 +153,7 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
-    redis = await aioredis.create_redis_pool("redis://localhost")
+    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     category_name = await redis.hget(
         "new_category:{0}".format(ans.object.object.message.peer_id),
         "category_name",
@@ -311,7 +311,7 @@ async def _select_student(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("fin_enter_donate_sum"))
 
-    redis = await aioredis.create_redis_pool("redis://localhost")
+    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     await redis.hmset_dict(
         "add_income:{0}".format(ans.object.object.message.peer_id),
         payer=payload.get("student_id"),
@@ -336,7 +336,7 @@ async def _save_donate(ans: bots.SimpleBotEvent):
             students.get_system_id_of_student(ans.object.object.message.from_id),
         )
 
-        redis = await aioredis.create_redis_pool("redis://localhost")
+        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         payer = await redis.hget(
             "add_income:{0}".format(ans.object.object.message.peer_id),
             "payer",

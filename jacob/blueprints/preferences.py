@@ -112,7 +112,7 @@ async def _delete_chat(ans: bots.SimpleBotEvent):
             db.admin.get_active_group(
                 db.students.get_system_id_of_student(ans.object.object.message.from_id),
             ),
-        )
+        )[:]
         try:
             chat_id = chat_objects[0].id
         except IndexError:
@@ -144,7 +144,7 @@ async def _generate_confirm_message(ans: bots.SimpleBotEvent):
 
         print(f"{ans.object.object.message.peer_id=}")
 
-        redis = await aioredis.create_redis_pool("redis://localhost")
+        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         await redis.hmset_dict(
             "register_chat:{0}".format(ans.object.object.message.peer_id),
             confirm_message=confirm_message,
@@ -183,7 +183,7 @@ async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_chat"),
 )
 async def _register_chat(ans: bots.SimpleBotEvent):
-    redis = await aioredis.create_redis_pool("redis://localhost")
+    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
 
     confirm_message = await redis.hget(
         "register_chat:{0}".format(ans.object.object.message.from_id),
@@ -292,7 +292,7 @@ async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
 
         sep = "\n"
 
-        redis = await aioredis.create_redis_pool("redis://localhost")
+        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         await redis.hmset_dict(
             "index:{0}".format(ans.object.object.message.peer_id),
             diff_vk_db=",".join(map(str, diff_vk_db)),
@@ -326,7 +326,7 @@ async def _register_students(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     group = managers.AdminConfigManager(admin_id).get_active_group()
 
-    redis = await aioredis.create_redis_pool("redis://localhost")
+    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     students_ids = await redis.hget(
         "index:{0}".format(ans.object.object.message.peer_id),
         "diff_vk_db",
@@ -362,7 +362,7 @@ async def _delete_students(ans: bots.SimpleBotEvent):  # TODO: Refactor this!
     with logger.contextualize(user_id=ans.object.object.message.from_id):
         payload = ujson.loads(ans.object.object.message.payload)
 
-        redis = await aioredis.create_redis_pool("redis://localhost")
+        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         students_ids = await redis.hget(
             "index:{0}".format(ans.object.object.message.peer_id),
             "diff_db_vk",
