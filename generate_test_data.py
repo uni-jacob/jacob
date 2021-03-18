@@ -58,20 +58,21 @@ def generate_bot_statuses() -> list:
     bot_statuses_objects = []
     bot_statuses = [
         "main",
+        "common_select_chat",
+        "contacts_select_student",
         "fin_select_donater",
         "fin_enter_donate_sum",
         "fin_confirm_debtors_call",
+        "fin_enter_expense_sum",
+        "fin_wait_category_desc",
+        "fin_send_alert",
         "mention_wait_text",
         "mention_confirm",
-        "fin_enter_expense_sum",
+        "mention_select_mentioned",
         "pref_confirm_chat_register",
-        "common_select_chat",
+        "pref_select_chat",
         "report_wait_title",
         "report_wait_text",
-        "contacts_select_student",
-        "mention_select_mentioned",
-        "fin_wait_category_desc",
-        "send_alert_fin_started",
     ]
     for name in bot_statuses:
         bot_statuses_objects.append(models.State(description=name))
