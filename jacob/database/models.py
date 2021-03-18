@@ -155,7 +155,7 @@ class Issue(db.Entity):
     """Баги."""
 
     owner = orm.Required(Student)
-    title = orm.Required(str)
+    title = orm.Optional(str)
     text = orm.Optional(str)
 
 
