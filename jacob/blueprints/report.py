@@ -6,7 +6,7 @@ from github import Github
 from loguru import logger
 from vkwave import api, bots, client
 
-from jacob.database.utils import admin, bot, report, students
+from jacob.database.utils import students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
@@ -24,9 +24,11 @@ logger.configure(**logger_config.config)
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _start_reporting(ans: bots.SimpleBotEvent):
-    state_manager = managers.StateStorageManager(students.get_system_id_of_student(ans.object.object.message.from_id))
+    state_manager = managers.StateStorageManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
     state_manager.update(
-        state_id=bot.get_id_of_state("wait_issue_title"),
+        state=state_manager.get_id_of_state("report_wait_title"),
     )
     await ans.answer(
         "Отправьте заголовок проблемы, кратко описывающий произошедшее",
@@ -40,16 +42,20 @@ async def _start_reporting(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _ask_for_issue_text(ans: bots.SimpleBotEvent):
-    issue = report.get_or_create_last_issue_of_user(
-        ans.object.object.message.from_id,
+    issue_store = managers.IssueStorageManager(
+        students.get_system_id_of_student(
+            ans.object.object.message.from_id,
+        )
     )
-    report.update_issue(
-        issue.id,
+    logger.debug(ans.object.object.message.text)
+    issue_store.update(
         title=ans.object.object.message.text,
     )
-    admin.update_admin_storage(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
-        state_id=bot.get_id_of_state("wait_issue_text"),
+    state_manager = managers.StateStorageManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
+    state_manager.update(
+        state=state_manager.get_id_of_state("report_wait_text"),
     )
 
     await ans.answer("Отправьте текст проблемы с подробным описанием бага")
@@ -63,25 +69,28 @@ async def _ask_for_issue_text(ans: bots.SimpleBotEvent):
 async def _create_issue(ans: bots.SimpleBotEvent):
 
     gith = Github(os.getenv("GITHUB_TOKEN"))
-    repo = gith.get_repo("dadyarri/jacob")
+    repo = gith.get_repo("uni-jacob/jacob")
 
-    issue = report.get_or_create_last_issue_of_user(
-        ans.object.object.message.from_id,
+    issue_store = managers.IssueStorageManager(
+        students.get_system_id_of_student(
+            ans.object.object.message.from_id,
+        )
     )
-    report.update_issue(
-        issue.id,
+    issue_store.update(
         text=ans.object.object.message.text,
     )
 
     new_issue = repo.create_issue(
-        title=issue.title,
-        body=report.generate_issue_text(
-            ans.object.object.message.from_id,
-        ),
+        title=issue_store.get_or_create().title,
+        body=issue_store.generate_issue_text(),
+        labels=["report"],
     )
 
-    admin.clear_admin_storage(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
+    state_manager = managers.StateStorageManager(
+        students.get_system_id_of_student(ans.object.object.message.from_id)
+    )
+    state_manager.update(
+        state=state_manager.get_id_of_state("main"),
     )
 
     await ans.answer(
