@@ -224,3 +224,12 @@ class FinancialConfigManager(base.BaseStorageManager):
         """
         super().__init__(owner)
         self.model = models.FinancialConfig
+
+
+class IssueStorageManager(base.BaseStorageManager):
+    """Менеджер хранилища проблем."""
+
+    def __init__(self, owner):
+        """Создаёт объект менеджер проблем."""
+        super().__init__(owner)
+        self.model = models.Issue
