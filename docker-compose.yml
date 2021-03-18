@@ -30,6 +30,7 @@ services:
       - redis
 
   adminer:
+    container_name: adminer
     image: adminer
     restart: always
     ports:
