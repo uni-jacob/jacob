@@ -49,3 +49,25 @@ def get_confirm_message() -> str:
         text = re.sub(r'[!@"#№$;%^:&?*()\-_=+{}\[\]|/,<.>]', "", text)
         text = text.split(" ")[:3]
     return "-".join(text).lower()
+
+
+async def get_chat_name(api_context, chat_id: int):
+    """Получает название беседы ВК.
+
+    Args:
+        api_context: Объект API ВК.
+        chat_id: Идентификатор чата ВК.
+
+    Returns:
+        str: Название чата или заглушка
+    """
+
+    query = await api_context.messages.get_conversations_by_id(chat_id)
+    try:
+        chat_settings = query.response.items[0].chat_settings
+    except IndexError:
+        chat_name = "???"
+    else:
+        chat_name = chat_settings.title
+
+    return chat_name
