@@ -68,7 +68,7 @@ def generate_bot_statuses() -> list:
         "common_select_chat",
         "report_wait_title",
         "report_wait_text",
-        "common_select_student",
+        "contacts_select_student",
         "mention_select_mentioned",
         "fin_wait_category_desc",
         "send_alert_fin_started",

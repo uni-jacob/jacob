@@ -79,7 +79,7 @@ async def _skip_register_call_message(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(
-        state=state_store.get_id_of_state("mention_select_student"),
+        state=state_store.get_id_of_state("mention_select_mentioned"),
     )
     await ans.answer(
         "Выберите призываемых студентов",
