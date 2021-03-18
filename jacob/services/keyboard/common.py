@@ -177,7 +177,10 @@ async def list_of_chats(api_context, admin_id: int):
             admin.get_active_group(admin_id),
         )
         for chat in chat_objects:
-            chat_title = await chat_utils.get_chat_name(api_context, chat.id)
+            chat_title = await chat_utils.get_chat_name(
+                api_context,
+                chat.vk_id,
+            )
             kb.add_text_button(
                 chat_title,
                 payload={
