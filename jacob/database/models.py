@@ -154,7 +154,7 @@ class FinancialExpense(db.Entity):
 class Issue(db.Entity):
     """Баги."""
 
-    author = orm.Required(Student)
+    owner = orm.Required(Student)
     title = orm.Required(str)
     text = orm.Optional(str)
 
