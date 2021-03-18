@@ -233,3 +233,10 @@ class IssueStorageManager(base.BaseStorageManager):
         """Создаёт объект менеджер проблем."""
         super().__init__(owner)
         self.model = models.Issue
+
+    def generate_issue_text(self) -> str:
+        """Генерирует текст ишью."""
+        text = self.get_or_create().text
+        is_admin = admin_utils.is_user_admin(self.owner)
+
+        return "{0}\nis_admin={1}".format(text, is_admin)
