@@ -25,7 +25,7 @@ async def _start_contacts(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(
         students.get_system_id_of_student(ans.object.object.message.from_id)
     )
-    state_storage.update(state=state_storage.get_id_of_state("common_select_student"))
+    state_storage.update(state=state_storage.get_id_of_state("contacts_select_student"))
     await ans.answer(
         "Выберите студента для отображения его контактной информации",
         keyboard=kbs.contacts.ContactsNavigator(
@@ -40,7 +40,8 @@ async def _start_contacts(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     contacts_router,
-    filters.PLFilter({"button": "half"}) & filters.StateFilter("common_select_student"),
+    filters.PLFilter({"button": "half"})
+    & filters.StateFilter("contacts_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_half(ans: bots.SimpleBotEvent):
@@ -62,7 +63,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     contacts_router,
     filters.PLFilter({"button": "letter"})
-    & filters.StateFilter("common_select_student"),
+    & filters.StateFilter("contacts_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_letter(ans: bots.SimpleBotEvent):
@@ -81,7 +82,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     contacts_router,
     filters.PLFilter({"button": "student"})
-    & filters.StateFilter("common_select_student"),
+    & filters.StateFilter("contacts_select_student"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):
