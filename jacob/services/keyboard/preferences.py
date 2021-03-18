@@ -31,17 +31,18 @@ def preferences(admin_id: int) -> JSONStr:
     return kb.get_keyboard()
 
 
-async def connected_chats(admin_id: int) -> JSONStr:
+async def connected_chats(api_context, admin_id: int) -> JSONStr:
     """
     Генерирует клавиатуру со списком подключенных чатов.
 
     Args:
+        api_context: Объект API ВК.
         admin_id: идентификатор пользователя
 
     Returns:
         JSONStr: клавиатура
     """
-    kb = await common.list_of_chats(admin_id)
+    kb = await common.list_of_chats(api_context, admin_id)
     if kb.buttons[-1]:
         kb.add_row()
     kb.add_text_button("➕ Зарегистрировать чат", payload={"button": "reg_chat"})

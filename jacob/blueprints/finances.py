@@ -10,6 +10,7 @@ from vkwave import api, bots, client
 
 from jacob.database.utils import admin, chats, finances, students
 from jacob.database.utils.storages import managers
+from jacob.services import chats as chat_utils
 from jacob.services import filters
 from jacob.services import keyboard as kbs
 from jacob.services.finances import generate_debtors_call
@@ -87,12 +88,8 @@ async def _register_category(ans: bots.SimpleBotEvent):
         )
         with orm.db_session:
             chat_id = admin_store.get_active_chat().vk_id
-        chat_object = await api_context.messages.get_conversations_by_id(chat_id)
-        response = chat_object.response.items
-        try:
-            chat_title = response[0].chat_settings.title
-        except IndexError:
-            chat_title = "???"
+
+        chat_title = await chat_utils.get_chat_name(api_context, chat_id)
 
         redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         await redis.hmset_dict(
@@ -130,12 +127,7 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
     with orm.db_session:
         chat_id = admin_store.get_active_chat().vk_id
 
-    chat_object = await api_context.messages.get_conversations_by_id(chat_id)
-    response = chat_object.response.items
-    try:
-        chat_title = response[0].chat_settings.title
-    except IndexError:
-        chat_title = "???"
+    chat_title = await chat_utils.get_chat_name(api_context, chat_id)
 
     await ans.answer(
         "Сообщение о начале сбора на {0} будет отправлено в чат {1}".format(
@@ -206,6 +198,7 @@ async def _cancel_send_alarm(ans: bots.SimpleBotEvent):
 )
 async def _select_chat_alert(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
+        api_context,
         students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
@@ -375,12 +368,7 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
                 state=state_store.get_id_of_state("fin_confirm_debtors_call"),
             )
             chat_id = admin_store.get_active_chat().vk_id
-            chat_object = await api_context.messages.get_conversations_by_id(chat_id)
-            response = chat_object.response.items
-            try:
-                chat_title = response[0].chat_settings.title
-            except IndexError:
-                chat_title = "???"
+            chat_title = await chat_utils.get_chat_name(api_context, chat_id)
             for msg in msgs:
                 await ans.answer(msg)
             if len(msgs) > 1:
@@ -406,6 +394,7 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
 )
 async def _select_chat_debtors(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
+        api_context,
         students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())

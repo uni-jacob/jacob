@@ -10,7 +10,7 @@ from vkwave import api, bots, client
 
 from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
-from jacob.services import call, exceptions, filters
+from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
 from jacob.services.logger import config as logger_config
 
@@ -100,13 +100,9 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
 
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
-    query = await api_context.messages.get_conversations_by_id(chat_id)
-    try:
-        chat_settings = query.response.items[0].chat_settings
-    except IndexError:
-        chat_name = "???"
-    else:
-        chat_name = chat_settings.title
+
+    chat_name = await chats.get_chat_name(api_context, chat_id)
+
     if not msg and not mention_storage.get_attaches():
         raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
     state_storage.update(
@@ -187,6 +183,7 @@ async def _invert_names_usage(ans: bots.SimpleBotEvent):
 )
 async def _select_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
+        api_context,
         students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())

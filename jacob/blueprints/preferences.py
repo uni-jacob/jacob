@@ -60,6 +60,7 @@ async def _list_of_chats(ans: bots.SimpleBotEvent):
         await ans.answer(
             "Список подключенных чатов",
             keyboard=await kbs.preferences.connected_chats(
+                api_context,
                 students.get_system_id_of_student(
                     ans.object.object.message.from_id,
                 ),
@@ -80,15 +81,7 @@ async def _configure_chat(ans: bots.SimpleBotEvent):
         with orm.db_session:
             chat_object = models.Chat[payload["chat_id"]]
 
-        query = await api_context.messages.get_conversations_by_id(
-            peer_ids=chat_object.vk_id,
-            group_id=os.getenv("GROUP_ID"),
-        )
-        chat_objects = query.response.items
-        try:
-            chat_title = chat_objects[0].chat_settings.title
-        except IndexError:
-            chat_title = "???"
+        chat_title = await chats.get_chat_name(api_context, chat_object.vk_id)
 
         await ans.answer(
             "Настройки чата {0}".format(chat_title),
@@ -125,6 +118,7 @@ async def _delete_chat(ans: bots.SimpleBotEvent):
         await ans.answer(
             "Чат удален",
             keyboard=await kbs.preferences.connected_chats(
+                api_context,
                 db.students.get_system_id_of_student(
                     ans.object.object.message.from_id,
                 ),
@@ -174,6 +168,7 @@ async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Регистрация чата отменена",
         keyboard=await kbs.preferences.connected_chats(
+            api_context,
             admin_id,
         ),
     )
@@ -215,6 +210,7 @@ async def _register_chat(ans: bots.SimpleBotEvent):
                 peer_id=message.from_id,
                 message="Чат уже зарегистрирован в этой группе",
                 keyboard=await kbs.preferences.connected_chats(
+                    api_context,
                     students.get_system_id_of_student(
                         message.from_id,
                     ),
@@ -224,18 +220,14 @@ async def _register_chat(ans: bots.SimpleBotEvent):
         else:
             chat = db_chats.register_chat(message.peer_id, group.id)
             admin_store.update(active_chat=chat.id)
-            request = await api_context.messages.get_conversations_by_id(
-                peer_ids=message.peer_id,
-            )
-            chat_objects = request.response.items
-            try:
-                chat_name = chat_objects[0].chat_settings.title
-            except IndexError:
-                chat_name = "???"
+
+            chat_name = await chats.get_chat_name(api_context, message.peer_id)
+
             await ans.api_ctx.messages.send(
                 peer_id=message.from_id,
                 message='Чат "{0}" зарегистрирован'.format(chat_name),
                 keyboard=await kbs.preferences.connected_chats(
+                    api_context,
                     db.students.get_system_id_of_student(
                         message.from_id,
                     ),

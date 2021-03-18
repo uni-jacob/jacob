@@ -10,6 +10,7 @@ from vkwave.client import AIOHTTPClient
 
 from jacob.database.utils import admin, chats, students
 from jacob.database.utils.storages import managers
+from jacob.services import chats as chat_utils
 
 JSONStr = str
 api_session = API(tokens=os.getenv("VK_TOKEN"), clients=AIOHTTPClient())
@@ -159,11 +160,12 @@ def alphabet(admin_id: int) -> Keyboard:
     return kb
 
 
-async def list_of_chats(admin_id: int):
+async def list_of_chats(api_context, admin_id: int):
     """
     Генерирует фрагмент клавиатуры со списком подключенных чатов.
 
     Args:
+        api_context: Объект API ВК.
         admin_id: идентификатор пользователя
 
     Returns:
@@ -175,17 +177,7 @@ async def list_of_chats(admin_id: int):
             admin.get_active_group(admin_id),
         )
         for chat in chat_objects:
-            chat_object = await api.messages.get_conversations_by_id(
-                peer_ids=chat.vk_id,
-                group_id=os.getenv("GROUP_ID"),
-                return_raw_response=True,
-            )
-            try:
-                chat_title = chat_object["response"]["items"][0]["chat_settings"][
-                    "title"
-                ]
-            except (AttributeError, IndexError):
-                chat_title = "???"
+            chat_title = await chat_utils.get_chat_name(api_context, chat.id)
             kb.add_text_button(
                 chat_title,
                 payload={
