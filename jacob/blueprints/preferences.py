@@ -108,11 +108,15 @@ async def _delete_chat(ans: bots.SimpleBotEvent):
         admin_store = managers.AdminConfigManager(admin_id)
 
         db_chats.delete_chat(payload["chat"])
-        chat_objects = db_chats.get_list_of_chats_by_group(
-            db.admin.get_active_group(
-                db.students.get_system_id_of_student(ans.object.object.message.from_id),
-            ),
-        )[:]
+
+        with orm.db_session:
+            chat_objects = db_chats.get_list_of_chats_by_group(
+                db.admin.get_active_group(
+                    db.students.get_system_id_of_student(
+                        ans.object.object.message.from_id
+                    ),
+                ),
+            )[:]
         try:
             chat_id = chat_objects[0].id
         except IndexError:
@@ -141,8 +145,6 @@ async def _generate_confirm_message(ans: bots.SimpleBotEvent):
         state_store.update(
             state=state_store.get_id_of_state("pref_confirm_chat_register")
         )
-
-        print(f"{ans.object.object.message.peer_id=}")
 
         redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         await redis.hmset_dict(
@@ -198,7 +200,7 @@ async def _register_chat(ans: bots.SimpleBotEvent):
         admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
 
         state_store = managers.StateStorageManager(admin_id)
-        state_store.update(state=state_store.get_id_of_state("main"))
+        state_store.update(state=state_store.get_id_of_state("pref_select_chat"))
 
         admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
         admin_store = managers.AdminConfigManager(admin_id)
