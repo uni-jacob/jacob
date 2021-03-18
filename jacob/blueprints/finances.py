@@ -83,7 +83,7 @@ async def _register_category(ans: bots.SimpleBotEvent):
         state_storage = managers.StateStorageManager(student_id)
         admin_store = managers.AdminConfigManager(student_id)
         state_storage.update(
-            state=state_storage.get_id_of_state("send_alert_fin_started"),
+            state=state_storage.get_id_of_state("fin_send_alert"),
         )
         with orm.db_session:
             chat_id = admin_store.get_active_chat().vk_id
@@ -148,7 +148,7 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("send_alert_fin_started"),
+    filters.StateFilter("fin_send_alert"),
     filters.PLFilter({"button": "confirm"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -184,7 +184,7 @@ async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("send_alert_fin_started"),
+    filters.StateFilter("fin_send_alert"),
     filters.PLFilter({"button": "deny"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -200,7 +200,7 @@ async def _cancel_send_alarm(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("send_alert_fin_started"),
+    filters.StateFilter("fin_send_alert"),
     filters.PLFilter({"button": "chat_config"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -213,7 +213,7 @@ async def _select_chat_alert(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     finances_router,
-    filters.StateFilter("send_alert_fin_started"),
+    filters.StateFilter("fin_send_alert"),
     filters.PLFilter({"button": "chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
