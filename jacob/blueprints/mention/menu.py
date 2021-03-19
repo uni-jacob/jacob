@@ -129,7 +129,7 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
         mentioned_list = [st.id for st in active_students]
     mention_storage = managers.MentionStorageManager(admin_id)
     mention_storage.update_mentioned_students(mentioned_list)
-    await _confirm_call(ans)
+    await ans.answer("Все студенты группы выбраны для Призыва")
 
 
 @bots.simple_bot_message_handler(
