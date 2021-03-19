@@ -3,11 +3,11 @@
 import os
 import re
 
-import aioredis
 import ujson
 from pony import orm
 from vkwave import api, bots, client
 
+from jacob.database import redis
 from jacob.database.utils import admin, chats, finances, students
 from jacob.database.utils.storages import managers
 from jacob.services import chats as chat_utils
@@ -91,14 +91,11 @@ async def _register_category(ans: bots.SimpleBotEvent):
 
         chat_title = await chat_utils.get_chat_name(api_context, chat_id)
 
-        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
-        await redis.hmset_dict(
+        await redis.hmset(
             "new_category:{0}".format(ans.object.object.message.peer_id),
             category_name=category.name,
             category_sum=category.summ,
         )
-        redis.close()
-        await redis.wait_closed()
 
         await ans.answer(
             "Категория {0} зарегистрирована. Вы можете отправить сообщение о начале сбора в чат {1}".format(
@@ -112,14 +109,10 @@ async def _register_category(ans: bots.SimpleBotEvent):
 
 
 async def _offer_alert(ans: bots.SimpleBotEvent):
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     category_name = await redis.hget(
         "new_category:{0}".format(ans.from_id),
         "category_name",
-        encoding="utf-8",
     )
-    redis.close()
-    await redis.wait_closed()
 
     student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
@@ -145,20 +138,15 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
-    category_name = await redis.hget(
+    category_name = redis.hget(
         "new_category:{0}".format(ans.from_id),
         "category_name",
-        encoding="utf-8",
     )
 
-    category_sum = await redis.hget(
+    category_sum = redis.hget(
         "new_category:{0}".format(ans.from_id),
         "category_sum",
-        encoding="utf-8",
     )
-    redis.close()
-    await redis.wait_closed()
 
     student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
@@ -300,13 +288,10 @@ async def _select_student(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("fin_enter_donate_sum"))
 
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
-    await redis.hmset_dict(
+    await redis.hmset(
         "add_income:{0}".format(ans.from_id),
         payer=ans.payload.get("student_id"),
     )
-    redis.close()
-    await redis.wait_closed()
     await ans.answer("Введите сумму дохода", keyboard=kbs.common.empty())
 
 
@@ -325,14 +310,10 @@ async def _save_donate(ans: bots.SimpleBotEvent):
             student_id,
         )
 
-        redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
         payer = await redis.hget(
             "add_income:{0}".format(ans.object.object.message.peer_id),
             "payer",
-            encoding="utf-8",
         )
-        redis.close()
-        await redis.wait_closed()
 
         finances.add_or_edit_donate(
             fin_store.get_or_create().financial_category.id,

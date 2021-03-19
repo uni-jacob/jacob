@@ -2,12 +2,11 @@
 
 import os
 
-import aioredis
 from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database import models
+from jacob.database import models, redis
 from jacob.database import utils as db
 from jacob.database.utils import chats as db_chats
 from jacob.database.utils import students, admin
@@ -127,13 +126,10 @@ async def _generate_confirm_message(ans: bots.SimpleBotEvent):
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("pref_confirm_chat_register"))
 
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
-    await redis.hmset_dict(
+    await redis.hmset(
         "register_chat:{0}".format(ans.from_id),
         confirm_message=confirm_message,
     )
-    redis.close()
-    await redis.wait_closed()
 
     await ans.answer(
         "Отправьте сообщение с кодовой фразой в чат, который нужно зарегистрировать",
@@ -167,15 +163,11 @@ async def _cancel_register_chat(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_chat"),
 )
 async def _register_chat(ans: bots.SimpleBotEvent):
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
 
     confirm_message = await redis.hget(
         "register_chat:{0}".format(ans.from_id),
         "confirm_message",
-        encoding="utf-8",
     )
-    redis.close()
-    await redis.wait_closed()
 
     message = ans.object.object.message
 
@@ -227,7 +219,7 @@ async def _register_chat(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "index_chat"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
+async def _index_chat(ans: bots.SimpleBotEvent):
     with orm.db_session:
         chat = models.Chat.get(id=ans.payload["chat"])
 
@@ -266,14 +258,11 @@ async def _index_chat(ans: bots.SimpleBotEvent):  # TODO: Refactor!
 
     sep = "\n"
 
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
-    await redis.hmset_dict(
+    await redis.hmset(
         "index:{0}".format(ans.from_id),
         diff_vk_db=",".join(map(str, diff_vk_db)),
         diff_db_vk=",".join(map(str, diff_db_vk)),
     )
-    redis.close()
-    await redis.wait_closed()
 
     await ans.answer(
         """Добавлены в чат, но не зарегистрированы в системе:\n{0};
@@ -299,14 +288,10 @@ async def _register_students(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     group = managers.AdminConfigManager(admin_id).get_active_group()
 
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     students_ids = await redis.hget(
         "index:{0}".format(ans.from_id),
         "diff_vk_db",
-        encoding="utf-8",
     )
-    redis.close()
-    await redis.wait_closed()
 
     student_objects = await api_context.users.get(user_ids=students_ids.split(","))
     students_count = 0
@@ -331,15 +316,11 @@ async def _register_students(ans: bots.SimpleBotEvent):
     filters.PLFilter({"button": "purge_students"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
-async def _delete_students(ans: bots.SimpleBotEvent):  # TODO: Refactor this!
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
+async def _delete_students(ans: bots.SimpleBotEvent):
     students_ids = await redis.hget(
         "index:{0}".format(ans.object.object.message.peer_id),
         "diff_db_vk",
-        encoding="utf-8",
     )
-    redis.close()
-    await redis.wait_closed()
 
     with orm.db_session:
         students_ids = students_ids.split(",")
