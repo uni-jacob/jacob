@@ -1245,7 +1245,7 @@ all = ["aioredis (>=1.3,<2.0)"]
 type = "git"
 url = "https://github.com/fscdev/vkwave.git"
 reference = "master"
-resolved_reference = "2ced06dd2f533df92e580b0bc7d7b7b0c37621f2"
+resolved_reference = "fe9dab7fde6a998f813af916108ff47af21b67d3"
 
 [[package]]
 name = "wcmatch"
