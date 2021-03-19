@@ -217,7 +217,9 @@ async def _fin_category_menu(ans: bots.SimpleBotEvent):
     fin_storage = managers.FinancialConfigManager(
         students.get_system_id_of_student(ans.from_id),
     )
-    fin_storage.update(financial_category=payload.get("category"))
+    category = payload.get("category")
+    if category is not None:
+        fin_storage.update(financial_category=category)
 
     with orm.db_session:
         category_name = fin_storage.get_or_create().financial_category.name
