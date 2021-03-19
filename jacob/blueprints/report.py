@@ -25,7 +25,7 @@ logger.configure(**logger_config.config)
 )
 async def _start_reporting(ans: bots.SimpleBotEvent):
     state_manager = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.from_id)
     )
     state_manager.update(
         state=state_manager.get_id_of_state("report_wait_title"),
@@ -44,15 +44,15 @@ async def _start_reporting(ans: bots.SimpleBotEvent):
 async def _ask_for_issue_text(ans: bots.SimpleBotEvent):
     issue_store = managers.IssueStorageManager(
         students.get_system_id_of_student(
-            ans.object.object.message.from_id,
+            ans.from_id,
         )
     )
-    logger.debug(ans.object.object.message.text)
+    logger.debug(ans.text)
     issue_store.update(
         title=ans.object.object.message.text,
     )
     state_manager = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.from_id)
     )
     state_manager.update(
         state=state_manager.get_id_of_state("report_wait_text"),
@@ -71,13 +71,12 @@ async def _create_issue(ans: bots.SimpleBotEvent):
     gith = Github(os.getenv("GITHUB_TOKEN"))
     repo = gith.get_repo("uni-jacob/jacob")
 
-    issue_store = managers.IssueStorageManager(
-        students.get_system_id_of_student(
-            ans.object.object.message.from_id,
-        )
+    student_id = students.get_system_id_of_student(
+        ans.from_id,
     )
+    issue_store = managers.IssueStorageManager(student_id)
     issue_store.update(
-        text=ans.object.object.message.text,
+        text=ans.text,
     )
 
     new_issue = repo.create_issue(
@@ -87,7 +86,7 @@ async def _create_issue(ans: bots.SimpleBotEvent):
     )
 
     state_manager = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        student_id,
     )
     state_manager.update(
         state=state_manager.get_id_of_state("main"),
@@ -98,8 +97,6 @@ async def _create_issue(ans: bots.SimpleBotEvent):
             new_issue.number,
         ),
         keyboard=kbs.main.main_menu(
-            students.get_system_id_of_student(
-                ans.object.object.message.from_id,
-            ),
+            student_id,
         ),
     )

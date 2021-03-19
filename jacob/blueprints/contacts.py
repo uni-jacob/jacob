@@ -1,6 +1,5 @@
 """Блок Контакты."""
 
-import ujson
 from loguru import logger
 from pony import orm
 from vkwave import bots
@@ -23,14 +22,14 @@ logger.configure(**logger_config.config)
 )
 async def _start_contacts(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.from_id)
     )
     state_storage.update(state=state_storage.get_id_of_state("contacts_select_student"))
     await ans.answer(
         "Выберите студента для отображения его контактной информации",
         keyboard=kbs.contacts.ContactsNavigator(
             students.get_system_id_of_student(
-                ans.object.object.message.from_id,
+                ans.from_id,
             ),
         )
         .render()
@@ -45,7 +44,6 @@ async def _start_contacts(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_half(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
     await ans.answer(
         "Выберите студента",
         keyboard=kbs.contacts.ContactsNavigator(
@@ -55,7 +53,7 @@ async def _select_half(ans: bots.SimpleBotEvent):
         )
         .render()
         .submenu(
-            payload.get("half"),
+            ans.payload.get("half"),
         ),
     )
 
@@ -67,12 +65,11 @@ async def _select_half(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_letter(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
-    letter = payload.get("value")
+    letter = ans.payload.get("value")
     await ans.answer(
         "Список студентов на букву {0}".format(letter),
         keyboard=kbs.contacts.ContactsNavigator(
-            students.get_system_id_of_student(ans.object.object.message.peer_id),
+            students.get_system_id_of_student(ans.from_id),
         )
         .render()
         .students(letter),
@@ -86,13 +83,12 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
     state_storage = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.from_id)
     )
     state_storage.update(state=state_storage.get_id_of_state("main"))
     with orm.db_session:
-        student = models.Student[payload.get("student_id")]
+        student = models.Student[ans.payload.get("student_id")]
     email = student.email or "Не указан"
     phone_number = student.phone_number or "Не указан"
     contacts = "Контакты {0} {1}:\nВК: @id{2}\nEmail: {3}\nТелефон: {4}".format(
@@ -105,6 +101,6 @@ async def _select_student(ans: bots.SimpleBotEvent):
     await ans.answer(
         contacts,
         keyboard=kbs.main.main_menu(
-            students.get_system_id_of_student(ans.object.object.message.from_id),
+            students.get_system_id_of_student(ans.from_id),
         ),
     )

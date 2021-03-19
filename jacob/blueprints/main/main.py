@@ -23,7 +23,7 @@ logger.configure(**config)
 async def _greeting(ans: bots.SimpleBotEvent):
     try:
         student_id = students.get_system_id_of_student(
-            ans.object.object.message.peer_id,
+            ans.from_id,
         )
     except StudentNotFound:
         await ans.answer(

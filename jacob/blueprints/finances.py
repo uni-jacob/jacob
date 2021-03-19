@@ -29,7 +29,7 @@ async def _finances(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Список финансовых категорий",
         keyboard=kbs.finances.list_of_fin_categories(
-            students.get_system_id_of_student(ans.object.object.message.from_id),
+            students.get_system_id_of_student(ans.from_id),
         ),
     )
 
@@ -41,7 +41,7 @@ async def _finances(ans: bots.SimpleBotEvent):
 )
 async def _create_category(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
+        students.get_system_id_of_student(ans.from_id),
     )
     state_storage.update(state=state_storage.get_id_of_state("fin_wait_category_desc"))
     await ans.answer(
@@ -57,7 +57,7 @@ async def _create_category(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _cancel_creating_category(ans: bots.SimpleBotEvent):
-    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    student_id = students.get_system_id_of_student(ans.from_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("main"))
     await ans.answer(
@@ -114,14 +114,14 @@ async def _register_category(ans: bots.SimpleBotEvent):
 async def _offer_alert(ans: bots.SimpleBotEvent):
     redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     category_name = await redis.hget(
-        "new_category:{0}".format(ans.object.object.message.peer_id),
+        "new_category:{0}".format(ans.from_id),
         "category_name",
         encoding="utf-8",
     )
     redis.close()
     await redis.wait_closed()
 
-    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
 
     with orm.db_session:
@@ -147,20 +147,20 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
 async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
     redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     category_name = await redis.hget(
-        "new_category:{0}".format(ans.object.object.message.peer_id),
+        "new_category:{0}".format(ans.from_id),
         "category_name",
         encoding="utf-8",
     )
 
     category_sum = await redis.hget(
-        "new_category:{0}".format(ans.object.object.message.peer_id),
+        "new_category:{0}".format(ans.from_id),
         "category_sum",
         encoding="utf-8",
     )
     redis.close()
     await redis.wait_closed()
 
-    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("main"))
@@ -181,7 +181,7 @@ async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _cancel_send_alarm(ans: bots.SimpleBotEvent):
-    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    student_id = students.get_system_id_of_student(ans.from_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("main"))
     await ans.answer(
@@ -211,10 +211,9 @@ async def _select_chat_alert(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _send_alert_change_chat(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
-    payload = ujson.loads(ans.object.object.message.payload)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(admin_id)
-    admin_store.update(active_chat=payload["chat_id"])
+    admin_store.update(active_chat=ans.payload["chat_id"])
     await _offer_alert(ans)
 
 
@@ -226,7 +225,7 @@ async def _send_alert_change_chat(ans: bots.SimpleBotEvent):
 async def _fin_category_menu(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     fin_storage = managers.FinancialConfigManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id),
+        students.get_system_id_of_student(ans.from_id),
     )
     fin_storage.update(financial_category=payload.get("category"))
 
@@ -245,13 +244,13 @@ async def _fin_category_menu(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _add_income(ans: bots.SimpleBotEvent):
-    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    student_id = students.get_system_id_of_student(ans.from_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("fin_select_donater"))
     await ans.answer(
         "Выберите студента, сдавшего деньги",
         keyboard=kbs.finances.IncomeNavigator(
-            students.get_system_id_of_student(ans.object.object.message.from_id),
+            student_id,
         )
         .render()
         .menu(),
@@ -264,14 +263,13 @@ async def _add_income(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_half(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
     await ans.answer(
         "Выберите студента, сдавшего деньги",
         keyboard=kbs.finances.IncomeNavigator(
             students.get_system_id_of_student(ans.object.object.message.from_id),
         )
         .render()
-        .submenu(payload["half"]),
+        .submenu(ans.payload["half"]),
     )
 
 
@@ -281,12 +279,11 @@ async def _select_half(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_letter(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
-    letter = payload["value"]
+    letter = ans.payload["value"]
     await ans.answer(
         "Список студентов на букву {0}".format(letter),
         keyboard=kbs.finances.IncomeNavigator(
-            students.get_system_id_of_student(ans.object.object.message.peer_id),
+            students.get_system_id_of_student(ans.from_id),
         )
         .render()
         .students(letter),
@@ -299,15 +296,14 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
-    student_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    student_id = students.get_system_id_of_student(ans.from_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("fin_enter_donate_sum"))
 
     redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
     await redis.hmset_dict(
-        "add_income:{0}".format(ans.object.object.message.peer_id),
-        payer=payload.get("student_id"),
+        "add_income:{0}".format(ans.from_id),
+        payer=ans.payload.get("student_id"),
     )
     redis.close()
     await redis.wait_closed()
@@ -320,13 +316,13 @@ async def _select_student(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _save_donate(ans: bots.SimpleBotEvent):
-    text = ans.object.object.message.text
-    if re.match(r"^\d+$", text):
+    if re.match(r"^\d+$", ans.text):
+        student_id = students.get_system_id_of_student(ans.from_id)
         fin_store = managers.FinancialConfigManager(
-            students.get_system_id_of_student(ans.object.object.message.from_id),
+            student_id,
         )
         mention_store = managers.MentionStorageManager(
-            students.get_system_id_of_student(ans.object.object.message.from_id),
+            student_id,
         )
 
         redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
@@ -341,7 +337,7 @@ async def _save_donate(ans: bots.SimpleBotEvent):
         finances.add_or_edit_donate(
             fin_store.get_or_create().financial_category.id,
             payer,
-            int(text),
+            int(ans.text),
         )
         mention_store.clear()
         await ans.answer("Доход сохранен", keyboard=kbs.finances.fin_category())
@@ -355,7 +351,7 @@ async def _save_donate(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _call_debtors(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     group_id = admin.get_active_group(admin_id)
     state_store = managers.StateStorageManager(admin_id)
     admin_store = managers.AdminConfigManager(admin_id)
@@ -395,7 +391,7 @@ async def _call_debtors(ans: bots.SimpleBotEvent):
 async def _select_chat_debtors(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
         api_context,
-        students.get_system_id_of_student(ans.object.object.message.from_id),
+        students.get_system_id_of_student(ans.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
 
@@ -407,10 +403,9 @@ async def _select_chat_debtors(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _save_chat_debtors(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
-    payload = ujson.loads(ans.object.object.message.payload)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(admin_id)
-    admin_store.update(active_chat=payload["chat_id"])
+    admin_store.update(active_chat=ans.payload["chat_id"])
     await _call_debtors(ans)
 
 
@@ -421,7 +416,7 @@ async def _save_chat_debtors(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _confirm_call_debtors(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(admin_id)
     state_store = managers.StateStorageManager(admin_id)
     fin_store = managers.FinancialConfigManager(admin_id)
@@ -443,7 +438,7 @@ async def _confirm_call_debtors(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _deny_call_debtors(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("main"))
     await ans.answer("Отправка отменена", keyboard=kbs.finances.fin_category())
@@ -455,7 +450,7 @@ async def _deny_call_debtors(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _add_expense(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("fin_enter_expense_sum"))
     await ans.answer(
@@ -481,10 +476,11 @@ async def _cancel_adding_expense(ans: bots.SimpleBotEvent):
 )
 async def _save_expense(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
-    text = ans.object.object.message.text
-    if re.match(r"^\d+$", text):
+    if re.match(r"^\d+$", ans.text):
         fin_store = managers.FinancialConfigManager(admin_id)
-        finances.add_expense(fin_store.get_or_create().financial_category.id, int(text))
+        finances.add_expense(
+            fin_store.get_or_create().financial_category.id, int(ans.text)
+        )
         state_store = managers.StateStorageManager(admin_id)
         state_store.update(state=state_store.get_id_of_state("main"))
         await ans.answer("Расход сохранен", keyboard=kbs.finances.fin_category())
@@ -498,14 +494,15 @@ async def _save_expense(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _get_statistics(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    admin_id = students.get_system_id_of_student(ans.from_id)
     fin_store = managers.FinancialConfigManager(admin_id)
     with orm.db_session:
+        category = fin_store.get_or_create().financial_category
         donates_summ = finances.calculate_incomes_in_category(
-            fin_store.get_or_create().financial_category,
+            category,
         )
         expenses_summ = finances.calculate_expenses_in_category(
-            fin_store.get_or_create().financial_category,
+            category,
         )
     await ans.answer(
         "Статистика\nСобрано: {0} руб.\nПотрачено: {1} руб.".format(
