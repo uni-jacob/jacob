@@ -493,3 +493,12 @@ async def _get_statistics(ans: bots.SimpleBotEvent):
             expenses_summ,
         ),
     )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "finances_pref"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _open_prefs(ans: bots.SimpleBotEvent):
+    await ans.answer("Настройки категории", keyboard=kbs.finances.fin_prefs())
