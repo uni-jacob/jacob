@@ -30,6 +30,7 @@ logger.configure(**config)
 async def _start_call(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     group_id = admin.get_active_group(admin_id)
+    mention_store = managers.MentionStorageManager(admin_id)
     with orm.db_session:
         if chats.get_list_of_chats_by_group(group_id):
             state_store = managers.StateStorageManager(admin_id)
@@ -40,6 +41,10 @@ async def _start_call(ans: bots.SimpleBotEvent):
                 "Отправьте сообщение к призыву. Можно добавить до 10 фотографий",
                 keyboard=kbs.call.skip_call_message(),
             )
+            mention_text = mention_store.get_text()
+            if mention_text:
+                await ans.answer("Текущее сообщение:")
+                await ans.answer(mention_text)
         else:
             await ans.answer(
                 "У вашей группы нет зарегистрированных чатов. Возврат в главное меню",
