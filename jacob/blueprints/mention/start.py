@@ -59,6 +59,8 @@ async def _start_call(ans: bots.SimpleBotEvent):
 async def _cancel_call(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     managers.MentionStorageManager(admin_id).clear()
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
     await ans.answer(
         "Призыв отменён. Возврат на главную.",
         keyboard=kbs.main.main_menu(admin_id),
