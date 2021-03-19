@@ -87,7 +87,7 @@ def call_prompt(admin_id: int) -> JSONStr:
     Генерирует клавиатуру с настройкой призыва.
 
     Args:
-        admin_id: идентфикатор администратора
+        admin_id: идентификатор администратора
 
     Returns:
         JSONStr:  Клавиатура
@@ -100,6 +100,8 @@ def call_prompt(admin_id: int) -> JSONStr:
     else:
         names_emoji = "🚫"
     chat_emoji = "📡"
+    kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
+    kb.add_row()
     kb.add_text_button(
         text=f"{names_emoji} Использовать имена",
         payload={"button": "names_usage"},
