@@ -83,9 +83,11 @@ async def _register_category(ans: bots.SimpleBotEvent):
         )
         state_storage = managers.StateStorageManager(student_id)
         admin_store = managers.AdminConfigManager(student_id)
+        fin_store = managers.FinancialConfigManager(student_id)
         state_storage.update(
             state=state_storage.get_id_of_state("fin_send_alert"),
         )
+        fin_store.update(financial_category=category.id)
         with orm.db_session:
             chat_id = admin_store.get_active_chat().vk_id
 
