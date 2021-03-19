@@ -108,7 +108,7 @@ for i in range(20):
     vk_id = Random().custom_code(mask="#########")
     name, surname = person.full_name().split()
     email = person.email()
-    phone = person.telephone(mask="9#########")
+    phone = person.telephone(mask="89########")
     with orm.db_session:
         ac_status = orm.select(ac for ac in models.AcademicStatus).random(1)[0]
         group = orm.select(gr for gr in models.Group).random(1)[0]
