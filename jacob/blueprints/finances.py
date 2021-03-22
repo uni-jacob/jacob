@@ -7,7 +7,7 @@ import ujson
 from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database import redis
+from jacob.database import models, redis
 from jacob.database.utils import admin, chats, finances, students
 from jacob.database.utils.storages import managers
 from jacob.services import chats as chat_utils
@@ -511,5 +511,43 @@ async def _open_prefs(ans: bots.SimpleBotEvent):
 
     await ans.answer(
         'Настройки категории "{0}"'.format(category_name),
+        keyboard=kbs.finances.fin_prefs(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "rename_fin_cat"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _rename_category(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("fin_wait_new_name"))
+    await ans.answer(
+        "Введите новое название категории",
+        keyboard=kbs.finances.fin_prefs(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("fin_wait_new_name"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_name_category(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    fin_store = managers.FinancialConfigManager(admin_id)
+
+    with orm.db_session:
+        category_id = fin_store.get_or_create().financial_category.id
+
+        models.FinancialCategory[category_id].set(name=ans.text)
+
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
+
+    await ans.answer(
+        "Категория сохранена",
         keyboard=kbs.finances.fin_prefs(),
     )
