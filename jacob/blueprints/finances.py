@@ -100,6 +100,11 @@ async def _register_category(ans: bots.SimpleBotEvent):
         await ans.answer("Неверный формат данных")
 
 
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PayloadFilter({"button": "send_fin_alert"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
 async def _offer_alert(ans: bots.SimpleBotEvent):
     student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
@@ -151,6 +156,11 @@ async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
             category_name,
             category_sum,
         ),
+    )
+
+    await ans.answer(
+        "Сообщение отправлено",
+        keyboard=kbs.finances.fin_prefs(),
     )
 
 
