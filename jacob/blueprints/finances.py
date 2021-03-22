@@ -81,23 +81,13 @@ async def _register_category(ans: bots.SimpleBotEvent):
             admin.get_active_group(student_id).id,
             *message.text.split(),
         )
-        state_storage = managers.StateStorageManager(student_id)
         admin_store = managers.AdminConfigManager(student_id)
         fin_store = managers.FinancialConfigManager(student_id)
-        state_storage.update(
-            state=state_storage.get_id_of_state("fin_send_alert"),
-        )
         fin_store.update(financial_category=category.id)
         with orm.db_session:
             chat_id = admin_store.get_active_chat().vk_id
 
         chat_title = await chat_utils.get_chat_name(api_context, chat_id)
-
-        await redis.hmset(
-            "new_category:{0}".format(ans.object.object.message.peer_id),
-            category_name=category.name,
-            category_sum=category.summ,
-        )
 
         await ans.answer(
             "Категория {0} зарегистрирована. Вы можете отправить сообщение о начале сбора в чат {1}".format(
@@ -111,16 +101,17 @@ async def _register_category(ans: bots.SimpleBotEvent):
 
 
 async def _offer_alert(ans: bots.SimpleBotEvent):
-    category_name = await redis.hget(
-        "new_category:{0}".format(ans.from_id),
-        "category_name",
-    )
-
     student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
+    state_storage = managers.StateStorageManager(student_id)
+    fin_store = managers.FinancialConfigManager(student_id)
+    state_storage.update(
+        state=state_storage.get_id_of_state("fin_send_alert"),
+    )
 
     with orm.db_session:
         chat_id = admin_store.get_active_chat().vk_id
+        category_name = fin_store.get_or_create().financial_category.name
 
     chat_title = await chat_utils.get_chat_name(api_context, chat_id)
 
@@ -140,22 +131,21 @@ async def _offer_alert(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _confirm_send_alarm(ans: bots.SimpleBotEvent):
-    category_name = redis.hget(
-        "new_category:{0}".format(ans.from_id),
-        "category_name",
-    )
-
-    category_sum = redis.hget(
-        "new_category:{0}".format(ans.from_id),
-        "category_sum",
-    )
 
     student_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(student_id)
     state_storage = managers.StateStorageManager(student_id)
     state_storage.update(state=state_storage.get_id_of_state("main"))
+
+    fin_store = managers.FinancialConfigManager(student_id)
+
+    with orm.db_session:
+        chat_vk_id = admin_store.get_active_chat().vk_id
+        category_name = fin_store.get_or_create().financial_category.name
+        category_sum = fin_store.get_or_create().financial_category.summ
+
     await ans.api_ctx.messages.send(
-        peer_id=admin_store.get_active_chat().vk_id,
+        peer_id=chat_vk_id,
         random_id=0,
         message="Начат сбор средств на {0}. Сумма {1} руб.".format(
             category_name,
