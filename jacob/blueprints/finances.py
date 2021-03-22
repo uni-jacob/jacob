@@ -530,6 +530,22 @@ async def _rename_category(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("fin_wait_new_name"))
     await ans.answer(
         "Введите новое название категории",
+        keyboard=kbs.common.cancel(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "cancel"}),
+    filters.StateFilter("fin_wait_new_name"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_renaming_category(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
+    await ans.answer(
+        "Переименование отменено",
         keyboard=kbs.finances.fin_prefs(),
     )
 
@@ -568,6 +584,22 @@ async def _update_category_sum(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("fin_wait_new_sum"))
     await ans.answer(
         "Введите новую сумму сбора",
+        keyboard=kbs.common.cancel(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "cancel"}),
+    filters.StateFilter("fin_wait_new_sum"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_changing_sum_of_category(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
+    await ans.answer(
+        "Изменение суммы отменено",
         keyboard=kbs.finances.fin_prefs(),
     )
 
