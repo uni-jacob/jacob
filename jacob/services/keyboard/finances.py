@@ -125,7 +125,7 @@ def fin_category() -> JSONStr:
     kb.add_text_button("💸 Должники", payload={"button": "show_debtors"})
     kb.add_text_button("📊 Статистика", payload={"button": "show_stats"})
     kb.add_row()
-    kb.add_text_button("Настройки", payload={"button": "finances_pref"})
+    kb.add_text_button("⚙ Настройки", payload={"button": "finances_pref"})
     kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "finances"})
 
@@ -140,11 +140,11 @@ def fin_prefs() -> JSONStr:
     """
     kb = Keyboard()
 
-    kb.add_text_button("Переименовать", payload={"button": "rename_fin_cat"})
-    kb.add_text_button("Изменить сумму", payload={"button": "change_fin_sum"})
+    kb.add_text_button("✏ Переименовать", payload={"button": "rename_fin_cat"})
+    kb.add_text_button("💱 Изменить сумму", payload={"button": "change_fin_sum"})
     kb.add_row()
-    kb.add_text_button("Уведомить", payload={"button": "send_fin_alert"})
-    kb.add_text_button("Удалить", payload={"button": "delete_fin_cat"})
+    kb.add_text_button("✉ Уведомить", payload={"button": "send_fin_alert"})
+    kb.add_text_button("🔥 Удалить", payload={"button": "delete_fin_cat"})
     kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "fin_category"})
 
