@@ -551,3 +551,44 @@ async def _save_new_name_category(ans: bots.SimpleBotEvent):
         "Категория сохранена",
         keyboard=kbs.finances.fin_prefs(),
     )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PLFilter({"button": "change_fin_sum"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _update_category_sum(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("fin_wait_new_sum"))
+    await ans.answer(
+        "Введите новую сумму сбора",
+        keyboard=kbs.finances.fin_prefs(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("fin_wait_new_sum"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_sum_category(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    fin_store = managers.FinancialConfigManager(admin_id)
+
+    if re.match(r"^\d+$", ans.text):
+
+        with orm.db_session:
+            category_id = fin_store.get_or_create().financial_category.id
+            models.FinancialCategory[category_id].set(summ=ans.text)
+
+        state_store = managers.StateStorageManager(admin_id)
+        state_store.update(state=state_store.get_id_of_state("main"))
+
+        await ans.answer(
+            "Категория сохранена",
+            keyboard=kbs.finances.fin_prefs(),
+        )
+    else:
+        await ans.answer("Неверный формат данных")
