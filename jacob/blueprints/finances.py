@@ -503,4 +503,13 @@ async def _get_statistics(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _open_prefs(ans: bots.SimpleBotEvent):
-    await ans.answer("Настройки категории", keyboard=kbs.finances.fin_prefs())
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    fin_store = managers.FinancialConfigManager(admin_id)
+
+    with orm.db_session:
+        category_name = fin_store.get_or_create().financial_category.name
+
+    await ans.answer(
+        'Настройки категории "{0}"'.format(category_name),
+        keyboard=kbs.finances.fin_prefs(),
+    )
