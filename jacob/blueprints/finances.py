@@ -596,3 +596,67 @@ async def _save_new_sum_category(ans: bots.SimpleBotEvent):
         )
     else:
         await ans.answer("Неверный формат данных")
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.PayloadFilter({"button": "delete_fin_cat"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _remove_cat(ans: bots.SimpleBotEvent):
+    student_id = students.get_system_id_of_student(ans.from_id)
+    state_storage = managers.StateStorageManager(student_id)
+    fin_store = managers.FinancialConfigManager(student_id)
+    state_storage.update(
+        state=state_storage.get_id_of_state("fin_delete_cat"),
+    )
+
+    with orm.db_session:
+        category_name = fin_store.get_or_create().financial_category.name
+
+    await ans.answer(
+        "Удалить категорию {0}?".format(
+            category_name,
+        ),
+        keyboard=kbs.common.prompt().get_keyboard(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("fin_delete_cat"),
+    filters.PLFilter({"button": "confirm"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _confirm_remove_cat(ans: bots.SimpleBotEvent):
+
+    student_id = students.get_system_id_of_student(ans.from_id)
+    state_storage = managers.StateStorageManager(student_id)
+    state_storage.update(state=state_storage.get_id_of_state("main"))
+
+    fin_store = managers.FinancialConfigManager(student_id)
+
+    with orm.db_session:
+        category = fin_store.get_or_create().financial_category
+        category.delete()
+
+    await ans.answer(
+        "Категория удалена",
+        keyboard=kbs.finances.list_of_fin_categories(student_id),
+    )
+
+
+@bots.simple_bot_message_handler(
+    finances_router,
+    filters.StateFilter("fin_delete_cat"),
+    filters.PLFilter({"button": "deny"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_remove_cat(ans: bots.SimpleBotEvent):
+    student_id = students.get_system_id_of_student(ans.from_id)
+    state_storage = managers.StateStorageManager(student_id)
+    state_storage.update(state=state_storage.get_id_of_state("main"))
+    await ans.answer(
+        "Отмена",
+        keyboard=kbs.finances.fin_prefs(),
+    )
