@@ -184,3 +184,38 @@ async def _save_new_student_name(ans: bots.SimpleBotEvent):
         models.Student[student_id].set(first_name=ans.text)
 
     await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_surname"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_surname(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_edit_surname"))
+
+    await ans.answer("Введите новую фамилию", keyboard=kbs.common.cancel())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.StateFilter("students_edit_surname"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_student_surname(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        models.Student[student_id].set(last_name=ans.text)
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
