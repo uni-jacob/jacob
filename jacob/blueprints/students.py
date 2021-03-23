@@ -350,3 +350,62 @@ async def _save_new_student_email(ans: bots.SimpleBotEvent):
         await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
     else:
         await ans.answer("Неверный формат данных")
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_subgroup"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_subgroup(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_edit_subgroup"))
+
+    await ans.answer(
+        "Введите номер подгруппы",
+        keyboard=kbs.common.cancel_with_cleanup(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_cleanup"}),
+    filters.StateFilter("students_edit_subgroup"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _clean_student_subgroup(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        models.Student[student_id].set(subgroup=None)
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.StateFilter("students_edit_subgroup"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_student_subgroup(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    with orm.db_session:
+        models.Student[student_id].set(subgroup=ans.text)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
