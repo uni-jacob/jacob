@@ -1,4 +1,5 @@
 """Блок Студенты."""
+import re
 
 from loguru import logger
 from pony import orm
@@ -219,3 +220,40 @@ async def _save_new_student_surname(ans: bots.SimpleBotEvent):
         models.Student[student_id].set(last_name=ans.text)
 
     await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_phone"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_phone(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_edit_phone"))
+
+    await ans.answer("Введите номер телефона", keyboard=kbs.common.cancel())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.StateFilter("students_edit_phone"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_student_phone(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    if re.match(r"^8[0-9]{3}[0-9]{3}[0-9]{4,6}$", ans.text):
+        with orm.db_session:
+            models.Student[student_id].set(phone_number=ans.text)
+        state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+        await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+    else:
+        await ans.answer("Неверный формат данных")
