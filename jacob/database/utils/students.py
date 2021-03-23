@@ -4,7 +4,7 @@ import typing
 
 from pony import orm
 
-from jacob.database.models import Student
+from jacob.database.models import AcademicStatus, Student
 from jacob.database.utils import admin
 from jacob.services import exceptions
 
@@ -88,3 +88,8 @@ def get_list_of_students_by_letter(admin_id: int, letter: str) -> typing.List[St
     return orm.select(
         st for st in Student if st.group == active_group and st.last_name[0] == letter
     ).order_by(Student.last_name)
+
+
+@orm.db_session
+def get_academic_statuses():
+    return orm.select(ac for ac in AcademicStatus)
