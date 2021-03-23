@@ -1,4 +1,7 @@
+from pony import orm
 from vkwave.bots import Keyboard
+
+from jacob.database.utils import students
 
 
 def student_card():
@@ -31,5 +34,27 @@ def edit_menu():
     kb.add_text_button("Форма обучения", payload={"button": "edit_academic_status"})
     kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
+
+    return kb.get_keyboard()
+
+
+def list_of_academic_statuses():
+
+    kb = Keyboard()
+
+    with orm.db_session:
+        ac_statuses = students.get_academic_statuses()
+
+    for status in ac_statuses:
+        if len(kb.buttons[-1]) == 2:
+            kb.add_row()
+
+        kb.add_text_button(
+            status.description,
+            payload={"button": "students_new_status", "status": status.id},
+        )
+
+    kb.add_row()
+    kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
 
     return kb.get_keyboard()
