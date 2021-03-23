@@ -409,3 +409,45 @@ async def _save_new_student_subgroup(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("students_select_student"))
 
     await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_academic_status"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_academic_status(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(
+        state=state_store.get_id_of_state("students_edit_academic_status")
+    )
+
+    with orm.db_session:
+        kb = kbs.students.list_of_academic_statuses()
+
+    await ans.answer(
+        "Выберите новую форму обучения",
+        keyboard=kb,
+    )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.StateFilter("students_edit_academic_status"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_student_academic_status(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    with orm.db_session:
+        models.Student[student_id].set(academic_status=ans.payload.get("status"))
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
