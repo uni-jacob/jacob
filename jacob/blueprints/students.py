@@ -125,3 +125,13 @@ async def _show_contacts(ans: bots.SimpleBotEvent):
         contacts,
         keyboard=kbs.students.student_card(),
     )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_student"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_menu(ans: bots.SimpleBotEvent):
+    await ans.answer("Меню редактирования студента", keyboard=kbs.students.edit_menu())
