@@ -135,3 +135,52 @@ async def _show_contacts(ans: bots.SimpleBotEvent):
 )
 async def _edit_student_menu(ans: bots.SimpleBotEvent):
     await ans.answer("Меню редактирования студента", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "cancel"}),
+    filters.StateFilter("students_edit_*"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_editing_student(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    await ans.answer("Редактирование отменено", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_name"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_name(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_edit_name"))
+
+    await ans.answer("Введите новое имя", keyboard=kbs.common.cancel())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.StateFilter("students_edit_name"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_student_name(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        models.Student[student_id].set(first_name=ans.text)
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
