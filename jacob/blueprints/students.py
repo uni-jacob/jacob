@@ -257,3 +257,40 @@ async def _save_new_student_phone(ans: bots.SimpleBotEvent):
         await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
     else:
         await ans.answer("Неверный формат данных")
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_email"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _edit_student_email(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_edit_email"))
+
+    await ans.answer("Введите электропочту", keyboard=kbs.common.cancel())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.StateFilter("students_edit_email"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_student_email(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    if re.match(r"^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$", ans.text):
+        with orm.db_session:
+            models.Student[student_id].set(email=ans.text)
+        state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+        await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+    else:
+        await ans.answer("Неверный формат данных")
