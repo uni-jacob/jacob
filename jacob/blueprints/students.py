@@ -4,7 +4,7 @@ from loguru import logger
 from pony import orm
 from vkwave import bots
 
-from jacob.database import models
+from jacob.database import models, redis
 from jacob.database.utils import students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
@@ -83,8 +83,15 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):
+    student_id = ans.payload.get("student_id")
+
     with orm.db_session:
-        student = models.Student[ans.payload.get("student_id")]
+        student = models.Student[student_id]
+
+    await redis.hmset(
+        "students_selected_students:{0}".format(ans.from_id),
+        student_id=student_id,
+    )
 
     await ans.answer(
         "Студент {0} {1}".format(student.first_name, student.last_name),
