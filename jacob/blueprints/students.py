@@ -163,7 +163,10 @@ async def _edit_student_name(ans: bots.SimpleBotEvent):
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("students_edit_name"))
 
-    await ans.answer("Введите новое имя", keyboard=kbs.common.cancel())
+    await ans.answer(
+        "Введите новое имя",
+        keyboard=kbs.common.cancel().get_keyboard(),
+    )
 
 
 @bots.simple_bot_message_handler(
@@ -198,7 +201,10 @@ async def _edit_student_surname(ans: bots.SimpleBotEvent):
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("students_edit_surname"))
 
-    await ans.answer("Введите новую фамилию", keyboard=kbs.common.cancel())
+    await ans.answer(
+        "Введите новую фамилию",
+        keyboard=kbs.common.cancel().get_keyboard(),
+    )
 
 
 @bots.simple_bot_message_handler(
@@ -233,7 +239,32 @@ async def _edit_student_phone(ans: bots.SimpleBotEvent):
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("students_edit_phone"))
 
-    await ans.answer("Введите номер телефона", keyboard=kbs.common.cancel())
+    await ans.answer(
+        "Введите номер телефона",
+        keyboard=kbs.common.cancel_with_cleanup(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_cleanup"}),
+    filters.StateFilter("students_edit_phone"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _clean_student_phone(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        models.Student[student_id].set(phone_number="")
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
 
 
 @bots.simple_bot_message_handler(
@@ -270,7 +301,32 @@ async def _edit_student_email(ans: bots.SimpleBotEvent):
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("students_edit_email"))
 
-    await ans.answer("Введите электропочту", keyboard=kbs.common.cancel())
+    await ans.answer(
+        "Введите электропочту",
+        keyboard=kbs.common.cancel_with_cleanup(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "edit_cleanup"}),
+    filters.StateFilter("students_edit_email"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _clean_student_email(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        models.Student[student_id].set(email="")
+
+    await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
 
 
 @bots.simple_bot_message_handler(
