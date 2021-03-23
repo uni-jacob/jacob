@@ -97,3 +97,31 @@ async def _select_student(ans: bots.SimpleBotEvent):
         "Студент {0} {1}".format(student.first_name, student.last_name),
         keyboard=kbs.students.student_card(),
     )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "get_contacts"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _show_contacts(ans: bots.SimpleBotEvent):
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    with orm.db_session:
+        student = models.Student[student_id]
+    email = student.email or "Не указан"
+    phone_number = student.phone_number or "Не указан"
+    contacts = "Контакты {0} {1}:\nВК: @id{2}\nEmail: {3}\nТелефон: {4}".format(
+        student.first_name,
+        student.last_name,
+        student.vk_id,
+        email,
+        phone_number,
+    )
+    await ans.answer(
+        contacts,
+        keyboard=kbs.students.student_card(),
+    )
