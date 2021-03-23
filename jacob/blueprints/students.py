@@ -88,16 +88,22 @@ async def _select_student(ans: bots.SimpleBotEvent):
 
     with orm.db_session:
         student = models.Student[student_id]
+        student_dict = student.to_dict()
+        student_dict["subgroup"] = student.subgroup or "Не указано"
+        student_dict["group"] = student.group.group_num
+        student_dict["academic_status"] = student.academic_status.description
 
     await redis.hmset(
         "students_selected_students:{0}".format(ans.from_id),
         student_id=student_id,
     )
-
-    await ans.answer(
-        "Студент {0} {1}".format(student.first_name, student.last_name),
-        keyboard=kbs.students.student_card(),
-    )
+    with orm.db_session:
+        await ans.answer(
+            "Студент {first_name} {last_name}\nГруппа: {group}\nПодгруппа: {subgroup}\nФорма обучения: {academic_status}".format(
+                **student_dict
+            ),
+            keyboard=kbs.students.student_card(),
+        )
 
 
 @bots.simple_bot_message_handler(
