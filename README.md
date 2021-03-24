@@ -28,10 +28,10 @@
     - Назначение/разжалование администраторов
     - Удаление студентов
 
-## Документация
+## Ссылки
 
-[https://uni-jacob.github.io/jacob](https://uni-jacob.github.io/jacob/)
+[Документация](https://uni-jacob.github.io/jacob/)
 
-## Бот
+[Бот](https://vk.com/jacob_bot)
 
-[https://vk.com/jacob_bot](https://vk.com/jacob_bot)
+[Внесение вклада](CONTRIBUTING.md)
