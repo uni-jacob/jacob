@@ -1,6 +1,6 @@
-from services import keyboard as kbs
-from services.keyboard.common import Keyboards
-from services.keyboard.common import StudentsNavigator
+from jacob.services import keyboard as kbs
+from jacob.services.keyboard.common import Keyboards
+from jacob.services.keyboard.common import StudentsNavigator
 
 
 class ContactsKeyboards(Keyboards):
