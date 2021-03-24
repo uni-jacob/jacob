@@ -15,6 +15,9 @@ def student_card():
         "Редактировать",
         payload={"button": "edit_student"},
     )
+
+    kb.add_text_button("Удалить", payload={"button": "delete_student"})
+
     kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
