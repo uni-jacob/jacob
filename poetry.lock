@@ -438,7 +438,7 @@ restructuredtext_lint = "*"
 
 [[package]]
 name = "flake8-simplify"
-version = "0.9.1"
+version = "0.14.0"
 description = "flake8 plugin which checks for code that can be simpified"
 category = "dev"
 optional = false
@@ -1264,7 +1264,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.6"
-content-hash = "855cc5e09f2cbadfe1c6cd4a627c6e6f7c3d8021662996b3d650c5e1c346ff1b"
+content-hash = "f276c495a14993b681220845245d1003446cde169defbc537b2fc5beca3cf496"
 
 [metadata.files]
 aiohttp = [
@@ -1510,8 +1510,8 @@ flake8-rst-docstrings = [
     {file = "flake8-rst-docstrings-0.0.14.tar.gz", hash = "sha256:8f8bcb18f1408b506dd8ba2c99af3eac6128f6911d4bf6ff874b94caa70182a2"},
 ]
 flake8-simplify = [
-    {file = "flake8_simplify-0.9.1-py3-none-any.whl", hash = "sha256:f80bc4bc10b7ced320b09b14452cfefdb4db981aab9758372912c63982356ff9"},
-    {file = "flake8_simplify-0.9.1.tar.gz", hash = "sha256:176d40065ef2dd30f14c99f67f1ba652796f747b7ad8c7fe23c000e2133ce53e"},
+    {file = "flake8_simplify-0.14.0-py3-none-any.whl", hash = "sha256:5793b3c7bd826d7489580f8146bbd40d5bface15d9be5020ddbf07980b844709"},
+    {file = "flake8_simplify-0.14.0.tar.gz", hash = "sha256:365d0b812fc708af2286a8364ed7b23715bb873431c7f3188bc0b4cd6dcb3c0a"},
 ]
 flake8-string-format = [
     {file = "flake8-string-format-0.3.0.tar.gz", hash = "sha256:65f3da786a1461ef77fca3780b314edb2853c377f2e35069723348c8917deaa2"},
