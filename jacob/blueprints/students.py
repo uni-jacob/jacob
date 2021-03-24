@@ -457,3 +457,85 @@ async def _save_new_student_academic_status(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("students_select_student"))
 
     await ans.answer("Студент отредактирован", keyboard=kbs.students.edit_menu())
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "delete_student"}),
+    filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _delete_student(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_delete_student"))
+
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    with orm.db_session:
+        student = models.Student[student_id]
+
+    await ans.answer(
+        "Удалить студента {0} {1}?".format(student.first_name, student.last_name),
+        keyboard=kbs.common.prompt().get_keyboard(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "confirm"}),
+    filters.StateFilter("students_delete_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _confirm_delete_student(ans: bots.SimpleBotEvent):
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+    admin_id = students.get_system_id_of_student(
+        ans.from_id,
+    )
+
+    state_store = managers.StateStorageManager(admin_id)
+
+    if student_id != admin_id:
+        with orm.db_session:
+            models.Student[student_id].delete()
+        await ans.answer(
+            "Студент удалён",
+            keyboard=kbs.contacts.ContactsNavigator(
+                students.get_system_id_of_student(
+                    ans.from_id,
+                ),
+            )
+            .render()
+            .menu(),
+        )
+    else:
+        await ans.answer(
+            "Вы не можете удалить сами себя",
+            keyboard=kbs.students.student_card(),
+        )
+
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "deny"}),
+    filters.StateFilter("students_delete_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_delete_student(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(
+        ans.from_id,
+    )
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("students_select_student"))
+
+    await ans.answer(
+        "Операция отменена",
+        keyboard=kbs.students.student_card(),
+    )
