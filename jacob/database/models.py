@@ -80,14 +80,38 @@ class Student(db.Entity):
     email = orm.Optional(str)
     phone_number = orm.Optional(str)
     academic_status = orm.Required(AcademicStatus)
-    financial_incomes = orm.Set("FinancialIncome")
-    issues = orm.Set("Issue")
-    admins = orm.Set(Admin)
-    state_storage = orm.Optional("StateStorage")
-    admin_config = orm.Optional(AdminConfig)
-    call_storage = orm.Optional("MentionStorage")
-    chat_registrar_config = orm.Optional("ChatRegistrarConfig")
-    financial_config = orm.Optional("FinancialConfig")
+    financial_incomes = orm.Set(
+        "FinancialIncome",
+        cascade_delete=True,
+    )
+    issues = orm.Set(
+        "Issue",
+        cascade_delete=True,
+    )
+    admins = orm.Set(
+        Admin,
+        cascade_delete=True,
+    )
+    state_storage = orm.Optional(
+        "StateStorage",
+        cascade_delete=True,
+    )
+    admin_config = orm.Optional(
+        AdminConfig,
+        cascade_delete=True,
+    )
+    call_storage = orm.Optional(
+        "MentionStorage",
+        cascade_delete=True,
+    )
+    chat_registrar_config = orm.Optional(
+        "ChatRegistrarConfig",
+        cascade_delete=True,
+    )
+    financial_config = orm.Optional(
+        "FinancialConfig",
+        cascade_delete=True,
+    )
 
     def is_admin(self) -> bool:
         """
