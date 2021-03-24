@@ -24,7 +24,7 @@ def is_admin_in_group(student_id: int, group_id: int):
         orm.select(
             adm
             for adm in Admin
-            if adm.student.id == student_id and adm.group == group_id
+            if adm.student.id == student_id and adm.group.id == group_id
         )
     )
 

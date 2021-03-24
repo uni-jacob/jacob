@@ -111,7 +111,7 @@ async def _select_student(ans: bots.SimpleBotEvent):
     with orm.db_session:
         is_admin = students.is_admin_in_group(
             student_id,
-            admin.get_active_group(admin_id),
+            admin.get_active_group(admin_id).id,
         )
 
     await ans.answer(
@@ -138,7 +138,7 @@ async def _show_contacts(ans: bots.SimpleBotEvent):
         student = models.Student[student_id]
         is_admin = students.is_admin_in_group(
             student_id,
-            admin.get_active_group(admin_id),
+            admin.get_active_group(admin_id).id,
         )
     email = student.email or "Не указан"
     phone_number = student.phone_number or "Не указан"
@@ -498,7 +498,7 @@ async def _delete_student(ans: bots.SimpleBotEvent):
         student = models.Student[student_id]
         is_admin = students.is_admin_in_group(
             student_id,
-            admin.get_active_group(admin_id),
+            admin.get_active_group(admin_id).id,
         )
     if int(student_id) != admin_id:
         state_store.update(state=state_store.get_id_of_state("students_delete_student"))
@@ -602,7 +602,7 @@ async def _demote_admin(ans: bots.SimpleBotEvent):
             models.Admin.get(student=student_id, group=group_id).delete()
             is_admin = students.is_admin_in_group(
                 student_id,
-                admin.get_active_group(admin_id),
+                admin.get_active_group(admin_id).id,
             )
         await ans.answer(
             "Администратор разжалован",
