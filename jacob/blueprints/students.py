@@ -497,7 +497,6 @@ async def _save_new_student_academic_status(ans: bots.SimpleBotEvent):
 async def _delete_student(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     state_store = managers.StateStorageManager(admin_id)
-    state_store.update(state=state_store.get_id_of_state("students_delete_student"))
 
     student_id = await redis.hget(
         "students_selected_students:{0}".format(ans.from_id),
@@ -505,11 +504,25 @@ async def _delete_student(ans: bots.SimpleBotEvent):
     )
     with orm.db_session:
         student = models.Student[student_id]
-
-    await ans.answer(
-        "Удалить студента {0} {1}?".format(student.first_name, student.last_name),
-        keyboard=kbs.common.prompt().get_keyboard(),
-    )
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == student_id
+                and adm.group == admin.get_active_group(admin_id)
+            )
+        )
+    if int(student_id) != admin_id:
+        state_store.update(state=state_store.get_id_of_state("students_delete_student"))
+        await ans.answer(
+            "Удалить студента {0} {1}?".format(student.first_name, student.last_name),
+            keyboard=kbs.common.prompt().get_keyboard(),
+        )
+    else:
+        await ans.answer(
+            "Вы не можете удалить сами себя",
+            keyboard=kbs.students.student_card(is_admin),
+        )
 
 
 @bots.simple_bot_message_handler(
@@ -527,36 +540,20 @@ async def _confirm_delete_student(ans: bots.SimpleBotEvent):
         ans.from_id,
     )
 
-    with orm.db_session:
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == student_id
-                and adm.group == admin.get_active_group(admin_id)
-            )
-        )
-
     state_store = managers.StateStorageManager(admin_id)
 
-    if student_id != admin_id:
-        with orm.db_session:
-            models.Student[student_id].delete()
-        await ans.answer(
-            "Студент удалён",
-            keyboard=kbs.contacts.ContactsNavigator(
-                students.get_system_id_of_student(
-                    ans.from_id,
-                ),
-            )
-            .render()
-            .menu(),
+    with orm.db_session:
+        models.Student[student_id].delete()
+    await ans.answer(
+        "Студент удалён",
+        keyboard=kbs.contacts.ContactsNavigator(
+            students.get_system_id_of_student(
+                ans.from_id,
+            ),
         )
-    else:
-        await ans.answer(
-            "Вы не можете удалить сами себя",
-            keyboard=kbs.students.student_card(is_admin),
-        )
+        .render()
+        .menu(),
+    )
 
     state_store.update(state=state_store.get_id_of_state("students_select_student"))
 
