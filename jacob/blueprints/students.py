@@ -6,7 +6,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import models, redis
-from jacob.database.utils import students
+from jacob.database.utils import students, admin
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
@@ -95,6 +95,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
 )
 async def _select_student(ans: bots.SimpleBotEvent):
     student_id = ans.payload.get("student_id")
+    admin_id = students.get_system_id_of_student(ans.from_id)
 
     with orm.db_session:
         student = models.Student[student_id]
@@ -107,11 +108,21 @@ async def _select_student(ans: bots.SimpleBotEvent):
         "students_selected_students:{0}".format(ans.from_id),
         student_id=student_id,
     )
+    with orm.db_session:
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == student.id
+                and adm.group == admin.get_active_group(admin_id)
+            )
+        )
+
     await ans.answer(
         "Студент {first_name} {last_name}\nГруппа: {group}\nПодгруппа: {subgroup}\nФорма обучения: {academic_status}".format(
             **student_dict
         ),
-        keyboard=kbs.students.student_card(),
+        keyboard=kbs.students.student_card(is_admin),
     )
 
 
