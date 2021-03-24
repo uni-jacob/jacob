@@ -137,8 +137,17 @@ async def _show_contacts(ans: bots.SimpleBotEvent):
         "students_selected_students:{0}".format(ans.from_id),
         "student_id",
     )
+    admin_id = students.get_system_id_of_student(ans.from_id)
     with orm.db_session:
         student = models.Student[student_id]
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == student.id
+                and adm.group == admin.get_active_group(admin_id)
+            )
+        )
     email = student.email or "Не указан"
     phone_number = student.phone_number or "Не указан"
     contacts = "Контакты {0} {1}:\nВК: @id{2}\nEmail: {3}\nТелефон: {4}".format(
@@ -150,7 +159,7 @@ async def _show_contacts(ans: bots.SimpleBotEvent):
     )
     await ans.answer(
         contacts,
-        keyboard=kbs.students.student_card(),
+        keyboard=kbs.students.student_card(is_admin),
     )
 
 
@@ -518,6 +527,16 @@ async def _confirm_delete_student(ans: bots.SimpleBotEvent):
         ans.from_id,
     )
 
+    with orm.db_session:
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == student_id
+                and adm.group == admin.get_active_group(admin_id)
+            )
+        )
+
     state_store = managers.StateStorageManager(admin_id)
 
     if student_id != admin_id:
@@ -536,7 +555,7 @@ async def _confirm_delete_student(ans: bots.SimpleBotEvent):
     else:
         await ans.answer(
             "Вы не можете удалить сами себя",
-            keyboard=kbs.students.student_card(),
+            keyboard=kbs.students.student_card(is_admin),
         )
 
     state_store.update(state=state_store.get_id_of_state("students_select_student"))
@@ -555,7 +574,22 @@ async def _cancel_delete_student(ans: bots.SimpleBotEvent):
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("students_select_student"))
 
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == student_id
+                and adm.group == admin.get_active_group(admin_id)
+            )
+        )
+
     await ans.answer(
         "Операция отменена",
-        keyboard=kbs.students.student_card(),
+        keyboard=kbs.students.student_card(is_admin),
     )
