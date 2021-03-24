@@ -19,7 +19,7 @@ def student_card():
     kb.add_text_button("Удалить", payload={"button": "delete_student"})
 
     kb.add_row()
-    kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
+    kb.add_text_button("◀️ Назад", payload={"button": "letter"})
 
     return kb.get_keyboard()
 

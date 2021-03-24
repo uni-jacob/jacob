@@ -67,6 +67,16 @@ async def _select_half(ans: bots.SimpleBotEvent):
 )
 async def _select_letter(ans: bots.SimpleBotEvent):
     letter = ans.payload.get("value")
+
+    if letter is None:
+        student_id = await redis.hget(
+            "students_selected_students:{0}".format(ans.from_id),
+            "student_id",
+        )
+        with orm.db_session:
+            student = models.Student[student_id]
+            letter = student.last_name[0]
+
     await ans.answer(
         "Список студентов на букву {0}".format(letter),
         keyboard=kbs.contacts.ContactsNavigator(
@@ -97,13 +107,12 @@ async def _select_student(ans: bots.SimpleBotEvent):
         "students_selected_students:{0}".format(ans.from_id),
         student_id=student_id,
     )
-    with orm.db_session:
-        await ans.answer(
-            "Студент {first_name} {last_name}\nГруппа: {group}\nПодгруппа: {subgroup}\nФорма обучения: {academic_status}".format(
-                **student_dict
-            ),
-            keyboard=kbs.students.student_card(),
-        )
+    await ans.answer(
+        "Студент {first_name} {last_name}\nГруппа: {group}\nПодгруппа: {subgroup}\nФорма обучения: {academic_status}".format(
+            **student_dict
+        ),
+        keyboard=kbs.students.student_card(),
+    )
 
 
 @bots.simple_bot_message_handler(
