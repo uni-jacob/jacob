@@ -210,7 +210,7 @@ def empty() -> JSONStr:
     return kb.get_empty_keyboard()
 
 
-def cancel():
+def cancel() -> Keyboard:
     """
     Генерирует клавиатуру для отмены действия.
 
@@ -221,7 +221,7 @@ def cancel():
 
     kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
 
-    return kb.get_keyboard()
+    return kb
 
 
 def confirm_with_chat_update():
@@ -236,5 +236,14 @@ def confirm_with_chat_update():
         text=f"{chat_emoji} Переключить чат",
         payload={"button": "chat_config"},
     )
+
+    return kb.get_keyboard()
+
+
+def cancel_with_cleanup():
+    kb = cancel()
+
+    kb.add_row()
+    kb.add_text_button("Очистить", payload={"button": "edit_cleanup"})
 
     return kb.get_keyboard()

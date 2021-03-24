@@ -1,7 +1,7 @@
 from loguru import logger
 from vkwave.bots import Keyboard
 
-from jacob.database import utils
+from jacob.database.utils import admin, uni
 
 JSONStr = str
 
@@ -17,7 +17,7 @@ def main_menu(admin_id: int) -> JSONStr:
         JSONStr: Строка с клавиатурой
 
     """
-    is_admin = utils.admin.is_user_admin(admin_id)
+    is_admin = admin.is_user_admin(admin_id)
     logger.debug(f"{is_admin=}")
     kb = Keyboard()
     if is_admin:
@@ -25,7 +25,7 @@ def main_menu(admin_id: int) -> JSONStr:
         kb.add_text_button(text="💰 Финансы", payload={"button": "finances"})
         kb.add_row()
     if is_admin:
-        kb.add_text_button(text="📕 Контакты", payload={"button": "contacts"})
+        kb.add_text_button(text="📕 Студенты", payload={"button": "students"})
         kb.add_row()
         kb.add_text_button(text="⚙ Настройки", payload={"button": "settings"})
         kb.add_row()
@@ -54,17 +54,17 @@ def choose_register_way() -> JSONStr:
 def universities() -> JSONStr:
     kb = Keyboard()
 
-    universities = db.uni.get_all()
+    unies = uni.get_all()
 
-    for uni in universities:
-        if len(kb.buttons[-1] == 2):
+    for university in unies:
+        if len(kb.buttons[-1]) == 2:
             kb.add_row()
 
         kb.add_text_button(
-            uni.name,
+            university.name,
             payload={
                 "button": "university",
-                "university": uni.id,
+                "university": university.id,
             },
         )
 

@@ -59,13 +59,15 @@ def generate_bot_statuses() -> list:
     bot_statuses = [
         "main",
         "common_select_chat",
-        "contacts_select_student",
         "fin_select_donater",
         "fin_enter_donate_sum",
         "fin_confirm_debtors_call",
         "fin_enter_expense_sum",
         "fin_wait_category_desc",
         "fin_send_alert",
+        "fin_wait_new_name",
+        "fin_wait_new_sum",
+        "fin_delete_cat",
         "mention_wait_text",
         "mention_confirm",
         "mention_select_mentioned",
@@ -73,6 +75,14 @@ def generate_bot_statuses() -> list:
         "pref_select_chat",
         "report_wait_title",
         "report_wait_text",
+        "students_select_student",
+        "students_edit_name",
+        "students_edit_surname",
+        "students_edit_subgroup",
+        "students_edit_phone",
+        "students_edit_email",
+        "students_edit_academic_status",
+        "students_delete_student",
     ]
     for name in bot_statuses:
         bot_statuses_objects.append(models.State(description=name))

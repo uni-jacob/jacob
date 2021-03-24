@@ -1,6 +1,6 @@
-from services import keyboard as kbs
-from services.keyboard.common import Keyboards
-from services.keyboard.common import StudentsNavigator
+from jacob.services import keyboard as kbs
+from jacob.services.keyboard.common import Keyboards
+from jacob.services.keyboard.common import StudentsNavigator
 
 
 class ContactsKeyboards(Keyboards):
@@ -56,7 +56,7 @@ class ContactsKeyboards(Keyboards):
 class ContactsNavigator(StudentsNavigator):
     def __init__(self, admin_id: int):
         super().__init__(admin_id)
-        self.return_to = "contacts"
+        self.return_to = "students"
 
     def render(self):
         return ContactsKeyboards(self.admin_id, self.return_to)

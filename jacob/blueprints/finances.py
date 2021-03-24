@@ -46,7 +46,7 @@ async def _create_category(ans: bots.SimpleBotEvent):
     state_storage.update(state=state_storage.get_id_of_state("fin_wait_category_desc"))
     await ans.answer(
         "Отправьте название категории и сумму сбора, разделенные пробелом",
-        keyboard=kbs.common.cancel(),
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 
@@ -444,7 +444,7 @@ async def _add_expense(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("fin_enter_expense_sum"))
     await ans.answer(
         "Введите сумму расхода",
-        keyboard=kbs.common.cancel(),
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 
@@ -530,7 +530,7 @@ async def _rename_category(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("fin_wait_new_name"))
     await ans.answer(
         "Введите новое название категории",
-        keyboard=kbs.common.cancel(),
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 
@@ -584,7 +584,7 @@ async def _update_category_sum(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("fin_wait_new_sum"))
     await ans.answer(
         "Введите новую сумму сбора",
-        keyboard=kbs.common.cancel(),
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 
