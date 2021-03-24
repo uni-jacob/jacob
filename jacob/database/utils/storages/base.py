@@ -31,7 +31,9 @@ class BaseStorageManager(object):
         else:
             owner = self.owner
 
-        storage = self.model.get()
+        storage = self.model.get(
+            owner=owner,
+        )
 
         if storage is None:
             storage = self.model(owner=owner)
