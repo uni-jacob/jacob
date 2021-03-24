@@ -1,13 +1,13 @@
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: pip
+    directory: /
     schedule:
-      interval: "daily"
-     allow: all
-     assignees:
-       - "dadyarri"
-     commit-message:
-       prefix: "build(deps):"
-     labels:
-       - "dependencies"
+      interval: daily
+    allow: all
+    assignees:
+      - dadyarri
+    commit-message:
+      prefix: 'build(deps):'
+    labels:
+      - dependencies
