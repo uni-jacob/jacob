@@ -584,12 +584,86 @@ async def _cancel_delete_student(ans: bots.SimpleBotEvent):
             orm.select(
                 adm
                 for adm in models.Admin
-                if adm.student.id == student_id
+                if adm.student.id == int(student_id)
                 and adm.group == admin.get_active_group(admin_id)
             )
         )
 
     await ans.answer(
         "Операция отменена",
+        keyboard=kbs.students.student_card(is_admin),
+    )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "demote_admin"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _demote_admin(ans: bots.SimpleBotEvent):
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        admin_id = students.get_system_id_of_student(ans.from_id)
+        group_id = admin.get_active_group(admin_id).id
+
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == int(student_id) and adm.group.id == group_id
+            )
+        )
+
+    if int(student_id) != admin_id:
+        with orm.db_session:
+            models.Admin.get(student=student_id, group=group_id).delete()
+            is_admin = bool(
+                orm.select(
+                    adm
+                    for adm in models.Admin
+                    if adm.student.id == int(student_id) and adm.group.id == group_id
+                )
+            )
+        await ans.answer(
+            "Администратор разжалован",
+            keyboard=kbs.students.student_card(is_admin),
+        )
+    else:
+        await ans.answer(
+            "Вы не можете разжаловать сами себя",
+            keyboard=kbs.students.student_card(is_admin),
+        )
+
+
+@bots.simple_bot_message_handler(
+    students_router,
+    filters.PLFilter({"button": "make_admin"})
+    & filters.StateFilter("students_select_student"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _make_admin(ans: bots.SimpleBotEvent):
+    student_id = await redis.hget(
+        "students_selected_students:{0}".format(ans.from_id),
+        "student_id",
+    )
+
+    with orm.db_session:
+        admin_id = students.get_system_id_of_student(ans.from_id)
+        group_id = admin.get_active_group(admin_id).id
+        models.Admin(student=student_id, group=group_id)
+        is_admin = bool(
+            orm.select(
+                adm
+                for adm in models.Admin
+                if adm.student.id == int(student_id) and adm.group.id == group_id
+            )
+        )
+    await ans.answer(
+        "Студент назначен администратором",
         keyboard=kbs.students.student_card(is_admin),
     )
