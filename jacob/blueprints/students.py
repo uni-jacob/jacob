@@ -109,13 +109,9 @@ async def _select_student(ans: bots.SimpleBotEvent):
         student_id=student_id,
     )
     with orm.db_session:
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == student.id
-                and adm.group == admin.get_active_group(admin_id)
-            )
+        is_admin = students.is_admin_in_group(
+            student_id,
+            admin.get_active_group(admin_id),
         )
 
     await ans.answer(
@@ -140,13 +136,9 @@ async def _show_contacts(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     with orm.db_session:
         student = models.Student[student_id]
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == student.id
-                and adm.group == admin.get_active_group(admin_id)
-            )
+        is_admin = students.is_admin_in_group(
+            student_id,
+            admin.get_active_group(admin_id),
         )
     email = student.email or "Не указан"
     phone_number = student.phone_number or "Не указан"
@@ -504,13 +496,9 @@ async def _delete_student(ans: bots.SimpleBotEvent):
     )
     with orm.db_session:
         student = models.Student[student_id]
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == student_id
-                and adm.group == admin.get_active_group(admin_id)
-            )
+        is_admin = students.is_admin_in_group(
+            student_id,
+            admin.get_active_group(admin_id),
         )
     if int(student_id) != admin_id:
         state_store.update(state=state_store.get_id_of_state("students_delete_student"))
@@ -577,13 +565,9 @@ async def _cancel_delete_student(ans: bots.SimpleBotEvent):
     )
 
     with orm.db_session:
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == int(student_id)
-                and adm.group == admin.get_active_group(admin_id)
-            )
+        is_admin = students.is_admin_in_group(
+            student_id,
+            admin.get_active_group(admin_id).id,
         )
 
     await ans.answer(
@@ -608,23 +592,17 @@ async def _demote_admin(ans: bots.SimpleBotEvent):
         admin_id = students.get_system_id_of_student(ans.from_id)
         group_id = admin.get_active_group(admin_id).id
 
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == int(student_id) and adm.group.id == group_id
-            )
+        is_admin = students.is_admin_in_group(
+            student_id,
+            group_id,
         )
 
     if int(student_id) != admin_id:
         with orm.db_session:
             models.Admin.get(student=student_id, group=group_id).delete()
-            is_admin = bool(
-                orm.select(
-                    adm
-                    for adm in models.Admin
-                    if adm.student.id == int(student_id) and adm.group.id == group_id
-                )
+            is_admin = students.is_admin_in_group(
+                student_id,
+                admin.get_active_group(admin_id),
             )
         await ans.answer(
             "Администратор разжалован",
@@ -653,12 +631,9 @@ async def _make_admin(ans: bots.SimpleBotEvent):
         admin_id = students.get_system_id_of_student(ans.from_id)
         group_id = admin.get_active_group(admin_id).id
         models.Admin(student=student_id, group=group_id)
-        is_admin = bool(
-            orm.select(
-                adm
-                for adm in models.Admin
-                if adm.student.id == int(student_id) and adm.group.id == group_id
-            )
+        is_admin = students.is_admin_in_group(
+            student_id,
+            group_id,
         )
     await ans.answer(
         "Студент назначен администратором",

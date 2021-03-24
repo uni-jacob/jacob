@@ -4,9 +4,29 @@ import typing
 
 from pony import orm
 
-from jacob.database.models import AcademicStatus, Student
+from jacob.database.models import AcademicStatus, Admin, Student
 from jacob.database.utils import admin
 from jacob.services import exceptions
+
+
+@orm.db_session
+def is_admin_in_group(student_id: int, group_id: int):
+    """
+    Является ли студент администратором группы
+    Args:
+        student_id: идентификатор студента
+        group_id: идентификатор группы
+
+    Returns:
+        bool: Админ ли?
+    """
+    return bool(
+        orm.select(
+            adm
+            for adm in Admin
+            if adm.student.id == student_id and adm.group == group_id
+        )
+    )
 
 
 @orm.db_session
