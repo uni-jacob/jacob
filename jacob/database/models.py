@@ -44,6 +44,7 @@ class Group(db.Entity):
     admins = orm.Set("Admin")
     students = orm.Set("Student")
     financial_categories = orm.Set("FinancialCategory")
+    lists = orm.Set("List")
 
 
 class Chat(db.Entity):
@@ -110,6 +111,10 @@ class Student(db.Entity):
     )
     financial_config = orm.Optional(
         "FinancialConfig",
+        cascade_delete=True,
+    )
+    liststudents = orm.Set(
+        "ListStudents",
         cascade_delete=True,
     )
 
@@ -198,11 +203,16 @@ class StateStorage(db.Entity):
 
 
 class List(db.Entity):
+    """Кастомные списки студентов."""
+
     group = orm.Required(Group)
     name = orm.Required(str)
+    students = orm.Set("ListStudents")
 
 
 class ListStudents(db.Entity):
+    """Связка списков и студентов."""
+
     list = orm.Required(List)
     student = orm.Required(Student)
 
