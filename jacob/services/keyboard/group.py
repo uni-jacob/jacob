@@ -20,6 +20,7 @@ def group_menu():
     return kb.get_keyboard()
 
 
+@orm.db_session
 def list_of_lists(group_id: int):
     kb = Keyboard()
 
