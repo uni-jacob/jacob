@@ -197,5 +197,15 @@ class StateStorage(db.Entity):
     state = orm.Required(State, default=1)
 
 
+class List(db.Entity):
+    group = orm.Required(Group)
+    name = orm.Required(str)
+
+
+class ListStudents(db.Entity):
+    list = orm.Required(List)
+    student = orm.Required(Student)
+
+
 db.bind(provider="postgres", **get_db_credentials(os.getenv("DATABASE_URL")))
 db.generate_mapping(create_tables=True)
