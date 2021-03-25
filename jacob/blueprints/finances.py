@@ -317,6 +317,10 @@ async def _save_donate(ans: bots.SimpleBotEvent):
         mention_store = managers.MentionStorageManager(
             student_id,
         )
+        state_store = managers.StateStorageManager(
+            student_id,
+        )
+        state_store.update(state=state_store.get_id_of_state("main"))
 
         payer = await redis.hget(
             "add_income:{0}".format(ans.object.object.message.peer_id),
