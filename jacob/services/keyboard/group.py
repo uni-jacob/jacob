@@ -46,3 +46,17 @@ def list_of_lists(group_id: int):
     )
 
     return kb.get_keyboard()
+
+
+def list_menu():
+    kb = Keyboard()
+
+    kb.add_text_button("Переименовать", payload={"button": "rename_list"})
+    kb.add_text_button("Список студентов", payload={"button": "edit_students_in_list"})
+    kb.add_row()
+    kb.add_text_button(
+        text="◀️ Назад",
+        payload={"button": "lists"},
+    )
+
+    return kb.get_keyboard()
