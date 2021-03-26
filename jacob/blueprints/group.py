@@ -218,7 +218,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     render_students = (
         kbs.group.ListNavigator(admin_id, list_id).render().students(letter)
     )
-    await ans.answer(  # TODO: Клавиатура - корутина = не работает
+    await ans.answer(
         "Список студентов на букву {0}".format(letter),
         keyboard=render_students,
     )
