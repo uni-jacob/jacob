@@ -141,6 +141,8 @@ def list_menu():
     kb.add_text_button("Переименовать", payload={"button": "rename_list"})
     kb.add_text_button("Список студентов", payload={"button": "edit_students_in_list"})
     kb.add_row()
+    kb.add_text_button("Удалить список", payload={"button": "remove_list"})
+    kb.add_row()
     kb.add_text_button(
         text="◀️ Назад",
         payload={"button": "lists"},
