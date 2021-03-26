@@ -119,6 +119,41 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
+    filters.PLFilter({"button": "presets"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _presets(ans: bots.SimpleBotEvent):
+    await ans.answer("Список пресетов", keyboard=kbs.call.presets())
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "subgroups"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _subgroups(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+
+    await ans.answer("Выберите подгруппу", keyboard=kbs.common.subgroups(group_id))
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "academic_statuses"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _academic_statuses(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+
+    await ans.answer(
+        "Выберите форму обучения", keyboard=kbs.common.academic_statuses(group_id)
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
     filters.PLFilter({"button": "call_all"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
