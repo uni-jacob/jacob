@@ -98,7 +98,7 @@ def get_list_of_students_by_letter(admin_id: int, letter: str) -> typing.List[St
     Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
 
     Args:
-        admin_id: идентификатор пользователся
+        admin_id: идентификатор пользователя
         letter: первая буква фамилий
 
     Returns:
