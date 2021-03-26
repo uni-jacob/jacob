@@ -266,3 +266,49 @@ async def _save_list(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("main"))
 
     await ans.answer("Список сохранён", keyboard=kbs.group.list_menu())
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "remove_list"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _remove_list(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("groups_remove_list"))
+    await ans.answer("Удалить список?", keyboard=kbs.common.prompt().get_keyboard())
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "deny"}),
+    filters.StateFilter("groups_remove_list"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _deny_remove_list(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
+    await ans.answer("Удаление отменено", keyboard=kbs.group.list_menu())
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "confirm"}),
+    filters.StateFilter("groups_remove_list"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _confirm_remove_list(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+
+    list_id = await redis.hget("current_list:{0}".format(ans.from_id), "list_id")
+
+    with orm.db_session:
+        models.List[list_id].delete()
+
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
+    await ans.answer("Список удалён", keyboard=kbs.group.list_of_lists())
