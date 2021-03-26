@@ -5,7 +5,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import models, redis
-from jacob.database.utils import admin, students
+from jacob.database.utils import admin, students, lists
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
@@ -166,3 +166,103 @@ async def _save_new_list_name(ans: bots.SimpleBotEvent):
         models.List[list_id].set(name=ans.text)
 
     await ans.answer("Список переименован", keyboard=kbs.group.list_menu())
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "edit_students_in_list"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _start_editing_list(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    list_id = await redis.hget("current_list:{0}".format(ans.from_id), "list_id")
+
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("groups_select_students"))
+
+    await ans.answer(
+        "Выберите студентов-членов списка",
+        keyboard=kbs.group.ListNavigator(admin_id, list_id).render().menu(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "half"}),
+    filters.StateFilter("groups_select_students"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _select_half(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    list_id = await redis.hget("current_list:{0}".format(ans.from_id), "list_id")
+
+    await ans.answer(
+        "Выберите студентов-членов списка",
+        keyboard=kbs.group.ListNavigator(admin_id, list_id)
+        .render()
+        .submenu(ans.payload["half"]),
+    )
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "letter"}),
+    filters.StateFilter("groups_select_students"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _select_letter(ans: bots.SimpleBotEvent):
+    letter = ans.payload.get("value")
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    list_id = await redis.hget("current_list:{0}".format(ans.from_id), "list_id")
+
+    render_students = (
+        kbs.group.ListNavigator(admin_id, list_id).render().students(letter)
+    )
+    await ans.answer(  # TODO: Клавиатура - корутина = не работает
+        "Список студентов на букву {0}".format(letter),
+        keyboard=render_students,
+    )
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "student"}),
+    filters.StateFilter("groups_select_students"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _select_student(ans: bots.SimpleBotEvent):
+    student_id = ans.payload.get("student_id")
+    admin_id = students.get_system_id_of_student(ans.from_id)
+
+    list_id = await redis.hget("current_list:{0}".format(ans.from_id), "list_id")
+
+    if lists.is_student_in_list(list_id, student_id):
+        lists.remove_student_from_list(list_id, student_id)
+        label = "удален из списка"
+    else:
+        lists.add_student_to_list(list_id, student_id)
+        label = "добавлен в список"
+    await ans.answer(
+        "{0} {1}".format(ans.payload.get("name"), label),
+        keyboard=kbs.group.ListNavigator(
+            admin_id,
+            list_id,
+        )
+        .render()
+        .students(ans.payload.get("letter")),
+    )
+
+
+@bots.simple_bot_message_handler(
+    group_router,
+    filters.PLFilter({"button": "save"}),
+    filters.StateFilter("groups_select_students"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_list(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("main"))
+
+    await ans.answer("Список сохранён", keyboard=kbs.group.list_menu())
