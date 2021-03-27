@@ -9,7 +9,7 @@ from pony import orm
 from vkwave import api, bots, client
 
 from jacob.database import models
-from jacob.database.utils import admin, students
+from jacob.database.utils import admin, students, lists
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
@@ -211,6 +211,41 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
     mention_storage = managers.MentionStorageManager(admin_id)
     mention_storage.update_mentioned_students(mentioned_list)
     await ans.answer("Все студенты группы выбраны для Призыва")
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "custom_presets"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _custom_presets(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+    await ans.answer(
+        "Список пользовательских пресетов", keyboard=kbs.common.custom_presets(group_id)
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "preset"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _call_by_custom_preset(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    with orm.db_session:
+        active_students = lists.get_students_in_list(
+            ans.payload.get("preset"),
+        )
+        mentioned_list = [st.id for st in active_students]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
+    with orm.db_session:
+        await ans.answer(
+            "Все студенты списка {0} выбраны для Призыва".format(
+                models.List[ans.payload.get("preset")].name
+            )
+        )
 
 
 @bots.simple_bot_message_handler(
