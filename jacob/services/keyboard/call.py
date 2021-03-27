@@ -25,7 +25,7 @@ class CallKeyboards(Keyboards):
         if len(kb.buttons[-1]):
             kb.add_row()
         kb.add_text_button(text="✅ Сохранить", payload={"button": "save_selected"})
-        kb.add_text_button(text="👥 Призвать всех", payload={"button": "call_all"})
+        kb.add_text_button(text="Пресеты", payload={"button": "presets"})
         kb.add_row()
         kb.add_text_button(text="✏️ Изменить текст", payload={"button": "call"})
         kb.add_row()
@@ -110,4 +110,19 @@ def call_prompt(admin_id: int) -> JSONStr:
         text=f"{chat_emoji} Переключить чат",
         payload={"button": "chat_config"},
     )
+    return kb.get_keyboard()
+
+
+def presets():
+    kb = Keyboard()
+
+    kb.add_text_button(text="Все студенты", payload={"button": "call_all"})
+    kb.add_text_button("Подгруппы", payload={"button": "subgroups"})
+    kb.add_row()
+    kb.add_text_button("Формы обучения", payload={"button": "academic_statuses"})
+    kb.add_row()
+    kb.add_text_button("Пользовательские пресеты", payload={"button": "custom_presets"})
+    kb.add_row()
+    kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
+
     return kb.get_keyboard()

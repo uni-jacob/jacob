@@ -8,7 +8,8 @@ from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database.utils import admin, students
+from jacob.database import models
+from jacob.database.utils import admin, students, lists
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
@@ -119,6 +120,86 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
+    filters.PLFilter({"button": "presets"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _presets(ans: bots.SimpleBotEvent):
+    await ans.answer("Список пресетов", keyboard=kbs.call.presets())
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "subgroups"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _subgroups(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+
+    await ans.answer("Выберите подгруппу", keyboard=kbs.common.subgroups(group_id))
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "subgroup"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _call_by_subgroup(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    with orm.db_session:
+        active_students = students.get_active_students_by_subgroup(
+            admin.get_active_group(admin_id),
+            ans.payload.get("subgroup"),
+        )
+        mentioned_list = [st.id for st in active_students]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
+    await ans.answer(
+        "Все студенты подгруппы {0} выбраны для Призыва".format(
+            ans.payload.get("subgroup")
+        )
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "academic_statuses"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _academic_statuses(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+
+    await ans.answer(
+        "Выберите форму обучения", keyboard=kbs.common.academic_statuses(group_id)
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "ac_status"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _call_by_ac_status(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    with orm.db_session:
+        active_students = students.get_students_by_academic_status(
+            admin.get_active_group(admin_id),
+            ans.payload.get("status"),
+        )
+        mentioned_list = [st.id for st in active_students]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
+    with orm.db_session:
+        await ans.answer(
+            "Все студенты {0} формы обучения выбраны для Призыва".format(
+                models.AcademicStatus[ans.payload.get("status")].description
+            )
+        )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
     filters.PLFilter({"button": "call_all"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -130,6 +211,41 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
     mention_storage = managers.MentionStorageManager(admin_id)
     mention_storage.update_mentioned_students(mentioned_list)
     await ans.answer("Все студенты группы выбраны для Призыва")
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "custom_presets"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _custom_presets(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+    await ans.answer(
+        "Список пользовательских пресетов", keyboard=kbs.common.custom_presets(group_id)
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "preset"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _call_by_custom_preset(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    with orm.db_session:
+        active_students = lists.get_students_in_list(
+            ans.payload.get("preset"),
+        )
+        mentioned_list = [st.id for st in active_students]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
+    with orm.db_session:
+        await ans.answer(
+            "Все студенты списка {0} выбраны для Призыва".format(
+                models.List[ans.payload.get("preset")].name
+            )
+        )
 
 
 @bots.simple_bot_message_handler(

@@ -1,1 +1,1 @@
-from . import call, common, contacts, finances, main, preferences, students
+from . import call, common, contacts, group, finances, main, preferences, students
