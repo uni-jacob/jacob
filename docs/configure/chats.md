@@ -2,7 +2,7 @@
 
 ## Приглашение
 
-![Add to chat](../assets/configure/chats/1.png){: align=center}
+![Add to chat](../assets/configure/chats/1.png)
 
 На [странице бота](https://vk.com/jacob_bot) нажмите на кнопку {Добавить в беседу}, выберите нужные беседы из списка и нажмите {Пригласить}
 

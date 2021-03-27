@@ -25,7 +25,7 @@ class CallKeyboards(Keyboards):
         if len(kb.buttons[-1]):
             kb.add_row()
         kb.add_text_button(text="✅ Сохранить", payload={"button": "save_selected"})
-        kb.add_text_button(text="Пресеты", payload={"button": "presets"})
+        kb.add_text_button(text="📜 Пресеты", payload={"button": "presets"})
         kb.add_row()
         kb.add_text_button(text="✏️ Изменить текст", payload={"button": "call"})
         kb.add_row()

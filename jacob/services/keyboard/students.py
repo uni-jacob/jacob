@@ -8,21 +8,21 @@ def student_card(is_admin):
     kb = Keyboard()
 
     kb.add_text_button(
-        "Контакты",
+        "☎ Контакты",
         payload={"button": "get_contacts"},
     )
     kb.add_text_button(
-        "Редактировать",
+        "✏ Редактировать",
         payload={"button": "edit_student"},
     )
 
     kb.add_row()
-    kb.add_text_button("Удалить", payload={"button": "delete_student"})
+    kb.add_text_button("🔥 Удалить", payload={"button": "delete_student"})
 
     if is_admin:
-        kb.add_text_button("Разжаловать", payload={"button": "demote_admin"})
+        kb.add_text_button("🔒 Разжаловать", payload={"button": "demote_admin"})
     else:
-        kb.add_text_button("Назначить админом", payload={"button": "make_admin"})
+        kb.add_text_button("🔓 Назначить админом", payload={"button": "make_admin"})
 
     kb.add_row()
     kb.add_text_button("◀️ Назад", payload={"button": "letter"})
