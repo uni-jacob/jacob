@@ -140,6 +140,28 @@ async def _subgroups(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     call_menu_router,
+    filters.PLFilter({"button": "subgroup"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _call_by_subgroup(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    with orm.db_session:
+        active_students = students.get_active_students_by_subgroup(
+            admin.get_active_group(admin_id),
+            ans.payload.get("subgroup"),
+        )
+        mentioned_list = [st.id for st in active_students]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
+    await ans.answer(
+        "Все студенты подгруппы {0} выбраны для Призыва".format(
+            ans.payload.get("subgroup")
+        )
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
     filters.PLFilter({"button": "academic_statuses"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
