@@ -61,5 +61,5 @@ nav:
       - Настройки: functions/settings.md
   - Настройка:
       - Создание группы: configure/mkgroup.md
-      - Настройка бота: configure/bot.md
+      - Настройка группы: configure/group.md
       - Добавление бота в чаты: configure/chats.md
