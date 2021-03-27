@@ -76,6 +76,37 @@ def get_active_students(group_id: int) -> typing.List[Student]:
 
 
 @orm.db_session
+def get_active_students_by_subgroup(
+    group_id: int, subgroup: int
+) -> typing.List[Student]:
+    """
+    Возвращает список активных (не отчисленных студентов) конкретной группы.
+
+    Args:
+        group_id: идентификатор группы
+        subgroup: номер подгруппы
+
+    Raises:
+        StudentNotFound: Когда в группе нет активных студентов
+
+    Returns:
+        list[Student]: набор активных студентов группы
+    """
+    students = orm.select(
+        st
+        for st in Student
+        if st.group == group_id
+        and st.academic_status.id < 5
+        and st.subgroup == subgroup
+    )
+    if students:
+        return students
+    raise exceptions.StudentNotFound(
+        "В группе {0}/{1} нет активных студентов".format(group_id, subgroup),
+    )
+
+
+@orm.db_session
 def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     """
     Возвращает список первых букв фамилий в активной группе.
