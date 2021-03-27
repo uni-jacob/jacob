@@ -8,7 +8,7 @@ from vkwave.api import API
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
-from jacob.database.utils import admin, chats, students, groups
+from jacob.database.utils import admin, chats, students, groups, lists
 from jacob.database.utils.storages import managers
 from jacob.services import chats as chat_utils
 
@@ -279,6 +279,27 @@ def academic_statuses(group_id: int):
         kb.add_text_button(
             ac.description, payload={"button": "ac_status", "status": ac.id}
         )
+
+    if kb.buttons[-1]:
+        kb.add_row()
+
+    kb.add_text_button(text="◀️ Назад", payload={"button": "presets"})
+
+    return kb.get_keyboard()
+
+
+def custom_presets(group_id: int):
+    kb = Keyboard()
+
+    request = lists.get_lists_of_group(group_id)
+
+    with orm.db_session:
+        for preset in request:
+            if len(kb.buttons[-1]) == 2:
+                kb.add_row()
+            kb.add_text_button(
+                preset.name, payload={"button": "preset", "preset": preset.id}
+            )
 
     if kb.buttons[-1]:
         kb.add_row()
