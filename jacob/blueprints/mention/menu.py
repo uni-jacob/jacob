@@ -8,6 +8,7 @@ from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
+from jacob.database import models
 from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
@@ -172,6 +173,29 @@ async def _academic_statuses(ans: bots.SimpleBotEvent):
     await ans.answer(
         "Выберите форму обучения", keyboard=kbs.common.academic_statuses(group_id)
     )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.PLFilter({"button": "ac_status"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _call_by_ac_status(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    with orm.db_session:
+        active_students = students.get_students_by_academic_status(
+            admin.get_active_group(admin_id),
+            ans.payload.get("status"),
+        )
+        mentioned_list = [st.id for st in active_students]
+    mention_storage = managers.MentionStorageManager(admin_id)
+    mention_storage.update_mentioned_students(mentioned_list)
+    with orm.db_session:
+        await ans.answer(
+            "Все студенты {0} формы обучения выбраны для Призыва".format(
+                models.AcademicStatus[ans.payload.get("status")].description
+            )
+        )
 
 
 @bots.simple_bot_message_handler(
