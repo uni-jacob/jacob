@@ -2,7 +2,9 @@ site_name: Jacob | Студенческий бот
 repo_url: https://github.com/dadyarri/jacob
 repo_name: dadyarri/jacob
 edit_uri: ""
+
 copyright: Copyright &copy; 2019 - 2020 Даниил Голубев
+
 plugins:
   - search
   - git-revision-date-localized:
@@ -10,14 +12,22 @@ plugins:
   - awesome-pages:
       collapse_single_pages: true
 markdown_extensions:
-  - admonition
-  - pymdownx.tasklist
-  - pymdownx.details
-  - pymdownx.superfences
-  - attr_list
+  - toc:
+      permalink: true
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+    emoji_index: !!python/name:materialx.emoji.twemoji
+    emoji_generator: !!python/name:materialx.emoji.to_svg
+  - admonition
+  - codehilite
+  - footnotes
+  - pymdownx.tasklist
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.magiclink
+
 theme:
   name: material
   palette:
@@ -53,4 +63,3 @@ nav:
       - Создание группы: configure/mkgroup.md
       - Настройка бота: configure/bot.md
       - Добавление бота в чаты: configure/chats.md
-
