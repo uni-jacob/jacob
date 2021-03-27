@@ -121,6 +121,8 @@ def presets():
     kb.add_row()
     kb.add_text_button("Формы обучения", payload={"button": "academic_statuses"})
     kb.add_row()
+    kb.add_text_button("Пользовательские пресеты", payload={"button": "custom_presets"})
+    kb.add_row()
     kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
 
     return kb.get_keyboard()
