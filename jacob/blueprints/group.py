@@ -303,6 +303,7 @@ async def _deny_remove_list(ans: bots.SimpleBotEvent):
 )
 async def _confirm_remove_list(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id)
 
     list_id = await redis.hget("current_list:{0}".format(ans.from_id), "list_id")
 
@@ -311,4 +312,4 @@ async def _confirm_remove_list(ans: bots.SimpleBotEvent):
 
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(state=state_store.get_id_of_state("main"))
-    await ans.answer("Список удалён", keyboard=kbs.group.list_of_lists())
+    await ans.answer("Список удалён", keyboard=kbs.group.list_of_lists(group_id))
