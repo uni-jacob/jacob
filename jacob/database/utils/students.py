@@ -4,6 +4,7 @@ import typing
 
 from pony import orm
 
+from jacob.database import models
 from jacob.database.models import AcademicStatus, Admin, Student
 from jacob.database.utils import admin
 from jacob.services import exceptions
@@ -103,6 +104,38 @@ def get_active_students_by_subgroup(
         return students
     raise exceptions.StudentNotFound(
         "В группе {0}/{1} нет активных студентов".format(group_id, subgroup),
+    )
+
+
+@orm.db_session
+def get_students_by_academic_status(
+    group_id: int, academic_status: int
+) -> typing.List[Student]:
+    """
+    Возвращает список активных (не отчисленных студентов) конкретной группы.
+
+    Args:
+        group_id: идентификатор группы
+        academic_status: идентификатор формы обучения
+
+    Raises:
+        StudentNotFound: Когда в группе нет активных студентов
+
+    Returns:
+        list[Student]: набор активных студентов группы
+    """
+    students = orm.select(
+        st
+        for st in Student
+        if st.group == group_id and st.academic_status.id == academic_status
+    )
+    if students:
+        return students
+    raise exceptions.StudentNotFound(
+        "В группе {0} нет студентов на {1} форме обучения".format(
+            group_id,
+            models.AcademicStatus[academic_status].description,
+        ),
     )
 
 
