@@ -94,10 +94,10 @@ class ListNavigator(StudentsNavigator):
 def group_menu():
     kb = Keyboard()
     kb.add_text_button(
-        "Студенты",
+        "👥 Студенты",
         payload={"button": "students"},
     )
-    kb.add_text_button("Списки", payload={"button": "lists"})
+    kb.add_text_button("📃 Списки", payload={"button": "lists"})
     kb.add_row()
     kb.add_text_button(
         text="◀️ Назад",
@@ -123,7 +123,7 @@ def list_of_lists(group_id: int):
         kb.add_row()
 
     kb.add_text_button(
-        text="Создать список",
+        text="➕ Создать список",
         payload={"button": "create_list"},
     )
     kb.add_row()
@@ -138,10 +138,12 @@ def list_of_lists(group_id: int):
 def list_menu():
     kb = Keyboard()
 
-    kb.add_text_button("Переименовать", payload={"button": "rename_list"})
-    kb.add_text_button("Список студентов", payload={"button": "edit_students_in_list"})
+    kb.add_text_button("✏ Переименовать", payload={"button": "rename_list"})
+    kb.add_text_button(
+        "👥 Список студентов", payload={"button": "edit_students_in_list"}
+    )
     kb.add_row()
-    kb.add_text_button("Удалить список", payload={"button": "remove_list"})
+    kb.add_text_button("🔥 Удалить список", payload={"button": "remove_list"})
     kb.add_row()
     kb.add_text_button(
         text="◀️ Назад",

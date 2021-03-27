@@ -25,7 +25,7 @@ def main_menu(admin_id: int) -> JSONStr:
         kb.add_text_button(text="💰 Финансы", payload={"button": "finances"})
         kb.add_row()
     if is_admin:
-        kb.add_text_button(text="Менеджмент группы", payload={"button": "group_mgmt"})
+        kb.add_text_button(text="📕 Менеджмент группы", payload={"button": "group_mgmt"})
         kb.add_row()
         kb.add_text_button(text="⚙ Настройки", payload={"button": "settings"})
         kb.add_row()
