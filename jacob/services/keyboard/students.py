@@ -42,7 +42,7 @@ def edit_menu():
     kb.add_text_button("Электропочта", payload={"button": "edit_email"})
     kb.add_text_button("Форма обучения", payload={"button": "edit_academic_status"})
     kb.add_row()
-    kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
+    kb.add_text_button("◀️ Назад", payload={"button": "edit_student"})
 
     return kb.get_keyboard()
 
