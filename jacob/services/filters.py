@@ -4,13 +4,14 @@ from typing import Dict
 
 import ujson
 from pony import orm
-from vkwave.bots import BaseEvent
+from vkwave.bots import BaseEvent, SimpleBotEvent
 from vkwave.bots import BotType
 from vkwave.bots import PayloadFilter
 from vkwave.bots.core import BaseFilter
 from vkwave.bots.core.dispatching import filters
 from vkwave.types.bot_events import BotEventType
 
+from jacob.database import redis
 from jacob.database.utils import admin
 from jacob.database.utils import students
 from jacob.database.utils.storages import managers
@@ -42,6 +43,20 @@ class PLFilter(PayloadFilter):
                 for key, val in current_payload.items()
             ),
         )
+
+
+class RedisStateFilter(BaseFilter):
+    def __init__(self, state: str):
+        self.state = state
+
+    def __invert__(self):
+        return filters.base.NotFilter(self)
+
+    async def check(self, event: SimpleBotEvent) -> filters.base.FilterResult:
+        current_state = await redis.hget(
+            str(event.object.object.message.from_id), "state"
+        )
+        return filters.base.FilterResult(bool(re.match(self.state, current_state)))
 
 
 class StateFilter(BaseFilter):
