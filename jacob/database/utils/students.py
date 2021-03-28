@@ -153,7 +153,7 @@ def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     query = orm.select(st.last_name for st in Student if st.group == group_id)
     snd_names = [name[0] for name in query]
     if snd_names:
-        return list(dict.fromkeys(snd_names))
+        return sorted(list(dict.fromkeys(snd_names)))
 
 
 @orm.db_session
