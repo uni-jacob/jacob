@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jacob"
-version = "3.0.0"
+version = "3.0.3"
 description = "Universal bot helper for student's group for VK."
 authors = ["Daniil <dadyarri@gmail.com>"]
 license = "MIT"
