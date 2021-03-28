@@ -56,6 +56,8 @@ class RedisStateFilter(BaseFilter):
         current_state = await redis.hget(
             str(event.object.object.message.from_id), "state"
         )
+        if current_state is None:
+            return filters.base.FilterResult(False)
         return filters.base.FilterResult(bool(re.match(self.state, current_state)))
 
 
