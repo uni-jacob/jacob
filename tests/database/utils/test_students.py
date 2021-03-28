@@ -1,7 +1,8 @@
 import pytest
-from pyshould import it
+from pony import orm
+from pyexpect import expect
 
-from jacob.database.models import Student
+from jacob.database.models import Student, Group
 from jacob.database.utils import admin, students
 from jacob.services.exceptions import StudentNotFound
 
@@ -13,7 +14,7 @@ class TestStudents:
 
         student_id = students.get_system_id_of_student(test_student_id)
 
-        it(student_id).should.be_equal(1)
+        expect(student_id).is_equal(23)
 
     def test_get_system_id_of_non_existing_student(self):
 
@@ -22,35 +23,43 @@ class TestStudents:
         with pytest.raises(StudentNotFound):
             students.get_system_id_of_student(test_student_id)
 
+    @orm.db_session
     def test_get_active_students(self):
 
-        test_group_id = 1
+        test_group_id = 6
 
-        students.get_active_students(test_group_id)
+        students_ = students.get_active_students(Group[test_group_id])
 
+        expect(students_).not_is_empty()
+
+    @orm.db_session
     def test_get_active_students_in_empty_group(self):
 
-        test_group_id = 3
+        test_group_id = 9
 
         with pytest.raises(StudentNotFound):
-            students.get_active_students(test_group_id)
+            students.get_active_students(Group[test_group_id])
 
+    @orm.db_session
     def test_get_unique_second_name_letters_in_a_group(self):
 
-        test_user_id = 1
+        test_user_id = 23
 
         snd_names = students.get_unique_second_name_letters_in_a_group(
             admin.get_active_group(test_user_id),
         )
 
-        it(snd_names).should.be_equal(list("БВКМНСТ"))
+        expect(snd_names).is_equal(sorted(list("БДСМЛЯВКИГЖРТЗШ")))
 
+    @orm.db_session
     def test_get_list_of_students_by_letter(self):
 
-        test_letter = "Б"
-        test_user_id = 1
-        test_student = Student.get_by_id(4)
+        test_letter = "С"
+        test_user_id = 23
 
-        st = students.get_list_of_students_by_letter(test_user_id, test_letter)
+        with orm.db_session:
+            test_student = Student[41]
 
-        it(st).should.be_equal([test_student])
+        st = students.get_list_of_students_by_letter(test_user_id, test_letter)[:]
+
+        expect(st).is_equal([test_student])

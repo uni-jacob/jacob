@@ -1,5 +1,5 @@
 import pytest
-from pyshould import it
+from pyexpect import expect
 
 from jacob.database.utils import bot
 from jacob.services.exceptions import BotStateNotFound
@@ -8,11 +8,11 @@ from jacob.services.exceptions import BotStateNotFound
 class TestBot:
     def test_get_id_of_state(self):
 
-        test_description = "wait_call_text"
+        test_description = "mention_wait_text"
 
         state = bot.get_id_of_state(test_description)
 
-        it(state).should.be_equal(5)
+        expect(state).is_equal(12)
 
     def test_get_id_of_non_existing_state(self):
 

@@ -1,8 +1,8 @@
 import pytest
-from pyshould import it
-from pyshould.expect import expect_all
+from pony import orm
+from pyexpect import expect
 
-from jacob.database.models import AdminConfig, Group
+from jacob.database.models import Group
 from jacob.database.utils import admin
 from jacob.services.exceptions import UserIsNotAnAdmin
 
@@ -10,11 +10,11 @@ from jacob.services.exceptions import UserIsNotAnAdmin
 class TestAdmin:
     def test_is_user_admin(self):
 
-        test_student_id = 1
+        test_student_id = 23
 
         status = admin.is_user_admin(test_student_id)
 
-        it(status).should.be_equal(True)
+        expect(status).to.equal(True)
 
     def test_is_non_admin_is_admin(self):
 
@@ -25,48 +25,33 @@ class TestAdmin:
 
     def test_get_admin_feud(self):
 
-        test_student_id = 1
+        test_student_id = 23
 
-        groups = admin.get_admin_feud(test_student_id)
+        with orm.db_session:
+            groups = admin.get_admin_feud(test_student_id)[:]
 
-        expect_all(groups).be_an_instance_of(Group)
+        expect(groups[0]).is_instance_of(Group)
 
     def test_get_admin_feud_of_non_admin(self):
 
-        test_student_id = 3
+        test_student_id = 24
 
-        groups = admin.get_admin_feud(test_student_id)
+        with orm.db_session:
+            groups = admin.get_admin_feud(test_student_id)
 
-        it(groups).should.be_equal([])
-
-    def test_get_admin_storage(self):
-
-        test_student_id = 1
-
-        store = admin.get_admin_storage(test_student_id)
-
-        it(store).should.be_an_instance_of(Storage)
-
-    def test_get_non_admin_storage(self):
-
-        test_student_id = 3
-
-        store = admin.get_admin_storage(test_student_id)
-
-        it(store).should.be_an_instance_of(type(None))
+        expect(groups).is_equal(None)
 
     def test_get_active_group(self):
 
-        test_student_id = 1
+        test_student_id = 23
 
         group = admin.get_active_group(test_student_id)
 
-        it(group).should.be_equal(Group.get_by_id(2))
+        expect(group).is_instance_of(Group)
 
     def test_get_active_group_of_non_admin(self):
 
-        test_student_id = 3
+        test_student_id = 24
 
-        group = admin.get_active_group(test_student_id)
-
-        it(group).should.be_equal(None)
+        with pytest.raises(UserIsNotAnAdmin):
+            admin.get_active_group(test_student_id)

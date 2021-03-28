@@ -1,4 +1,4 @@
-from pyshould import it
+from pyexpect import expect
 
 from jacob.services.media import translate_string
 
@@ -9,11 +9,11 @@ class TestMedia:
 
         res = translate_string(string)
 
-        it(res).should.be_equal("привет")
+        expect(res).is_equal("привет")
 
     def test_translate_string_ru2en(self):
         string = "руддщ"
 
         res = translate_string(string)
 
-        it(res).should.be_equal("hello")
+        expect(res).is_equal("hello")
