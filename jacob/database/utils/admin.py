@@ -7,6 +7,7 @@ from pony import orm
 from jacob.database import models
 from jacob.database.utils.storages import managers
 from jacob.services import exceptions
+from jacob.services.exceptions import UserIsNotAnAdmin
 from jacob.services.logger import config as logger_config
 
 logger.configure(**logger_config.config)
@@ -63,5 +64,11 @@ def get_active_group(admin_id: int) -> models.Group:
     """
     active_group = managers.AdminConfigManager(admin_id).get_or_create().active_group
     if active_group is None:
-        active_group = models.Admin.get(student=admin_id).group
+        admin = models.Admin.get(student=admin_id)
+        if admin is not None:
+            active_group = admin.group
+        else:
+            raise UserIsNotAnAdmin(
+                "Пользователь {0} не является админом".format(admin_id)
+            )
     return active_group
