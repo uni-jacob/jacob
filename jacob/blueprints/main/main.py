@@ -137,5 +137,10 @@ async def _save_group(ans: bots.SimpleBotEvent):
     with orm.db_session:
         models.Admin(student=student.id, group=group.id)
 
+    await redis.hmset(
+        str(ans.from_id),
+        state="main",
+    )
+
     await ans.answer("Группа сохранена")
     await _greeting(ans)
