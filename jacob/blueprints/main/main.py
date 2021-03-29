@@ -140,22 +140,46 @@ async def _enter_group_specialty(ans: bots.SimpleBotEvent):
     RedisStateFilter("create_group_enter_specialty"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
+async def _select_publicity(ans: bots.SimpleBotEvent):
+    await redis.hmset(
+        str(ans.from_id),
+        state="create_group_select_privacy",
+        specialty=ans.text,
+    )
+    await ans.answer(
+        "Выберите публичность/приватность группы",
+        keyboard=kbs.main.group_privacy(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    main_router,
+    PLFilter({"button": "group_privacy"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
 async def _save_group(ans: bots.SimpleBotEvent):
     group_number = await redis.hget(
         str(ans.from_id),
         "group_number",
     )
-    specialty = ans.text
+    specialty = await redis.hget(
+        str(ans.from_id),
+        "specialty",
+    )
     university = await redis.hget(
         str(ans.from_id),
         "university",
     )
+    privacy = ans.payload.get("value")
 
     user = await ans.api_ctx.users.get(user_ids=ans.from_id)
 
     with orm.db_session:
         group = models.Group(
-            group_num=group_number, specialty=specialty, alma_mater=university
+            group_num=group_number,
+            specialty=specialty,
+            alma_mater=university,
+            private=privacy,
         )
 
     with orm.db_session:
