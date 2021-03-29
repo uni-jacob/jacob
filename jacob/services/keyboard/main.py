@@ -73,6 +73,11 @@ def universities() -> JSONStr:
 
     if kb.buttons[-1]:
         kb.add_row()
+
+    kb.add_text_button("➕ Создать университет", payload={"button": "create_university"})
+
+    kb.add_row()
+
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
