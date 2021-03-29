@@ -58,6 +58,21 @@ async def _show_universities(ans: bots.SimpleBotEvent):
 
 @bots.simple_bot_message_handler(
     main_router,
+    PLFilter({"button": "create_university"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _create_university(ans: bots.SimpleBotEvent):
+    await redis.hmset(
+        str(ans.from_id),
+        state="create_group_enter_university_name",
+    )
+    await ans.answer(
+        "Введите название университета", keyboard=kbs.common.cancel().get_keyboard()
+    )
+
+
+@bots.simple_bot_message_handler(
+    main_router,
     PLFilter({"button": "university"}),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
@@ -85,6 +100,25 @@ async def _cancel_create_group(ans: bots.SimpleBotEvent):
     )
     await ans.answer("Создание группы отменено")
     await _greeting(ans)
+
+
+@bots.simple_bot_message_handler(
+    main_router,
+    RedisStateFilter("create_group_enter_university_name"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_university(ans: bots.SimpleBotEvent):
+    with orm.db_session:
+        uni = models.AlmaMater(name=ans.text)
+    await redis.hmset(
+        str(ans.from_id),
+        state="create_group_enter_number",
+        university=uni.id,
+    )
+    await ans.answer(
+        "Университет создан. Введите номер группы",
+        keyboard=kbs.common.cancel().get_keyboard(),
+    )
 
 
 @bots.simple_bot_message_handler(
