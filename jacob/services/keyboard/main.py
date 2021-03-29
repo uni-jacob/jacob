@@ -81,3 +81,16 @@ def universities() -> JSONStr:
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
+
+
+def group_privacy():
+    kb = Keyboard()
+
+    kb.add_text_button("Публичная", payload={"button": "group_privacy", "value": False})
+    kb.add_text_button("Приватная", payload={"button": "group_privacy", "value": True})
+
+    kb.add_row()
+
+    kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
+
+    return kb.get_keyboard()
