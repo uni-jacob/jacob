@@ -39,6 +39,7 @@ class Group(db.Entity):
     group_num = orm.Required(str)
     specialty = orm.Required(str)
     alma_mater = orm.Required(AlmaMater)
+    private = orm.Required(bool)
     admin_configs = orm.Set(AdminConfig)
     chats = orm.Set("Chat")
     admins = orm.Set("Admin")

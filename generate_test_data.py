@@ -48,6 +48,7 @@ def generate_groups() -> list:
                 group_num=group_num,
                 specialty=specialty,
                 alma_mater=alma_mater,
+                private=True,
             ),
         )
     return groups_objects

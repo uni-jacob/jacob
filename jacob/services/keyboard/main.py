@@ -1,7 +1,9 @@
 from loguru import logger
+from pony import orm
 from vkwave.bots import Keyboard
 
 from jacob.database.utils import admin, uni
+from jacob.services import media
 
 JSONStr = str
 
@@ -51,6 +53,7 @@ def choose_register_way() -> JSONStr:
     return kb.get_keyboard()
 
 
+@orm.db_session
 def universities() -> JSONStr:
     kb = Keyboard()
 
@@ -61,11 +64,33 @@ def universities() -> JSONStr:
             kb.add_row()
 
         kb.add_text_button(
-            university.name,
+            media.get_university_abbreviation(university.name),
             payload={
                 "button": "university",
                 "university": university.id,
             },
         )
+
+    if kb.buttons[-1]:
+        kb.add_row()
+
+    kb.add_text_button("➕ Создать университет", payload={"button": "create_university"})
+
+    kb.add_row()
+
+    kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
+
+    return kb.get_keyboard()
+
+
+def group_privacy():
+    kb = Keyboard()
+
+    kb.add_text_button("Публичная", payload={"button": "group_privacy", "value": False})
+    kb.add_text_button("Приватная", payload={"button": "group_privacy", "value": True})
+
+    kb.add_row()
+
+    kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
 
     return kb.get_keyboard()
