@@ -1,9 +1,9 @@
 site_name: Jacob | Студенческий бот
-repo_url: https://github.com/dadyarri/jacob
-repo_name: dadyarri/jacob
+repo_url: https://github.com/uni-jacob/jacob
+repo_name: uni-jacob/jacob
 edit_uri: ""
 
-copyright: Copyright &copy; 2019 - 2020 Даниил Голубев
+copyright: Copyright &copy; 2019 - 2021 Даниил Голубев
 
 plugins:
   - search
