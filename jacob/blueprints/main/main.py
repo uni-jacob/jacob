@@ -100,9 +100,13 @@ async def _select_group(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _send_add_request(ans: bots.SimpleBotEvent):
+
+    group_id = ans.payload.get("group")
+    await redis.hmset(str(ans.from_id), requested_group=group_id)
+
     with orm.db_session:
-        admins = admin.get_admins_of_group(ans.payload.get("group"))
-        group = models.Group[ans.payload.get("group")]
+        admins = admin.get_admins_of_group(group_id)
+        group = models.Group[group_id]
 
         await ans.api_ctx.messages.send(
             message="Пользователь @id{0} хочет присоединиться к вашей группе {1}".format(
@@ -110,6 +114,7 @@ async def _send_add_request(ans: bots.SimpleBotEvent):
             ),
             peer_ids=[adm.vk_id for adm in admins],
             random_id=0,
+            keyboard=kbs.invite.add_request_confirm(ans.from_id),
         )
 
     await ans.answer(
