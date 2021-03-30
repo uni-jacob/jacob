@@ -50,10 +50,58 @@ async def _greeting(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _show_universities(ans: bots.SimpleBotEvent):
+    await redis.hmset(
+        str(ans.from_id),
+        state="create_group_select_university",
+    )
     await ans.answer(
         "Выбери университет",
-        keyboard=kbs.main.universities(),
+        keyboard=kbs.main.universities_with_create(),
     )
+
+
+@bots.simple_bot_message_handler(
+    main_router,
+    PLFilter({"button": "choose_existing_group"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _show_universities_choose(ans: bots.SimpleBotEvent):
+    await redis.hmset(
+        str(ans.from_id),
+        state="select_group_select_university",
+    )
+    await ans.answer(
+        "Выбери университет",
+        keyboard=kbs.main.universities_without_create(),
+    )
+
+
+@bots.simple_bot_message_handler(
+    main_router,
+    PLFilter({"button": "university"}),
+    RedisStateFilter("select_group_select_university"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _select_group(ans: bots.SimpleBotEvent):
+    await redis.hmset(
+        str(ans.from_id),
+        state="select_group_select_group",
+    )
+    await ans.answer(
+        "Выберите группу",
+        keyboard=kbs.main.public_groups(ans.payload.get("university")),
+    )
+
+
+@bots.simple_bot_message_handler(
+    main_router,
+    PLFilter({"button": "group"}),
+    RedisStateFilter("select_group_select_group"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _send_add_request(ans: bots.SimpleBotEvent):
+    await ans.answer("Запрос на добавление отправлен")
+    await _greeting(ans)
 
 
 @bots.simple_bot_message_handler(
@@ -74,6 +122,7 @@ async def _create_university(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     main_router,
     PLFilter({"button": "university"}),
+    RedisStateFilter("create_group_select_university"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _enter_group_number(ans: bots.SimpleBotEvent):
@@ -99,6 +148,21 @@ async def _cancel_create_group(ans: bots.SimpleBotEvent):
         state="main",
     )
     await ans.answer("Создание группы отменено")
+    await _greeting(ans)
+
+
+@bots.simple_bot_message_handler(
+    main_router,
+    PLFilter({"button": "cancel"}),
+    RedisStateFilter("select_group_*"),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _cancel_join_group(ans: bots.SimpleBotEvent):
+    await redis.hmset(
+        str(ans.from_id),
+        state="main",
+    )
+    await ans.answer("Присоединение к группе отменено")
     await _greeting(ans)
 
 
