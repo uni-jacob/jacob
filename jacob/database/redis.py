@@ -10,7 +10,10 @@ async def hmset(key: str, **kwargs):
         key: Ключ в redis
 
     """
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
+    redis = await aioredis.create_redis_pool(
+        os.getenv("REDIS_URL"),
+        password=os.getenv("REDIS_PASSWORD"),
+    )
     await redis.hmset_dict(
         key,
         **kwargs,
@@ -20,7 +23,10 @@ async def hmset(key: str, **kwargs):
 
 
 async def hget(key: str, field: str):
-    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
+    redis = await aioredis.create_redis_pool(
+        os.getenv("REDIS_URL"),
+        password=os.getenv("REDIS_PASSWORD"),
+    )
     request = await redis.hget(
         key,
         field,
