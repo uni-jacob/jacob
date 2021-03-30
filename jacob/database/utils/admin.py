@@ -72,3 +72,9 @@ def get_active_group(admin_id: int) -> models.Group:
                 "Пользователь {0} не является админом".format(admin_id)
             )
     return active_group
+
+
+def get_admins_of_group(group: int):
+    return orm.select(
+        admin.student for admin in models.Admin if admin.group.id == group
+    )
