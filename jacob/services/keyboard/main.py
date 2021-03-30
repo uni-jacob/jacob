@@ -54,7 +54,7 @@ def choose_register_way() -> JSONStr:
 
 
 @orm.db_session
-def universities() -> JSONStr:
+def universities() -> Keyboard:
     kb = Keyboard()
 
     unies = uni.get_all()
@@ -74,9 +74,24 @@ def universities() -> JSONStr:
     if kb.buttons[-1]:
         kb.add_row()
 
+    return kb
+
+
+def universities_with_create() -> JSONStr:
+
+    kb = universities()
+
     kb.add_text_button("➕ Создать университет", payload={"button": "create_university"})
 
     kb.add_row()
+
+    kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
+
+    return kb.get_keyboard()
+
+
+def universities_without_create() -> JSONStr:
+    kb = universities()
 
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
