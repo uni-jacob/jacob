@@ -6,7 +6,6 @@ from pony import orm
 
 from jacob.database import models
 from jacob.database.utils.storages import managers
-from jacob.services import exceptions
 from jacob.services.exceptions import UserIsNotAnAdmin
 from jacob.services.logger import config as logger_config
 
@@ -29,9 +28,7 @@ def is_user_admin(admin_id: int) -> bool:
     """
     if models.Admin.exists(student=admin_id):
         return True
-    raise exceptions.UserIsNotAnAdmin(
-        "Пользователь {0} не является администратором".format(admin_id),
-    )
+    return False
 
 
 @orm.db_session
