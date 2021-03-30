@@ -199,3 +199,6 @@ polygon.py
 services/old_*.py
 *.sql
 **/*.bak
+
+# Redis persisting
+redis-volume/
