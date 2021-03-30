@@ -5,7 +5,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import redis, models
-from jacob.database.utils import students
+from jacob.database.utils import students, admin
 from jacob.services import keyboard as kbs
 from jacob.services.filters import PLFilter
 from jacob.services.logger.config import config
@@ -45,6 +45,16 @@ async def _invite_user(ans: bots.SimpleBotEvent):
         random_id=0,
         keyboard=kbs.main.main_menu(student.id),
     )
+    with orm.db_session:
+        admins = admin.get_admins_of_group(group_id)
+        for adm in admins:
+            if adm.vk_id != ans.from_id:
+                await ans.api_ctx.messages.send(
+                    message="Другой администратор пригласил пользователя",
+                    peer_id=adm.vk_id,
+                    random_id=0,
+                    keyboard=kbs.main.main_menu(adm.student.id),
+                )
 
 
 @bots.simple_bot_message_handler(
@@ -55,6 +65,10 @@ async def _invite_user(ans: bots.SimpleBotEvent):
 async def _decline_user(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     user_id = ans.payload.get("user")
+    group_id = await redis.hget(
+        str(user_id),
+        "requested_group",
+    )
     await ans.answer(
         "Вы отклонили запрос на добавление студента",
         keyboard=kbs.main.main_menu(admin_id),
@@ -64,3 +78,13 @@ async def _decline_user(ans: bots.SimpleBotEvent):
         peer_id=user_id,
         random_id=0,
     )
+    with orm.db_session:
+        admins = admin.get_admins_of_group(group_id)
+        for adm in admins:
+            if adm.vk_id != ans.from_id:
+                await ans.api_ctx.messages.send(
+                    message="Другой администратор отклонил запрос пользователя",
+                    peer_id=adm.vk_id,
+                    random_id=0,
+                    keyboard=kbs.main.main_menu(adm.student.id),
+                )
