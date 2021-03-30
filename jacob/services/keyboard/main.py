@@ -1,3 +1,5 @@
+import typing
+
 from loguru import logger
 from pony import orm
 from vkwave.bots import Keyboard
@@ -105,6 +107,31 @@ def group_privacy():
     kb.add_text_button("Приватная", payload={"button": "group_privacy", "value": True})
 
     kb.add_row()
+
+    kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
+
+    return kb.get_keyboard()
+
+
+def public_groups(university: typing.Optional[int]):
+    kb = Keyboard()
+
+    if university is None:
+        raise TypeError("Значение university не может быть пустым")
+
+    with orm.db_session:
+        groups = uni.get_public_groups(university)
+
+        for group in groups:
+            if len(kb.buttons[-1]) == 2:
+                kb.add_row()
+
+            kb.add_text_button(
+                group.group_num, payload={"button": "group", "group": group.id}
+            )
+
+    if kb.buttons[-1]:
+        kb.add_row()
 
     kb.add_text_button("🚫 Отмена", payload={"button": "cancel"})
 
