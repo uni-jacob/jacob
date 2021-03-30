@@ -1,7 +1,6 @@
 import re
 import typing as t
 
-from loguru import logger
 from vkwave.api import APIOptionsRequestContext
 from vkwave.bots import PhotoUploader
 from vkwave.bots import VoiceUploader
@@ -99,6 +98,4 @@ def get_university_abbreviation(uni: str):
     for word in uni.split():
         index = 2 if re.match(r"(владимир.*)", word, re.IGNORECASE) else 1
         letters.append(word[0:index].capitalize())
-        logger.warning(index)
-    logger.warning(letters)
     return "".join(letters)
