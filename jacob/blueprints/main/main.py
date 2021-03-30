@@ -5,7 +5,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import redis, models
-from jacob.database.utils import students
+from jacob.database.utils import students, admin
 from jacob.database.utils.storages import managers
 from jacob.services import keyboard as kbs
 from jacob.services.exceptions import StudentNotFound
@@ -100,8 +100,22 @@ async def _select_group(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _send_add_request(ans: bots.SimpleBotEvent):
-    await ans.answer("Запрос на добавление отправлен")
-    await _greeting(ans)
+    with orm.db_session:
+        admins = admin.get_admins_of_group(ans.payload.get("group"))
+        group = models.Group[ans.payload.get("group")]
+
+        await ans.api_ctx.messages.send(
+            message="Пользователь @id{0} хочет присоединиться к вашей группе {1}".format(
+                ans.from_id, group.group_num
+            ),
+            peer_ids=[adm.vk_id for adm in admins],
+            random_id=0,
+        )
+
+    await ans.answer(
+        "Запрос на добавление отправлен",
+        keyboard=kbs.common.empty(),
+    )
 
 
 @bots.simple_bot_message_handler(
