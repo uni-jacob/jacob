@@ -145,20 +145,37 @@ async def _subgroups(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _call_by_subgroup(ans: bots.SimpleBotEvent):
-    admin_id = students.get_system_id_of_student(ans.from_id)
+    admin_id: int = students.get_system_id_of_student(ans.from_id)
     with orm.db_session:
-        active_students = students.get_active_students_by_subgroup(
+        active_students: list[
+            models.Student
+        ] = students.get_active_students_by_subgroup(
             admin.get_active_group(admin_id),
             ans.payload.get("subgroup"),
         )
-        mentioned_list = [st.id for st in active_students]
-    mention_storage = managers.MentionStorageManager(admin_id)
-    mention_storage.update_mentioned_students(mentioned_list)
-    await ans.answer(
-        "Все студенты подгруппы {0} выбраны для Призыва".format(
-            ans.payload.get("subgroup")
-        )
-    )
+        mentioned_list: list[int] = [st.id for st in active_students]
+        mention_storage = managers.MentionStorageManager(admin_id)
+
+        if set(mentioned_list).issubset(mention_storage.get_mentioned_students()):
+            mention_storage.update_mentioned_students(
+                [
+                    elem
+                    for elem in mention_storage.get_mentioned_students()
+                    if elem not in mentioned_list
+                ]
+            )
+            await ans.answer(
+                "Все студенты подгруппы {0} удалены из списка Призыва".format(
+                    ans.payload.get("subgroup")
+                )
+            )
+        else:
+            mention_storage.update_mentioned_students(mentioned_list)
+            await ans.answer(
+                "Все студенты подгруппы {0} выбраны для Призыва".format(
+                    ans.payload.get("subgroup")
+                )
+            )
 
 
 @bots.simple_bot_message_handler(
@@ -188,14 +205,27 @@ async def _call_by_ac_status(ans: bots.SimpleBotEvent):
             ans.payload.get("status"),
         )
         mentioned_list = [st.id for st in active_students]
-    mention_storage = managers.MentionStorageManager(admin_id)
-    mention_storage.update_mentioned_students(mentioned_list)
-    with orm.db_session:
-        await ans.answer(
-            "Все студенты {0} формы обучения выбраны для Призыва".format(
-                models.AcademicStatus[ans.payload.get("status")].description
+        mention_storage = managers.MentionStorageManager(admin_id)
+        if set(mentioned_list).issubset(mention_storage.get_mentioned_students()):
+            list_ = [
+                elem
+                for elem in mention_storage.get_mentioned_students()
+                if elem not in mentioned_list
+            ]
+            logger.debug(list_)
+            mention_storage.update_mentioned_students(list_)
+            await ans.answer(
+                "Все студенты {0} формы обучения удалены из списка Призыва".format(
+                    models.AcademicStatus[ans.payload.get("status")].description
+                )
             )
-        )
+        else:
+            mention_storage.update_mentioned_students(mentioned_list)
+            await ans.answer(
+                "Все студенты {0} формы обучения выбраны для Призыва".format(
+                    models.AcademicStatus[ans.payload.get("status")].description
+                )
+            )
 
 
 @bots.simple_bot_message_handler(
@@ -208,9 +238,18 @@ async def _call_them_all(ans: bots.SimpleBotEvent):
     with orm.db_session:
         active_students = students.get_active_students(admin.get_active_group(admin_id))
         mentioned_list = [st.id for st in active_students]
-    mention_storage = managers.MentionStorageManager(admin_id)
-    mention_storage.update_mentioned_students(mentioned_list)
-    await ans.answer("Все студенты группы выбраны для Призыва")
+        mention_storage = managers.MentionStorageManager(admin_id)
+        if set(mentioned_list).issubset(mention_storage.get_mentioned_students()):
+            list_ = [
+                elem
+                for elem in mention_storage.get_mentioned_students()
+                if elem not in mentioned_list
+            ]
+            mention_storage.update_mentioned_students(list_)
+            await ans.answer("Все студенты удалены из списка Призыва")
+        else:
+            mention_storage.update_mentioned_students(mentioned_list)
+            await ans.answer("Все студенты выбраны для Призыва")
 
 
 @bots.simple_bot_message_handler(
@@ -238,14 +277,26 @@ async def _call_by_custom_preset(ans: bots.SimpleBotEvent):
             ans.payload.get("preset"),
         )
         mentioned_list = [st.id for st in active_students]
-    mention_storage = managers.MentionStorageManager(admin_id)
-    mention_storage.update_mentioned_students(mentioned_list)
-    with orm.db_session:
-        await ans.answer(
-            "Все студенты списка {0} выбраны для Призыва".format(
-                models.List[ans.payload.get("preset")].name
+        mention_storage = managers.MentionStorageManager(admin_id)
+        if set(mentioned_list).issubset(mention_storage.get_mentioned_students()):
+            list_ = [
+                elem
+                for elem in mention_storage.get_mentioned_students()
+                if elem not in mentioned_list
+            ]
+            mention_storage.update_mentioned_students(list_)
+            await ans.answer(
+                "Все студенты списка {0} удалены из списка Призыва".format(
+                    models.List[ans.payload.get("preset")].name
+                )
             )
-        )
+        else:
+            mention_storage.update_mentioned_students(mentioned_list)
+            await ans.answer(
+                "Все студенты списка {0} выбраны для Призыва".format(
+                    models.List[ans.payload.get("preset")].name
+                )
+            )
 
 
 @bots.simple_bot_message_handler(
