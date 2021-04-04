@@ -1,7 +1,9 @@
+import os
 import re
 import typing as t
 
 from vkwave.api import APIOptionsRequestContext
+from vkwave.bots import DocUploader
 from vkwave.bots import PhotoUploader
 from vkwave.bots import VoiceUploader
 from vkwave.types.objects import MessagesMessageAttachment
@@ -30,6 +32,7 @@ async def load_attachments(
     """
     atchs = []
     photo_uploader = PhotoUploader(api)
+    doc_uploader = DocUploader(api)
     am_uploader = VoiceUploader(api)
     if len(attachments) > 10:
         raise AttachmentLimitExceeded("Количество вложений не может быть больше 10")
@@ -47,7 +50,13 @@ async def load_attachments(
             )
             atchs.append(atch)
         if attach.doc:
-            return ",".join(atchs)
+            atch = await doc_uploader.get_attachment_from_link(
+                from_id,
+                attach.doc.url,
+                file_extension=attach.doc.ext,
+                file_name=os.path.splitext(attach.doc.title)[0],
+            )
+            atchs.append(atch)
         if attach.audio_message:
             atch = await am_uploader.get_attachment_from_link(
                 from_id,
