@@ -1,7 +1,7 @@
 from pony import orm
 from vkwave.bots import Keyboard
 
-from jacob.database.utils import admin
+from jacob.database.utils import admin, groups
 from jacob.services.keyboard import common
 
 JSONStr = str
@@ -26,6 +26,10 @@ def preferences(admin_id: int) -> JSONStr:
         if len(feud) > 1:
             kb.add_text_button("Выбрать группу", payload={"button": "select_group"})
             kb.add_row()
+
+    kb.add_text_button("🔒 Публичность группы", payload={"button": "change_publicity"})
+    kb.add_row()
+
     kb.add_text_button("◀️ Назад", payload={"button": "main_menu"})
 
     return kb.get_keyboard()
@@ -135,5 +139,28 @@ def list_of_groups(admin_id: int) -> JSONStr:
             group.group_num,
             payload={"button": "group", "group_id": group.id},
         )
+
+    return kb.get_keyboard()
+
+
+def group_privacy(group_id: int) -> JSONStr:
+    kb = Keyboard()
+
+    privacy = groups.get_privacy_of_group(group_id)
+
+    if privacy:
+        kb.add_text_button(
+            "🔓 Публичная", payload={"button": "change_group_privacy", "value": False}
+        )
+    else:
+        kb.add_text_button(
+            "🔒 Приватная", payload={"button": "change_group_privacy", "value": True}
+        )
+
+    kb.add_row()
+    kb.add_text_button(
+        "◀️ Назад",
+        payload={"button": "main_menu"},
+    )
 
     return kb.get_keyboard()
