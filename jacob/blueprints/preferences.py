@@ -8,7 +8,7 @@ from vkwave import api, bots, client
 
 from jacob.database import models, redis
 from jacob.database import utils as db
-from jacob.database.utils import chats as db_chats
+from jacob.database.utils import chats as db_chats, groups
 from jacob.database.utils import students, admin
 from jacob.database.utils.storages import managers
 from jacob.services import chats, filters
@@ -360,3 +360,30 @@ async def _select_active_group(ans: bots.SimpleBotEvent):
     )
     admin_store.update(active_group=ans.payload["group_id"])
     await _open_preferences(ans)
+
+
+@bots.simple_bot_message_handler(
+    preferences_router,
+    filters.PLFilter({"button": "change_publicity"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _change_publicity(ans: bots.SimpleBotEvent):
+    admin_id: int = students.get_system_id_of_student(ans.from_id)
+    group_id: int = admin.get_active_group(admin_id).id
+    privacy: bool = groups.get_privacy_of_group(group_id)
+    await ans.answer(
+        "Сейчас группа {0}".format("приватная" if privacy else "публичная"),
+        keyboard=kbs.preferences.group_privacy(group_id),
+    )
+
+
+@bots.simple_bot_message_handler(
+    preferences_router,
+    filters.PLFilter({"button": "change_group_privacy"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_new_publicity(ans: bots.SimpleBotEvent):
+    group_id = admin.get_active_group(students.get_system_id_of_student(ans.from_id)).id
+    with orm.db_session:
+        models.Group[group_id].set(private=ans.payload.get("value"))
+    await _change_publicity(ans)
