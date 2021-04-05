@@ -52,13 +52,14 @@ pre-commit = "^2.8.2"
 rope = "^0.18.0"
 mimesis = "^4.1.3"
 flakehell = "^0.9.0"
+cz-jacob-rules = {git = "https://github.com/uni-jacob/cz-jacob-rules.git"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.commitizen]
-name = "cz_conventional_commits"
+name = "cz_jacob"
 version = "3.4.0"
 tag_format = "v$version"
 version_files = [
