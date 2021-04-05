@@ -2,6 +2,7 @@
 
 import os
 from datetime import datetime
+from typing import Iterable, Optional
 
 from pony import orm
 
@@ -13,60 +14,60 @@ db = orm.Database()
 class AcademicStatus(db.Entity):
     """Формы обучения студентов."""
 
-    description = orm.Optional(str, unique=True)
-    students = orm.Set("Student")
+    description: str = orm.Optional(str, unique=True)
+    students: Iterable["Student"] = orm.Set("Student")
 
 
 class AdminConfig(db.Entity):
     """Хранилище конфигов админов."""
 
-    owner = orm.Required("Student")
-    names_usage = orm.Optional(bool, default=True)
-    active_group = orm.Optional("Group")
-    active_chat = orm.Optional("Chat")
+    owner: "Student" = orm.Required("Student")
+    names_usage: Optional[bool] = orm.Optional(bool, default=True)
+    active_group: Optional["Group"] = orm.Optional("Group")
+    active_chat: Optional["Chat"] = orm.Optional("Chat")
 
 
 class AlmaMater(db.Entity):
     """Университеты."""
 
-    name = orm.Required(str)
-    groups = orm.Set("Group")
+    name: str = orm.Required(str)
+    groups: Iterable["Group"] = orm.Set("Group")
 
 
 class Group(db.Entity):
     """Студенческие группы."""
 
-    group_num = orm.Required(str)
-    specialty = orm.Required(str)
-    alma_mater = orm.Required(AlmaMater)
-    private = orm.Required(bool)
-    admin_configs = orm.Set(AdminConfig)
-    chats = orm.Set("Chat")
-    admins = orm.Set("Admin")
-    students = orm.Set("Student")
-    financial_categories = orm.Set("FinancialCategory")
-    lists = orm.Set("List")
+    group_num: str = orm.Required(str)
+    specialty: str = orm.Required(str)
+    alma_mater: AlmaMater = orm.Required(AlmaMater)
+    private: bool = orm.Required(bool)
+    admin_configs: Iterable[AdminConfig] = orm.Set(AdminConfig)
+    chats: Iterable["Chat"] = orm.Set("Chat")
+    admins: Iterable["Admin"] = orm.Set("Admin")
+    students: Iterable["Student"] = orm.Set("Student")
+    financial_categories: Iterable["FinancialCategory"] = orm.Set("FinancialCategory")
+    lists: Iterable["List"] = orm.Set("List")
 
 
 class Chat(db.Entity):
     """Зарегистрированные чаты."""
 
-    vk_id = orm.Required(int)
-    group = orm.Required(Group)
-    admin_configs = orm.Set(AdminConfig)
+    vk_id: int = orm.Required(int)
+    group: Group = orm.Required(Group)
+    admin_configs: Iterable[AdminConfig] = orm.Set(AdminConfig)
 
 
 class Admin(db.Entity):
     """Админы бота."""
 
-    student = orm.Required("Student")
-    group = orm.Required(Group)
+    student: "Student" = orm.Required("Student")
+    group: Group = orm.Required(Group)
 
-    def get_groups(self):
+    def get_groups(self) -> Iterable[Group]:
         """Возвращает объекты групп, администратором которых является пользователь.
 
         Returns:
-            orm.Set[Group]: Объекты групп
+            Iterable[Group]: Объекты групп
         """
         return self.groups
 
@@ -74,47 +75,47 @@ class Admin(db.Entity):
 class Student(db.Entity):
     """Студенты."""
 
-    vk_id = orm.Required(int)
-    first_name = orm.Required(str)
-    last_name = orm.Required(str)
-    group = orm.Required(Group)
-    subgroup = orm.Optional(int)
-    email = orm.Optional(str)
-    phone_number = orm.Optional(str)
-    academic_status = orm.Required(AcademicStatus)
-    financial_incomes = orm.Set(
+    vk_id: int = orm.Required(int)
+    first_name: str = orm.Required(str)
+    last_name: str = orm.Required(str)
+    group: Group = orm.Required(Group)
+    subgroup: Optional[int] = orm.Optional(int)
+    email: Optional[str] = orm.Optional(str)
+    phone_number: Optional[str] = orm.Optional(str)
+    academic_status: AcademicStatus = orm.Required(AcademicStatus)
+    financial_incomes: Iterable["FinancialIncome"] = orm.Set(
         "FinancialIncome",
         cascade_delete=True,
     )
-    issues = orm.Set(
+    issues: Iterable["Issue"] = orm.Set(
         "Issue",
         cascade_delete=True,
     )
-    admins = orm.Set(
+    admins: Iterable["Admin"] = orm.Set(
         Admin,
         cascade_delete=True,
     )
-    state_storage = orm.Optional(
+    state_storage: Optional["StateStorage"] = orm.Optional(
         "StateStorage",
         cascade_delete=True,
     )
-    admin_config = orm.Optional(
+    admin_config: Optional[AdminConfig] = orm.Optional(
         AdminConfig,
         cascade_delete=True,
     )
-    call_storage = orm.Optional(
+    call_storage: Optional["MentionStorage"] = orm.Optional(
         "MentionStorage",
         cascade_delete=True,
     )
-    chat_registrar_config = orm.Optional(
+    chat_registrar_config: Optional["ChatRegistrarConfig"] = orm.Optional(
         "ChatRegistrarConfig",
         cascade_delete=True,
     )
-    financial_config = orm.Optional(
+    financial_config: Optional["FinancialConfig"] = orm.Optional(
         "FinancialConfig",
         cascade_delete=True,
     )
-    liststudents = orm.Set(
+    liststudents: Iterable["ListStudents"] = orm.Set(
         "ListStudents",
         cascade_delete=True,
     )
@@ -132,90 +133,93 @@ class Student(db.Entity):
 class MentionStorage(db.Entity):
     """Хранилище призыва."""
 
-    owner = orm.Required(Student)
-    mention_text = orm.Optional(str)
-    mentioned_students = orm.Optional(str)
-    mention_attaches = orm.Optional(str)
+    owner: Student = orm.Required(Student)
+    mention_text: Optional[str] = orm.Optional(str)
+    mentioned_students: Optional[str] = orm.Optional(str)
+    mention_attaches: Optional[str] = orm.Optional(str)
 
 
 class ChatRegistrarConfig(db.Entity):
     """Хранилище регистратора чатов."""
 
-    owner = orm.Required(Student)
-    phrase = orm.Optional(str, default="")
+    owner: Student = orm.Required(Student)
+    phrase: Optional[str] = orm.Optional(str, default="")
 
 
 class FinancialCategory(db.Entity):
     """Финансовые категории."""
 
-    name = orm.Optional(str)
-    summ = orm.Optional(int)
-    group = orm.Required(Group)
-    financial_configs = orm.Set("FinancialConfig")
-    financial_incomes = orm.Set("FinancialIncome")
-    financial_expenses = orm.Set("FinancialExpense")
+    name: Optional[str] = orm.Optional(str)
+    summ: Optional[int] = orm.Optional(int)
+    group: Group = orm.Required(Group)
+    financial_configs: Iterable["FinancialConfig"] = orm.Set("FinancialConfig")
+    financial_incomes: Iterable["FinancialIncome"] = orm.Set("FinancialIncome")
+    financial_expenses: Iterable["FinancialExpense"] = orm.Set("FinancialExpense")
 
 
 class FinancialConfig(db.Entity):
     """Временное хранилище активной финансовой категории."""
 
-    owner = orm.Required(Student)
-    financial_category = orm.Optional(FinancialCategory)
+    owner: Student = orm.Required(Student)
+    financial_category: Optional[FinancialCategory] = orm.Optional(FinancialCategory)
 
 
 class FinancialIncome(db.Entity):
     """Доходы."""
 
-    financial_category = orm.Required(FinancialCategory)
-    student = orm.Required(Student)
-    summ = orm.Required(int)
-    create_date = orm.Required(datetime, default=lambda: datetime.now())
-    update_date = orm.Optional(datetime)
+    financial_category: FinancialCategory = orm.Required(FinancialCategory)
+    student: Student = orm.Required(Student)
+    summ: int = orm.Required(int)
+    create_date: datetime = orm.Required(datetime, default=lambda: datetime.now())
+    update_date: Optional[datetime] = orm.Optional(datetime)
 
 
 class FinancialExpense(db.Entity):
     """Расходы."""
 
-    financial_category = orm.Required(FinancialCategory)
-    summ = orm.Required(int)
-    create_date = orm.Optional(datetime, default=lambda: datetime.now())
+    financial_category: FinancialCategory = orm.Required(FinancialCategory)
+    summ: int = orm.Required(int)
+    create_date: Optional[datetime] = orm.Optional(
+        datetime,
+        default=lambda: datetime.now(),
+    )
 
 
 class Issue(db.Entity):
     """Баги."""
 
-    owner = orm.Required(Student)
-    title = orm.Optional(str)
-    text = orm.Optional(str)
+    owner: Student = orm.Required(Student)
+    title: Optional[str] = orm.Optional(str)
+    text: Optional[str] = orm.Optional(str)
 
 
 class State(db.Entity):
     """Статусы боты."""
 
-    description = orm.Optional(str, unique=True)
-    state_storages = orm.Set("StateStorage")
+    description: Optional[str] = orm.Optional(str, unique=True)
+    state_storages: Iterable["StateStorage"] = orm.Set("StateStorage")
 
 
 class StateStorage(db.Entity):
     """Связка состояний ботов с пользователями."""
 
-    owner = orm.Required(Student)
-    state = orm.Required(State, default=1)
+    owner: Student = orm.Required(Student)
+    state: State = orm.Required(State, default=1)
 
 
 class List(db.Entity):
     """Кастомные списки студентов."""
 
-    group = orm.Required(Group)
-    name = orm.Required(str)
-    students = orm.Set("ListStudents")
+    group: Group = orm.Required(Group)
+    name: str = orm.Required(str)
+    students: Iterable["ListStudents"] = orm.Set("ListStudents")
 
 
 class ListStudents(db.Entity):
     """Связка списков и студентов."""
 
-    list = orm.Required(List)
-    student = orm.Required(Student)
+    list: List = orm.Required(List)
+    student: Student = orm.Required(Student)
 
 
 db.bind(provider="postgres", **get_db_credentials(os.getenv("DATABASE_URL")))

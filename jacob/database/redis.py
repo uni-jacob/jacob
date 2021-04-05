@@ -8,7 +8,7 @@ async def hmset(key: str, **kwargs):
 
     Args:
         key: Ключ в redis
-
+        **kwargs: Поля для обновления
     """
     redis = await aioredis.create_redis_pool(
         os.getenv("REDIS_URL"),
