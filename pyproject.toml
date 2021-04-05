@@ -65,3 +65,22 @@ version_files = [
     "pyproject.toml:version"
 ]
 update_changelog_on_bump = true
+
+[tool.flakehell]
+exclude = [".git", "__pycache__", "tests", "polygon.py", "generate_test_data.py"]
+format = "wemake"
+max_line_length = 88
+max_complexity = 10
+max_cognitive_complexity = 10
+count = true
+show_source = true
+statistics = true
+inline_quotes = "double"
+multiline_quotes = "double"
+docstring_quotes = "double"
+convention = "google"
+
+[tool.flakehell.plugins]
+flake8-docstrings = ["-D104"]
+pycodestyle = ["-E501", "-W503", ]
+wemake-python-styleguide = ["-*"]
