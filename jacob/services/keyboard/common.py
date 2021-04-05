@@ -1,14 +1,13 @@
 import os
 import typing as t
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from pony import orm
 from vkwave.api import API
 from vkwave.bots import Keyboard
 from vkwave.client import AIOHTTPClient
 
-from jacob.database.utils import admin, chats, students, groups, lists
+from jacob.database.utils import admin, chats, groups, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import chats as chat_utils
 

@@ -3,9 +3,7 @@ import re
 import typing as t
 
 from vkwave.api import APIOptionsRequestContext
-from vkwave.bots import DocUploader
-from vkwave.bots import PhotoUploader
-from vkwave.bots import VoiceUploader
+from vkwave.bots import DocUploader, PhotoUploader, VoiceUploader
 from vkwave.types.objects import MessagesMessageAttachment
 
 from jacob.services.exceptions import AttachmentLimitExceeded
