@@ -66,6 +66,8 @@ version_files = [
     "pyproject.toml:version"
 ]
 update_changelog_on_bump = true
+changelog_incremental = true
+changelog_start_rev = "v3.4.0"
 bump_message = "build(project): update version $current_version to $new_version"
 
 [tool.flakehell]
