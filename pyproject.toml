@@ -65,6 +65,7 @@ version_files = [
     "pyproject.toml:version"
 ]
 update_changelog_on_bump = true
+bump_message = "build(project): update version $current_version to $new_version"
 
 [tool.flakehell]
 exclude = [".git", "__pycache__", "tests", "polygon.py", "generate_test_data.py"]
