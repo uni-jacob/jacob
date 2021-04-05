@@ -5,7 +5,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import models, redis
-from jacob.database.utils import admin, students, lists
+from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs

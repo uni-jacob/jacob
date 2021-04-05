@@ -2,23 +2,21 @@
 
 import os
 
-from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
 from jacob.database import models, redis
 from jacob.database import utils as db
-from jacob.database.utils import chats as db_chats, groups
-from jacob.database.utils import students, admin
+from jacob.database.utils import admin
+from jacob.database.utils import chats as db_chats
+from jacob.database.utils import groups, students
 from jacob.database.utils.storages import managers
 from jacob.services import chats, filters
 from jacob.services import keyboard as kbs
-from jacob.services.logger import config as logger_config
 
 preferences_router = bots.DefaultRouter()
 api_session = api.API(tokens=os.getenv("VK_TOKEN"), clients=client.AIOHTTPClient())
 api_context = api_session.get_context()
-logger.configure(**logger_config.config)
 
 
 @bots.simple_bot_message_handler(
@@ -264,14 +262,17 @@ async def _index_chat(ans: bots.SimpleBotEvent):
         diff_db_vk=",".join(map(str, diff_db_vk)),
     )
 
-    await ans.answer(
-        """Добавлены в чат, но не зарегистрированы в системе:\n{0};
+    message = """
+        Добавлены в чат, но не зарегистрированы в системе:\n{0};
         Зарегистрированы в системе, но не добавлены в чат:\n{1}.
         Вы можете зарегистрировать студентов в системе в автоматическом режиме, нажав соответствующую кнопку на клавиатуре.
-        Студенты появятся в базе данных, вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)""".format(
-            sep.join(vk_list) or "⸻",
-            sep.join(db_list) or "⸻",
-        ),
+        Студенты появятся в базе данных, вам останется лишь изменить тип их обучения (бюджет/контракт и пр.)
+    """.format(
+        sep.join(vk_list) or "⸻",
+        sep.join(db_list) or "⸻",
+    )
+    await ans.answer(
+        message,
         keyboard=kbs.preferences.index_chat(
             chat.id,
         ),
@@ -294,7 +295,6 @@ async def _register_students(ans: bots.SimpleBotEvent):
     )
 
     student_objects = await api_context.users.get(user_ids=students_ids.split(","))
-    students_count = 0
     with orm.db_session:
         for student in student_objects.response:
             models.Student(
@@ -304,9 +304,8 @@ async def _register_students(ans: bots.SimpleBotEvent):
                 group=group.id,
                 academic_status=1,
             )
-            students_count += 1
     await ans.answer(
-        "{0} студент(ов) зарегистрировано".format(students_count),
+        "{0} студент(ов) зарегистрировано".format(len(student_objects.response)),
         keyboard=kbs.preferences.configure_chat(ans.payload["chat_id"]),
     )
 

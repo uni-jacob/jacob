@@ -6,7 +6,7 @@ from loguru import logger
 from pony import orm
 from vkwave import api, bots, client
 
-from jacob.database.utils import students, admin, chats
+from jacob.database.utils import admin, chats, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs

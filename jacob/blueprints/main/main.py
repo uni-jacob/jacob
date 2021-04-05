@@ -4,8 +4,8 @@ from loguru import logger
 from pony import orm
 from vkwave import bots
 
-from jacob.database import redis, models
-from jacob.database.utils import students, admin
+from jacob.database import models, redis
+from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
 from jacob.services import keyboard as kbs
 from jacob.services.exceptions import StudentNotFound

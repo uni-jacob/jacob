@@ -9,7 +9,7 @@ from pony import orm
 from vkwave import api, bots, client
 
 from jacob.database import models
-from jacob.database.utils import admin, students, lists
+from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
