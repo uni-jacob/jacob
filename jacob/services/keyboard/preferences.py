@@ -150,11 +150,19 @@ def group_privacy(group_id: int) -> JSONStr:
 
     if privacy:
         kb.add_text_button(
-            "🔓 Публичная", payload={"button": "change_group_privacy", "value": False}
+            "🔓 Публичная",
+            payload={
+                "button": "change_group_privacy",
+                "value": False,
+            },
         )
     else:
         kb.add_text_button(
-            "🔒 Приватная", payload={"button": "change_group_privacy", "value": True}
+            "🔒 Приватная",
+            payload={
+                "button": "change_group_privacy",
+                "value": True,
+            },
         )
 
     kb.add_row()

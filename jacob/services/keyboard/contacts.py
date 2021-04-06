@@ -30,6 +30,9 @@ class ContactsKeyboards(Keyboards):
         """
         Подменю Контактов (список букв в рамках половины алфавита).
 
+        Args:
+            half: индекс половины алфавита
+
         Returns:
             str: Клавиатура
 

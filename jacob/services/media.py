@@ -1,17 +1,60 @@
 import os
 import re
-import typing as t
+from typing import List
 
 from vkwave.api import APIOptionsRequestContext
 from vkwave.bots import DocUploader, PhotoUploader, VoiceUploader
-from vkwave.types.objects import MessagesMessageAttachment
+from vkwave.types.objects import (
+    DocsDoc,
+    MessagesAudioMessage,
+    MessagesMessageAttachment,
+    PhotosPhoto,
+)
 
 from jacob.services.exceptions import AttachmentLimitExceeded
 
 
+async def _load_image(
+    api: APIOptionsRequestContext,
+    from_id: int,
+    photo: PhotosPhoto,
+) -> str:
+    photo_uploader = PhotoUploader(api)
+    return await photo_uploader.get_attachment_from_link(
+        from_id,
+        photo.sizes[-1].url,
+    )
+
+
+async def _load_doc(
+    api: APIOptionsRequestContext,
+    from_id: int,
+    doc: DocsDoc,
+) -> str:
+    doc_uploader = DocUploader(api)
+    return await doc_uploader.get_attachment_from_link(
+        from_id,
+        doc.url,
+        file_extension=doc.ext,
+        file_name=os.path.splitext(doc.title)[0],
+    )
+
+
+async def _load_audio(
+    api: APIOptionsRequestContext,
+    from_id: int,
+    audio: MessagesAudioMessage,
+) -> str:
+    am_uploader = VoiceUploader(api)
+    return await am_uploader.get_attachment_from_link(
+        from_id,
+        audio.link_ogg,
+    )
+
+
 async def load_attachments(
     api: APIOptionsRequestContext,
-    attachments: t.List["MessagesMessageAttachment"],
+    attachments: List[MessagesMessageAttachment],
     from_id: int,
 ) -> str:
     """
@@ -28,40 +71,37 @@ async def load_attachments(
     Returns:
         str: Список идентификаторов вложений, готовых к отправке
     """
-    atchs = []
-    photo_uploader = PhotoUploader(api)
-    doc_uploader = DocUploader(api)
-    am_uploader = VoiceUploader(api)
+    attaches = []
+
     if len(attachments) > 10:
         raise AttachmentLimitExceeded("Количество вложений не может быть больше 10")
     for attach in attachments:
         if attach.photo:
-            max_url = ""
-            max_size = 0
-            for size in attach.photo.sizes:
-                if size.height > max_size:
-                    max_size = size.height
-                    max_url = size.url
-            atch = await photo_uploader.get_attachment_from_link(
-                from_id,
-                max_url,
+            attaches.append(
+                await _load_image(
+                    api,
+                    from_id,
+                    attach.photo,
+                ),
             )
-            atchs.append(atch)
         if attach.doc:
-            atch = await doc_uploader.get_attachment_from_link(
-                from_id,
-                attach.doc.url,
-                file_extension=attach.doc.ext,
-                file_name=os.path.splitext(attach.doc.title)[0],
+            attaches.append(
+                await _load_doc(
+                    api,
+                    from_id,
+                    attach.doc,
+                ),
             )
-            atchs.append(atch)
         if attach.audio_message:
-            atch = await am_uploader.get_attachment_from_link(
-                from_id,
-                attach.audio_message.link_ogg,
+            attaches.append(
+                await _load_audio(
+                    api,
+                    from_id,
+                    attach.audio_message,
+                ),
             )
-            atchs.append(atch)
-    return ",".join(atchs)
+
+    return ",".join(attaches)
 
 
 def translate_string(s: str) -> str:

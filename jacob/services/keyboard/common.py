@@ -60,7 +60,7 @@ class Keyboards(ABC):
     def students(self, letter: str) -> str:
         data = students.get_list_of_students_by_letter(self.admin_id, letter)
         selected = managers.MentionStorageManager(
-            self.admin_id
+            self.admin_id,
         ).get_mentioned_students()
         half_index = self._find_half_index_of_letter(letter)
         kb = Keyboard()
@@ -86,23 +86,21 @@ class Keyboards(ABC):
             payload={"button": "half", "half": half_index},
         )
 
-        return kb.get_keyboard()
-
-    def _get_halfs_of_alphabet(self) -> t.Tuple[t.List[str]]:
+    def _get_halves_of_alphabet(self) -> t.Tuple[t.List[str], t.List[str]]:
         """
         Создает половины алфавита из списка студентов.
 
         Returns:
             t.Tuple[t.List[str]]: Половины алфавита
         """
-        alphabet = students.get_unique_second_name_letters_in_a_group(
+        alphabet_: t.List[str] = students.get_unique_second_name_letters_in_a_group(
             admin.get_active_group(self.admin_id),
         )
-        half_len = len(alphabet) // 2
+        half_len = len(alphabet_) // 2
 
-        return alphabet[:half_len], alphabet[half_len:]
+        return alphabet_[:half_len], alphabet_[half_len:]
 
-    def _find_half_index_of_letter(self, letter: str) -> int:
+    def _find_half_index_of_letter(self, letter: str) -> t.Optional[int]:
         """
         Определяет в какой половине алфавита находится буква и возвращает ее индекс.
 
@@ -112,11 +110,15 @@ class Keyboards(ABC):
         Returns:
             int: Индекс половины
         """
-        halfs = self._get_halfs_of_alphabet()
+        halves = self._get_halves_of_alphabet()
 
-        for index, half in enumerate(halfs):
+        saved_index = None
+
+        for index, half in enumerate(halves):
             if letter in half:
-                return index
+                saved_index = index
+
+        return saved_index
 
 
 class StudentsNavigator(ABC):
@@ -147,14 +149,12 @@ def alphabet(admin_id: int) -> Keyboard:
     )
     half_len = len(alphabet) // 2
     f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
-    index = 0
-    for half in f_alphabet, s_alphabet:
+    for index, half in enumerate([f_alphabet, s_alphabet]):
         if half[0] == half[-1]:
             title = f"{half[0]}"
         else:
             title = f"{half[0]}..{half[-1]}"
         kb.add_text_button(title, payload={"button": "half", "half": index})
-        index += 1
 
     return kb
 
@@ -214,7 +214,7 @@ def cancel() -> Keyboard:
     Генерирует клавиатуру для отмены действия.
 
     Returns:
-        JSONStr: клавиатура
+        Keyboard: клавиатура
     """
     kb = Keyboard()
 
@@ -257,7 +257,11 @@ def subgroups(group_id: int):
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
         kb.add_text_button(
-            subgroup, payload={"button": "subgroup", "subgroup": subgroup}
+            subgroup,
+            payload={
+                "button": "subgroup",
+                "subgroup": subgroup,
+            },
         )
 
     if kb.buttons[-1]:
@@ -276,7 +280,11 @@ def academic_statuses(group_id: int):
         if len(kb.buttons[-1]) == 2:
             kb.add_row()
         kb.add_text_button(
-            ac.description, payload={"button": "ac_status", "status": ac.id}
+            ac.description,
+            payload={
+                "button": "ac_status",
+                "status": ac.id,
+            },
         )
 
     if kb.buttons[-1]:
@@ -297,7 +305,11 @@ def custom_presets(group_id: int):
             if len(kb.buttons[-1]) == 2:
                 kb.add_row()
             kb.add_text_button(
-                preset.name, payload={"button": "preset", "preset": preset.id}
+                preset.name,
+                payload={
+                    "button": "preset",
+                    "preset": preset.id,
+                },
             )
 
     if kb.buttons[-1]:
