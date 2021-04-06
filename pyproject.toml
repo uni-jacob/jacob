@@ -103,7 +103,7 @@ flake8-pytest-style = ["+*"]
 flake8-quotes = ["+*"]
 flake8-rst-docstrings = ["-*"]
 flake8-simplify = ["+*"]
-flake8-string-format = ["+*"]
+flake8-string-format = ["-P103"]
 mccabe = ["+*"]
 pep8-naming = ["+*"]
 pycodestyle = ["-E501", "-W503", ]
@@ -113,3 +113,12 @@ wemake-python-styleguide = ["-*"]
 
 [tool.flakehell.exceptions."**/__init__.py"]
 pyflakes = ["-F401"]
+
+[tool.flakehell.exceptions."jacob/services/logger/handlers.py"]
+flake8-mypy = ["-T484"]
+
+[tool.flakehell.exceptions."jacob/services/keyboard/common.py"]
+flake8-mypy = ["-T484"]
+
+[tool.flakehell.exceptions."jacob/services/keyboard/main.py"]
+flake8-mypy = ["-T484"]
