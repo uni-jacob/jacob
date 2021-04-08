@@ -1,6 +1,7 @@
 """Функции для работы с блоком Финансы."""
 
 from datetime import datetime
+from typing import List
 
 from pony import orm
 
@@ -9,7 +10,7 @@ from jacob.database.utils.students import get_active_students
 
 
 @orm.db_session
-def get_fin_categories(group_id: int) -> list[models.FinancialCategory]:
+def get_fin_categories(group_id: int) -> List[models.FinancialCategory]:
     """
     Возвращает список категорий финансов группы.
 
@@ -56,7 +57,7 @@ def add_or_edit_donate(
 
 
 @orm.db_session
-def get_debtors(category_id: int) -> list[int]:
+def get_debtors(category_id: int) -> List[int]:
     """
     Ищет должников (не сдавших деньги на категорию вообще или не всю сумму).
 

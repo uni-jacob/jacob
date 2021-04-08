@@ -1,4 +1,5 @@
 """Утилиты для работы со студентами в базе данных."""
+from typing import List, Optional
 
 from pony import orm
 
@@ -52,7 +53,7 @@ def get_system_id_of_student(vk_id: int) -> int:
 
 
 @orm.db_session
-def get_active_students(group_id: int) -> list[Student]:
+def get_active_students(group_id: int) -> List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
 
@@ -79,7 +80,7 @@ def get_active_students(group_id: int) -> list[Student]:
 def get_active_students_by_subgroup(
     group_id: int,
     subgroup: int,
-) -> list[Student]:
+) -> List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
 
@@ -111,7 +112,7 @@ def get_active_students_by_subgroup(
 def get_students_by_academic_status(
     group_id: int,
     academic_status: int,
-) -> list[Student]:
+) -> List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
 
@@ -141,7 +142,7 @@ def get_students_by_academic_status(
 
 
 @orm.db_session
-def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
+def get_unique_second_name_letters_in_a_group(group_id: int) -> Optional[List[str]]:
     """
     Возвращает список первых букв фамилий в активной группе.
 
@@ -155,10 +156,11 @@ def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     snd_names = [name[0] for name in query]
     if snd_names:
         return sorted(dict.fromkeys(snd_names))
+    return None
 
 
 @orm.db_session
-def get_list_of_students_by_letter(admin_id: int, letter: str) -> list[Student]:
+def get_list_of_students_by_letter(admin_id: int, letter: str) -> List[Student]:
     """
     Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
 
