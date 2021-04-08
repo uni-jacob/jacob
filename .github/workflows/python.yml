@@ -32,7 +32,7 @@ jobs:
         poetry install
     - name: Lint with flake8
       run: |
-        flake8
+        flakehell lint
     - name: Test with pytest
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
