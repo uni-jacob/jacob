@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jacob"
-version = "3.4.0"
+version = "3.4.1"
 description = "Universal bot helper for student's group for VK."
 authors = ["Daniil <dadyarri@gmail.com>"]
 license = "MIT"
@@ -60,7 +60,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.commitizen]
 name = "cz_jacob"
-version = "3.4.0"
+version = "3.4.1"
 tag_format = "v$version"
 version_files = [
     "pyproject.toml:version"
