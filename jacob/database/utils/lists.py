@@ -1,19 +1,24 @@
+from typing import Iterable
+
 from pony import orm
 
 from jacob.database import models
 
 
 @orm.db_session
-def get_lists_of_group(group_id: int):
+def get_lists_of_group(group_id: int) -> Iterable[models.List]:
     return orm.select(gr for gr in models.List if gr.group.id == group_id)
 
 
 @orm.db_session
-def get_students_in_list(list_id: int):
+def get_students_in_list(list_id: int) -> Iterable[models.Student]:
     """Получает список студентов в списке
 
     Args:
         list_id: Идентификатор списка
+
+    Returns:
+        Iterable[models.Student]: Студенты-члены списка
     """
     return orm.select(
         item.student for item in models.ListStudents if item.list.id == list_id

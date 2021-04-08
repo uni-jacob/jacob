@@ -30,25 +30,99 @@ mkdocs = "^1.1.2"
 mkdocs-material="^7.0.7"
 mkdocs-git-revision-date-localized-plugin = "^0.8"
 wemake-python-styleguide="^0.15.2"
+flake8-annotations-coverage = "^0.0.5"
+flake8-bandit = "^2.1.2"
+flake8-broken-line = "^0.3.0"
+flake8-bugbear = ">=20.1,<21.0"
+flake8-cognitive-complexity = "^0.1.0"
+flake8-commas = "^2.0.0"
 flake8-comprehensions = "^3.3.0"
+flake8-debugger = "^4.0.0"
+flake8-docstrings = "^1.6.0"
+flake8-eradicate = "^1.0.0"
+flake8-isort = "^4.0.0"
+flake8-plugin-utils = "^1.3.1"
+flake8-polyfill = "^1.0.2"
 flake8-print = "^4.0.0"
 flake8-pytest-style = "^1.3.0"
+flake8-quotes = "^3.2.0"
 flake8-simplify = "^0.14.0"
-flake8-cognitive-complexity = "^0.1.0"
-flake8-annotations-coverage = "^0.0.4"
+flake8-string-format = "^0.3.0"
 pre-commit = "^2.8.2"
 rope = "^0.18.0"
 mimesis = "^4.1.3"
+flakehell = "^0.9.0"
+flake8-mypy = "^17.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.commitizen]
-name = "cz_conventional_commits"
-version = "2.15.0"
+name = "cz_jacob"
+version = "3.4.0"
 tag_format = "v$version"
 version_files = [
     "pyproject.toml:version"
 ]
 update_changelog_on_bump = true
+changelog_incremental = true
+changelog_start_rev = "v3.4.0"
+bump_message = "build(project): update version $current_version to $new_version"
+
+[tool.flakehell]
+baseline = "baseline.txt"
+exclude = [".git", "__pycache__", "tests", "polygon.py", "generate_test_data.py"]
+format = "wemake"
+max_line_length = 88
+max_complexity = 10
+max_cognitive_complexity = 10
+count = true
+show_source = true
+statistics = true
+inline_quotes = "double"
+multiline_quotes = "double"
+docstring_quotes = "double"
+convention = "google"
+
+[tool.flakehell.plugins]
+flake8-annotations-coverage = ["+*"]
+flake8-bandit = ["+*"]
+flake8-broken-line = ["+*"]
+flake8-bugbear = ["+*"]
+flake8-cognitive-complexity = ["+*"]
+flake8-commas = ["+*"]
+flake8-comprehensions = ["+*"]
+flake8-darglint = ["+*"]
+flake8-debugger = ["+*"]
+flake8-docstrings = ["-D104"]
+flake8-eradicate = ["+*"]
+flake8-isort = ["+*"]
+flake8-mypy = ["+*", "-T499"]
+flake8-print = ["+*"]
+flake8-pytest-style = ["+*"]
+flake8-quotes = ["+*"]
+flake8-rst-docstrings = ["-*"]
+flake8-simplify = ["+*"]
+flake8-string-format = ["-P103"]
+mccabe = ["+*"]
+pep8-naming = ["+*"]
+pycodestyle = ["-E501", "-W503", ]
+pyflakes = ["+*"]
+pylint = ["+*"]
+wemake-python-styleguide = ["-*"]
+
+[tool.flakehell.exceptions."**/__init__.py"]
+pyflakes = ["-F401"]
+
+[tool.flakehell.exceptions."jacob/services/logger/handlers.py"]
+flake8-mypy = ["-T484"]
+
+[tool.flakehell.exceptions."jacob/services/keyboard/common.py"]
+flake8-mypy = ["-T484"]
+
+[tool.flakehell.exceptions."jacob/services/keyboard/main.py"]
+flake8-mypy = ["-T484"]
+
+[tool.flakehell.exceptions."jacob/database/models.py"]
+flake8-mypy = ["-T484"]

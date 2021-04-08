@@ -5,8 +5,8 @@ import os
 
 from vkwave import bots
 
-from jacob.blueprints import chats, group, preferences, finances, report, students
-from jacob.blueprints.main import main, invite
+from jacob.blueprints import chats, finances, group, preferences, report, students
+from jacob.blueprints.main import invite, main
 from jacob.blueprints.mention import menu as call_menu
 from jacob.blueprints.mention import start as call_start
 from jacob.services.logger.handlers import InterceptHandler

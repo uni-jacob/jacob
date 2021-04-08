@@ -472,7 +472,8 @@ async def _save_expense(ans: bots.SimpleBotEvent):
     if re.match(r"^\d+$", ans.text):
         fin_store = managers.FinancialConfigManager(admin_id)
         finances.add_expense(
-            fin_store.get_or_create().financial_category.id, int(ans.text)
+            fin_store.get_or_create().financial_category.id,
+            int(ans.text),
         )
         state_store = managers.StateStorageManager(admin_id)
         state_store.update(state=state_store.get_id_of_state("main"))

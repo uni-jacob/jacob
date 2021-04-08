@@ -20,9 +20,6 @@ def is_user_admin(admin_id: int) -> bool:
     Args:
         admin_id: идентификатор студента в системе
 
-    Raises:
-        UserIsNotAnAdmin: если пользователь не является администратором
-
     Returns:
         bool: статус администрирования студента
     """
@@ -56,17 +53,20 @@ def get_active_group(admin_id: int) -> models.Group:
     Args:
         admin_id: идентификатор администратора
 
+    Raises:
+        UserIsNotAnAdmin: если указанный пользователь не является админом
+
     Returns:
         Group: объект группы
     """
     active_group = managers.AdminConfigManager(admin_id).get_or_create().active_group
     if active_group is None:
         admin = models.Admin.get(student=admin_id)
-        if admin is not None:
+        try:
             active_group = admin.group
-        else:
+        except AttributeError:
             raise UserIsNotAnAdmin(
-                "Пользователь {0} не является админом".format(admin_id)
+                "Пользователь {0} не является админом".format(admin_id),
             )
     return active_group
 

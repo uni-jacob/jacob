@@ -125,7 +125,8 @@ def public_groups(university: typing.Optional[int]):
                 kb.add_row()
 
             kb.add_text_button(
-                group.group_num, payload={"button": "group", "group": group.id}
+                group.group_num,
+                payload={"button": "group", "group": group.id},
             )
 
     if kb.buttons[-1]:
