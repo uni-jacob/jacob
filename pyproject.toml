@@ -71,6 +71,7 @@ changelog_start_rev = "v3.4.0"
 bump_message = "build(project): update version $current_version to $new_version"
 
 [tool.flakehell]
+baseline = "baseline.txt"
 exclude = [".git", "__pycache__", "tests", "polygon.py", "generate_test_data.py"]
 format = "wemake"
 max_line_length = 88
@@ -121,4 +122,7 @@ flake8-mypy = ["-T484"]
 flake8-mypy = ["-T484"]
 
 [tool.flakehell.exceptions."jacob/services/keyboard/main.py"]
+flake8-mypy = ["-T484"]
+
+[tool.flakehell.exceptions."jacob/database/models.py"]
 flake8-mypy = ["-T484"]
