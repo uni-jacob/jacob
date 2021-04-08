@@ -1,6 +1,5 @@
 from jacob.services import keyboard as kbs
-from jacob.services.keyboard.common import Keyboards
-from jacob.services.keyboard.common import StudentsNavigator
+from jacob.services.keyboard.common import Keyboards, StudentsNavigator
 
 
 class ContactsKeyboards(Keyboards):
@@ -30,6 +29,9 @@ class ContactsKeyboards(Keyboards):
     def submenu(self, half: int) -> str:
         """
         Подменю Контактов (список букв в рамках половины алфавита).
+
+        Args:
+            half: индекс половины алфавита
 
         Returns:
             str: Клавиатура

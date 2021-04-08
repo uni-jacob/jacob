@@ -1,6 +1,5 @@
 """Утилиты для работы со студентами в базе данных."""
-
-import typing
+from typing import List, Optional
 
 from pony import orm
 
@@ -13,7 +12,8 @@ from jacob.services import exceptions
 @orm.db_session
 def is_admin_in_group(student_id: int, group_id: int):
     """
-    Является ли студент администратором группы
+    Является ли студент администратором группы.
+
     Args:
         student_id: идентификатор студента
         group_id: идентификатор группы
@@ -26,7 +26,7 @@ def is_admin_in_group(student_id: int, group_id: int):
             adm
             for adm in Admin
             if adm.student.id == student_id and adm.group.id == group_id
-        )
+        ),
     )
 
 
@@ -53,7 +53,7 @@ def get_system_id_of_student(vk_id: int) -> int:
 
 
 @orm.db_session
-def get_active_students(group_id: int) -> typing.List[Student]:
+def get_active_students(group_id: int) -> List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
 
@@ -78,8 +78,9 @@ def get_active_students(group_id: int) -> typing.List[Student]:
 
 @orm.db_session
 def get_active_students_by_subgroup(
-    group_id: int, subgroup: int
-) -> typing.List[Student]:
+    group_id: int,
+    subgroup: int,
+) -> List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
 
@@ -109,8 +110,9 @@ def get_active_students_by_subgroup(
 
 @orm.db_session
 def get_students_by_academic_status(
-    group_id: int, academic_status: int
-) -> typing.List[Student]:
+    group_id: int,
+    academic_status: int,
+) -> List[Student]:
     """
     Возвращает список активных (не отчисленных студентов) конкретной группы.
 
@@ -140,7 +142,7 @@ def get_students_by_academic_status(
 
 
 @orm.db_session
-def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
+def get_unique_second_name_letters_in_a_group(group_id: int) -> Optional[List[str]]:
     """
     Возвращает список первых букв фамилий в активной группе.
 
@@ -153,11 +155,12 @@ def get_unique_second_name_letters_in_a_group(group_id: int) -> list:
     query = orm.select(st.last_name for st in Student if st.group == group_id)
     snd_names = [name[0] for name in query]
     if snd_names:
-        return sorted(list(dict.fromkeys(snd_names)))
+        return sorted(dict.fromkeys(snd_names))
+    return None
 
 
 @orm.db_session
-def get_list_of_students_by_letter(admin_id: int, letter: str) -> typing.List[Student]:
+def get_list_of_students_by_letter(admin_id: int, letter: str) -> List[Student]:
     """
     Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
 

@@ -230,12 +230,20 @@ class IssueStorageManager(base.BaseStorageManager):
     """Менеджер хранилища проблем."""
 
     def __init__(self, owner):
-        """Создаёт объект менеджер проблем."""
+        """Создаёт объект менеджер проблем.
+
+        Args:
+            owner: владелец хранилища
+        """
         super().__init__(owner)
         self.model = models.Issue
 
     def generate_issue_text(self) -> str:
-        """Генерирует текст ишью."""
+        """Генерирует текст ишью.
+
+        Returns:
+            str: текст ишью
+        """
         text = self.get_or_create().text
         is_admin = admin_utils.is_user_admin(self.owner)
 

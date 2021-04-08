@@ -9,7 +9,7 @@ from pony import orm
 from vkwave import api, bots, client
 
 from jacob.database import models
-from jacob.database.utils import admin, students, lists
+from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
@@ -162,19 +162,19 @@ async def _call_by_subgroup(ans: bots.SimpleBotEvent):
                     elem
                     for elem in mention_storage.get_mentioned_students()
                     if elem not in mentioned_list
-                ]
+                ],
             )
             await ans.answer(
                 "Все студенты подгруппы {0} удалены из списка Призыва".format(
-                    ans.payload.get("subgroup")
-                )
+                    ans.payload.get("subgroup"),
+                ),
             )
         else:
             mention_storage.update_mentioned_students(mentioned_list)
             await ans.answer(
                 "Все студенты подгруппы {0} выбраны для Призыва".format(
-                    ans.payload.get("subgroup")
-                )
+                    ans.payload.get("subgroup"),
+                ),
             )
 
 
@@ -188,7 +188,8 @@ async def _academic_statuses(ans: bots.SimpleBotEvent):
     group_id = admin.get_active_group(admin_id).id
 
     await ans.answer(
-        "Выберите форму обучения", keyboard=kbs.common.academic_statuses(group_id)
+        "Выберите форму обучения",
+        keyboard=kbs.common.academic_statuses(group_id),
     )
 
 
@@ -216,15 +217,15 @@ async def _call_by_ac_status(ans: bots.SimpleBotEvent):
             mention_storage.update_mentioned_students(list_)
             await ans.answer(
                 "Все студенты {0} формы обучения удалены из списка Призыва".format(
-                    models.AcademicStatus[ans.payload.get("status")].description
-                )
+                    models.AcademicStatus[ans.payload.get("status")].description,
+                ),
             )
         else:
             mention_storage.update_mentioned_students(mentioned_list)
             await ans.answer(
                 "Все студенты {0} формы обучения выбраны для Призыва".format(
-                    models.AcademicStatus[ans.payload.get("status")].description
-                )
+                    models.AcademicStatus[ans.payload.get("status")].description,
+                ),
             )
 
 
@@ -261,7 +262,8 @@ async def _custom_presets(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     group_id = admin.get_active_group(admin_id).id
     await ans.answer(
-        "Список пользовательских пресетов", keyboard=kbs.common.custom_presets(group_id)
+        "Список пользовательских пресетов",
+        keyboard=kbs.common.custom_presets(group_id),
     )
 
 
@@ -287,15 +289,15 @@ async def _call_by_custom_preset(ans: bots.SimpleBotEvent):
             mention_storage.update_mentioned_students(list_)
             await ans.answer(
                 "Все студенты списка {0} удалены из списка Призыва".format(
-                    models.List[ans.payload.get("preset")].name
-                )
+                    models.List[ans.payload.get("preset")].name,
+                ),
             )
         else:
             mention_storage.update_mentioned_students(mentioned_list)
             await ans.answer(
                 "Все студенты списка {0} выбраны для Призыва".format(
-                    models.List[ans.payload.get("preset")].name
-                )
+                    models.List[ans.payload.get("preset")].name,
+                ),
             )
 
 
@@ -336,7 +338,7 @@ async def _send_call(ans: bots.SimpleBotEvent):
 )
 async def _invert_names_usage(ans: bots.SimpleBotEvent):
     admin_storage = managers.AdminConfigManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     admin_storage.invert_names_usage()
     await _confirm_call(ans)
@@ -365,7 +367,7 @@ async def _select_chat(ans: bots.SimpleBotEvent):
 async def _change_chat(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     admin_storage = managers.AdminConfigManager(
-        students.get_system_id_of_student(ans.object.object.message.from_id)
+        students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     admin_storage.update(
         active_chat=payload["chat_id"],

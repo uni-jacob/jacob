@@ -1,13 +1,9 @@
 """Мелкие утилиты для работы с базой данных."""
-
-
-import typing
+from typing import Dict, Optional, Union
 from urllib import parse as urlparse
 
-StrInt = typing.TypeVar("StrInt", str, int)
 
-
-def get_db_credentials(source: str) -> typing.Dict[str, StrInt]:
+def get_db_credentials(source: str) -> Dict[str, Optional[Union[str, int]]]:
     """
     Создает словарь с учетными данными базы данных из ссылки.
 

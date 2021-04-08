@@ -20,7 +20,16 @@ class BaseStorageManager(object):
         self.owner = owner
 
     @orm.db_session
-    def get_or_create(self) -> orm.Database().Entity:
+    def get_or_create(
+        self,
+    ) -> typing.Union[
+        models.AdminConfig,
+        models.ChatRegistrarConfig,
+        models.FinancialConfig,
+        models.Issue,
+        models.MentionStorage,
+        models.StateStorage,
+    ]:
         """Получает существующий или создаёт новый объект хранилища.
 
         Returns:
@@ -41,7 +50,17 @@ class BaseStorageManager(object):
         return storage
 
     @orm.db_session
-    def update(self, **kwargs) -> orm.Database().Entity:
+    def update(
+        self,
+        **kwargs,
+    ) -> typing.Union[
+        models.AdminConfig,
+        models.ChatRegistrarConfig,
+        models.FinancialConfig,
+        models.Issue,
+        models.MentionStorage,
+        models.StateStorage,
+    ]:
         """Обновляет поля хранилища.
 
         Args:

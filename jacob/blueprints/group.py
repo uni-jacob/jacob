@@ -5,7 +5,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import models, redis
-from jacob.database.utils import admin, students, lists
+from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
@@ -117,7 +117,8 @@ async def _list_menu(ans: bots.SimpleBotEvent):
     )
 
     await ans.answer(
-        "Меню списка {0}".format(list_name), keyboard=kbs.group.list_menu()
+        "Меню списка {0}".format(list_name),
+        keyboard=kbs.group.list_menu(),
     )
 
 
@@ -133,7 +134,8 @@ async def _start_renaming_list(ans: bots.SimpleBotEvent):
     state_store.update(state=state_store.get_id_of_state("groups_rename_list"))
 
     await ans.answer(
-        "Введите новое имя списка", keyboard=kbs.common.cancel().get_keyboard()
+        "Введите новое имя списка",
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 

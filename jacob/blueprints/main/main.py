@@ -4,8 +4,8 @@ from loguru import logger
 from pony import orm
 from vkwave import bots
 
-from jacob.database import redis, models
-from jacob.database.utils import students, admin
+from jacob.database import models, redis
+from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
 from jacob.services import keyboard as kbs
 from jacob.services.exceptions import StudentNotFound
@@ -110,7 +110,8 @@ async def _send_add_request(ans: bots.SimpleBotEvent):
 
         await ans.api_ctx.messages.send(
             message="Пользователь @id{0} хочет присоединиться к вашей группе {1}".format(
-                ans.from_id, group.group_num
+                ans.from_id,
+                group.group_num,
             ),
             peer_ids=[adm.vk_id for adm in admins],
             random_id=0,
@@ -134,7 +135,8 @@ async def _create_university(ans: bots.SimpleBotEvent):
         state="create_group_enter_university_name",
     )
     await ans.answer(
-        "Введите название университета", keyboard=kbs.common.cancel().get_keyboard()
+        "Введите название университета",
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 
@@ -151,7 +153,8 @@ async def _enter_group_number(ans: bots.SimpleBotEvent):
         university=ans.payload.get("university"),
     )
     await ans.answer(
-        "Введите номер группы", keyboard=kbs.common.cancel().get_keyboard()
+        "Введите номер группы",
+        keyboard=kbs.common.cancel().get_keyboard(),
     )
 
 

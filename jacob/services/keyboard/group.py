@@ -5,6 +5,8 @@ from jacob.database.utils import lists, students
 from jacob.services import keyboard as kbs
 from jacob.services.keyboard.common import Keyboards, StudentsNavigator
 
+JSONStr = str
+
 
 class ListsKeyboards(Keyboards):
     """Набор клавиатур для навигации в режиме редактирования Списков."""
@@ -14,12 +16,12 @@ class ListsKeyboards(Keyboards):
         self.return_to = return_to
         self.list_id = list_id
 
-    def menu(self) -> str:
+    def menu(self) -> JSONStr:
         """
         Главное меню Списков (половины алфавита, сохранить, отменить).
 
         Returns:
-            str: Клавиатура
+            JSONStr: Клавиатура
         """
         kb = kbs.common.alphabet(self.admin_id)
         if len(kb.buttons[-1]):
@@ -28,18 +30,21 @@ class ListsKeyboards(Keyboards):
 
         return kb.get_keyboard()
 
-    def submenu(self, half: int) -> str:
+    def submenu(self, half: int) -> JSONStr:
         """
         Подменю призыва (список букв в рамках половины алфавита).
 
+        Args:
+            half: индекс половины алфавита
+
         Returns:
-            str: Клавиатура
+            JSONStr: Клавиатура
 
         """
         kb = super().submenu(half)
         return kb
 
-    def students(self, letter: str) -> str:
+    def students(self, letter: str) -> JSONStr:
         """
         Список студентов на букву.
 
@@ -47,7 +52,7 @@ class ListsKeyboards(Keyboards):
             letter: Первая буква фамилии для поиска студентов
 
         Returns:
-            str: Клавиатура
+            JSONStr: Клавиатура
 
         """
         with orm.db_session:
@@ -87,11 +92,11 @@ class ListNavigator(StudentsNavigator):
         self.return_to = "edit_students_in_list"
         self.list_id = list_id
 
-    def render(self):
+    def render(self) -> ListsKeyboards:
         return ListsKeyboards(self.admin_id, self.return_to, self.list_id)
 
 
-def group_menu():
+def group_menu() -> JSONStr:
     kb = Keyboard()
     kb.add_text_button(
         "👥 Студенты",
@@ -108,7 +113,7 @@ def group_menu():
 
 
 @orm.db_session
-def list_of_lists(group_id: int):
+def list_of_lists(group_id: int) -> JSONStr:
     kb = Keyboard()
 
     with orm.db_session:
@@ -135,12 +140,13 @@ def list_of_lists(group_id: int):
     return kb.get_keyboard()
 
 
-def list_menu():
+def list_menu() -> JSONStr:
     kb = Keyboard()
 
     kb.add_text_button("✏ Переименовать", payload={"button": "rename_list"})
     kb.add_text_button(
-        "👥 Список студентов", payload={"button": "edit_students_in_list"}
+        "👥 Список студентов",
+        payload={"button": "edit_students_in_list"},
     )
     kb.add_row()
     kb.add_text_button("🔥 Удалить список", payload={"button": "remove_list"})

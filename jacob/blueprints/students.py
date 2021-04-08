@@ -6,7 +6,7 @@ from pony import orm
 from vkwave import bots
 
 from jacob.database import models, redis
-from jacob.database.utils import students, admin
+from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
@@ -23,7 +23,7 @@ logger.configure(**logger_config.config)
 )
 async def _start_students(ans: bots.SimpleBotEvent):
     state_storage = managers.StateStorageManager(
-        students.get_system_id_of_student(ans.from_id)
+        students.get_system_id_of_student(ans.from_id),
     )
     state_storage.update(state=state_storage.get_id_of_state("students_select_student"))
     await ans.answer(
@@ -116,7 +116,7 @@ async def _select_student(ans: bots.SimpleBotEvent):
 
     await ans.answer(
         "Студент {first_name} {last_name}\nГруппа: {group}\nПодгруппа: {subgroup}\nФорма обучения: {academic_status}".format(
-            **student_dict
+            **student_dict,
         ),
         keyboard=kbs.students.student_card(is_admin),
     )
@@ -448,7 +448,7 @@ async def _edit_student_academic_status(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     state_store = managers.StateStorageManager(admin_id)
     state_store.update(
-        state=state_store.get_id_of_state("students_edit_academic_status")
+        state=state_store.get_id_of_state("students_edit_academic_status"),
     )
 
     with orm.db_session:

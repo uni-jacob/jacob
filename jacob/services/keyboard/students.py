@@ -3,8 +3,10 @@ from vkwave.bots import Keyboard
 
 from jacob.database.utils import students
 
+JSONStr = str
 
-def student_card(is_admin):
+
+def student_card(is_admin: bool) -> JSONStr:
     kb = Keyboard()
 
     kb.add_text_button(
@@ -30,7 +32,7 @@ def student_card(is_admin):
     return kb.get_keyboard()
 
 
-def edit_menu():
+def edit_menu() -> JSONStr:
     kb = Keyboard()
 
     kb.add_text_button("Имя", payload={"button": "edit_name"})
@@ -47,7 +49,7 @@ def edit_menu():
     return kb.get_keyboard()
 
 
-def list_of_academic_statuses():
+def list_of_academic_statuses() -> JSONStr:
 
     kb = Keyboard()
 
