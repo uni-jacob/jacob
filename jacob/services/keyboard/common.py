@@ -57,7 +57,7 @@ class Keyboards(ABC):
 
     @orm.db_session
     @abstractmethod
-    def students(self, letter: str) -> str:
+    def students(self, letter: str) -> JSONStr:
         data = students.get_list_of_students_by_letter(self.admin_id, letter)
         selected = managers.MentionStorageManager(
             self.admin_id,
@@ -85,6 +85,8 @@ class Keyboards(ABC):
             text="◀️ Назад",
             payload={"button": "half", "half": half_index},
         )
+
+        return kb.get_keyboard()
 
     def _get_halves_of_alphabet(self) -> t.Tuple[t.List[str], t.List[str]]:
         """
