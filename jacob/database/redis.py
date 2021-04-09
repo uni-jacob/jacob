@@ -1,6 +1,20 @@
 import os
+from contextlib import AbstractAsyncContextManager
 
 import aioredis
+
+
+class RedisConn(AbstractAsyncContextManager):
+    async def __aenter__(self):
+        self.redis = await aioredis.create_redis_pool(
+            os.getenv("REDIS_URL"),
+            password=os.getenv("REDIS_PASSWORD"),
+        )
+        return self.redis
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.redis.close()
+        await self.redis.wait_closed()
 
 
 async def hmset(key: str, **kwargs):
@@ -10,29 +24,28 @@ async def hmset(key: str, **kwargs):
         key: Ключ в redis
         **kwargs: Поля для обновления
     """
-    redis = await aioredis.create_redis_pool(
-        os.getenv("REDIS_URL"),
-        password=os.getenv("REDIS_PASSWORD"),
-    )
-    await redis.hmset_dict(
-        key,
-        **kwargs,
-    )
-    redis.close()
-    await redis.wait_closed()
+    async with RedisConn() as redis:
+        await redis.hmset_dict(
+            key,
+            **kwargs,
+        )
 
 
-async def hget(key: str, field: str):
-    redis = await aioredis.create_redis_pool(
-        os.getenv("REDIS_URL"),
-        password=os.getenv("REDIS_PASSWORD"),
-    )
-    request = await redis.hget(
-        key,
-        field,
-        encoding="utf-8",
-    )
-    redis.close()
-    await redis.wait_closed()
+async def hget(key: str, field: str) -> str:
+    """Подключается к Redis и получает поле словаря (хеша) по ключу
+
+    Args:
+        key: ключ
+        field: поле
+
+    Returns:
+        str: значение
+    """
+    async with RedisConn() as redis:
+        request = await redis.hget(
+            key,
+            field,
+            encoding="utf-8",
+        )
 
     return request
