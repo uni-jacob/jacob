@@ -90,3 +90,21 @@ async def linsert(key: str, value: list) -> list:
         )
 
     return request
+
+
+async def delete(key: str) -> list:
+    """Подключается к Redis и удаляет ключ.
+
+    Args:
+        key: ключ
+
+    Returns:
+        list: список
+    """
+    async with RedisConn() as redis:
+        request = await redis.delete(
+            key,
+            encoding="utf-8",
+        )
+
+    return request
