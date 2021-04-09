@@ -144,11 +144,11 @@ def alphabet(admin_id: int) -> Keyboard:
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
-    alphabet = students.get_unique_second_name_letters_in_a_group(
+    abc = students.get_unique_second_name_letters_in_a_group(
         admin.get_active_group(admin_id),
     )
-    half_len = len(alphabet) // 2
-    f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
+    half_len = len(abc) // 2
+    f_alphabet, s_alphabet = abc[:half_len], abc[half_len:]
     for index, half in enumerate([f_alphabet, s_alphabet]):
         if half[0] == half[-1]:
             title = f"{half[0]}"
