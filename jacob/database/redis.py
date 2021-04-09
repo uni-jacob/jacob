@@ -32,7 +32,7 @@ async def hmset(key: str, **kwargs):
 
 
 async def hget(key: str, field: str) -> str:
-    """Подключается к Redis и получает поле словаря (хеша) по ключу
+    """Подключается к Redis и получает поле словаря (хеша) по ключу.
 
     Args:
         key: ключ
@@ -45,6 +45,47 @@ async def hget(key: str, field: str) -> str:
         request = await redis.hget(
             key,
             field,
+            encoding="utf-8",
+        )
+
+    return request
+
+
+async def lget(key: str) -> list:
+    """Подключается к Redis и получает список по ключу.
+
+    Args:
+        key: ключ
+
+    Returns:
+        list: список
+    """
+    async with RedisConn() as redis:
+        request = await redis.lrange(
+            key,
+            0,
+            -1,
+            encoding="utf-8",
+        )
+
+    return request
+
+
+async def linsert(key: str, value: list) -> list:
+    """Подключается к Redis и вставляет новые элементы в список по ключу.
+
+    Args:
+        key: ключ
+        value: значение
+
+    Returns:
+        list: список
+    """
+    async with RedisConn() as redis:
+        request = await redis.linsert(
+            key,
+            0,
+            value,
             encoding="utf-8",
         )
 
