@@ -179,7 +179,7 @@ def get_list_of_students_by_letter(group_ids: List[int], letter: str) -> List[St
     ids = tuple(group_ids)
 
     return orm.select(
-        st for st in Student if st.group in ids and st.last_name[0] == letter
+        st for st in Student if st.group.id in ids and st.last_name[0] == letter
     ).order_by(Student.last_name)
 
 
