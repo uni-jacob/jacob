@@ -43,23 +43,23 @@ class TestStudents:
     @orm.db_session
     def test_get_unique_second_name_letters_in_a_group(self):
 
-        test_user_id = 23
+        test_user_id = 47
 
         snd_names = students.get_unique_second_name_letters_in_a_group(
-            admin.get_active_group(test_user_id),
+            [admin.get_active_group(test_user_id).id],
         )
 
-        expect(snd_names).is_equal(sorted(list("БДСМЛЯВКИГЖРТЗШ")))
+        expect(snd_names).is_equal(list("Г"))
 
     @orm.db_session
     def test_get_list_of_students_by_letter(self):
 
-        test_letter = "С"
-        test_user_id = 23
+        test_letter = "Г"
+        test_groups = [10]
 
         with orm.db_session:
-            test_student = Student[41]
+            test_student = Student[47]
 
-        st = students.get_list_of_students_by_letter(test_user_id, test_letter)[:]
+        st = students.get_list_of_students_by_letter(test_groups, test_letter)[:]
 
         expect(st).is_equal([test_student])
