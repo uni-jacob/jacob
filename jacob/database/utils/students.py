@@ -5,7 +5,6 @@ from pony import orm
 
 from jacob.database import models
 from jacob.database.models import AcademicStatus, Admin, Student
-from jacob.database.utils import admin
 from jacob.services import exceptions
 
 
@@ -142,38 +141,45 @@ def get_students_by_academic_status(
 
 
 @orm.db_session
-def get_unique_second_name_letters_in_a_group(group_id: int) -> Optional[List[str]]:
+def get_unique_second_name_letters_in_a_group(
+    group_ids: List[int],
+) -> Optional[List[str]]:
     """
-    Возвращает список первых букв фамилий в активной группе.
+    Возвращает список первых букв фамилий в указанных группах.
 
     Args:
-        group_id: Идентификатор группы
+        group_ids: Идентификатор группы
 
     Returns:
         list: список первых букв фамилий
     """
-    query = orm.select(st.last_name for st in Student if st.group == group_id)
+
+    group_ids = tuple(group_ids)
+
+    query = orm.select(st.last_name for st in Student if st.group.id in group_ids)
     snd_names = [name[0] for name in query]
     if snd_names:
         return sorted(dict.fromkeys(snd_names))
-    return None
+    return []
 
 
 @orm.db_session
-def get_list_of_students_by_letter(admin_id: int, letter: str) -> List[Student]:
+def get_list_of_students_by_letter(group_ids: List[int], letter: str) -> List[Student]:
     """
     Возвращает объекты студентов активной группы, фамилии которых начинаются на letter.
 
     Args:
-        admin_id: идентификатор пользователя
+        group_ids: идентификаторы активных групп
         letter: первая буква фамилий
 
     Returns:
         list[Student]: список студентов
     """
-    active_group = admin.get_active_group(admin_id)
+
+    group_ids = tuple(group_ids)
+
     return orm.select(
-        st for st in Student if st.group == active_group and st.last_name[0] == letter
+        st for st in Student if st.group in group_ids and st.last_name[0] == letter
     ).order_by(Student.last_name)
 
 
