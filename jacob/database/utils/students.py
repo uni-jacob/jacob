@@ -154,9 +154,9 @@ def get_unique_second_name_letters_in_a_group(
         list: список первых букв фамилий
     """
 
-    group_ids = tuple(group_ids)
+    ids = tuple(group_ids)
 
-    query = orm.select(st.last_name for st in Student if st.group.id in group_ids)
+    query = orm.select(st.last_name for st in Student if st.group.id in ids)
     snd_names = [name[0] for name in query]
     if snd_names:
         return sorted(dict.fromkeys(snd_names))
@@ -176,10 +176,10 @@ def get_list_of_students_by_letter(group_ids: List[int], letter: str) -> List[St
         list[Student]: список студентов
     """
 
-    group_ids = tuple(group_ids)
+    ids = tuple(group_ids)
 
     return orm.select(
-        st for st in Student if st.group in group_ids and st.last_name[0] == letter
+        st for st in Student if st.group in ids and st.last_name[0] == letter
     ).order_by(Student.last_name)
 
 
