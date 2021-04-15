@@ -1,27 +1,19 @@
 """Главное меню Призыва."""
 
-import os
 import random
 
 import ujson
 from loguru import logger
 from pony import orm
-from vkwave import api, bots, client
+from vkwave import bots
 
 from jacob.database import models
 from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
-from jacob.services.logger import config as logger_config
 
 call_menu_router = bots.DefaultRouter()
-api_session = api.API(
-    tokens=os.getenv("VK_TOKEN"),
-    clients=client.AIOHTTPClient(),
-)
-api_context = api_session.get_context()
-logger.configure(**logger_config.config)
 
 
 @bots.simple_bot_message_handler(
@@ -102,7 +94,7 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
 
-    chat_name = await chats.get_chat_name(api_context, chat_id)
+    chat_name = await chats.get_chat_name(ans.api_ctx, chat_id)
 
     if not msg and not mention_storage.get_attaches():
         raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
@@ -317,7 +309,7 @@ async def _send_call(ans: bots.SimpleBotEvent):
     bits = 64
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
-    await api_context.messages.send(
+    await ans.api_ctx.messages.send(
         peer_id=chat_id,
         message=msg,
         random_id=random.getrandbits(bits),
@@ -352,7 +344,7 @@ async def _invert_names_usage(ans: bots.SimpleBotEvent):
 )
 async def _select_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
-        api_context,
+        ans.api_ctx,
         students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
