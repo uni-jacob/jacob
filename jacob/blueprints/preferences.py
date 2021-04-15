@@ -340,6 +340,9 @@ async def _delete_students(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("pref_select_chat"))
     await ans.answer(
         "Выберите активную группу",
         keyboard=kbs.preferences.list_of_groups(
@@ -351,12 +354,16 @@ async def _list_of_administrating_groups(ans: bots.SimpleBotEvent):
 @bots.simple_bot_message_handler(
     preferences_router,
     filters.PLFilter({"button": "group"}),
+    filters.StateFilter("pref_select_chat"),
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_active_group(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
     admin_store = managers.AdminConfigManager(
-        students.get_system_id_of_student(ans.from_id),
+        admin_id,
     )
+    state_store = managers.StateStorageManager(admin_id)
+    state_store.update(state=state_store.get_id_of_state("pref_select_chat"))
     admin_store.update(active_group=ans.payload["group_id"])
     await _open_preferences(ans)
 
