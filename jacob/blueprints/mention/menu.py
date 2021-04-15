@@ -1,13 +1,14 @@
 """Главное меню Призыва."""
 
 import random
+from typing import List
 
 import ujson
 from loguru import logger
 from pony import orm
 from vkwave import bots
 
-from jacob.database import models
+from jacob.database import models, redis
 from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
@@ -27,7 +28,9 @@ async def _select_half(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     await ans.answer(
         "Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().submenu(payload["half"]),
+        keyboard=await kbs.call.CallNavigator(admin_id)
+        .render()
+        .submenu(payload["half"]),
     )
 
 
@@ -41,9 +44,17 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    group_ids: List[int] = await redis.lget("active_groups:{0}".format(admin_id))
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
     await ans.answer(
         "Список студентов на букву {0}".format(letter),
-        keyboard=kbs.call.CallNavigator(admin_id).render().students(letter),
+        keyboard=kbs.call.CallNavigator(admin_id)
+        .render()
+        .students(
+            group_ids,
+            letter,
+        ),
     )
 
 
@@ -139,13 +150,13 @@ async def _subgroups(ans: bots.SimpleBotEvent):
 async def _call_by_subgroup(ans: bots.SimpleBotEvent):
     admin_id: int = students.get_system_id_of_student(ans.from_id)
     with orm.db_session:
-        active_students: list[
+        active_students: List[
             models.Student
         ] = students.get_active_students_by_subgroup(
             admin.get_active_group(admin_id),
             ans.payload.get("subgroup"),
         )
-        mentioned_list: list[int] = [st.id for st in active_students]
+        mentioned_list: List[int] = [st.id for st in active_students]
         mention_storage = managers.MentionStorageManager(admin_id)
 
         if set(mentioned_list).issubset(mention_storage.get_mentioned_students()):
