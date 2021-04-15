@@ -1,5 +1,10 @@
+from typing import List
+
+from pony import orm
 from vkwave.bots import Keyboard
 
+from jacob.database import redis
+from jacob.database.utils import admin, students
 from jacob.database.utils.storages import managers
 from jacob.services import keyboard as kbs
 from jacob.services.keyboard.common import Keyboards, StudentsNavigator
@@ -33,7 +38,7 @@ class CallKeyboards(Keyboards):
 
         return kb.get_keyboard()
 
-    def submenu(self, half: int) -> str:
+    async def submenu(self, half: int) -> str:
         """
         Подменю призыва (список букв в рамках половины алфавита).
 
@@ -44,22 +49,71 @@ class CallKeyboards(Keyboards):
             str: Клавиатура
 
         """
-        kb = super().submenu(half)
-        return kb
+        group_ids: List[int] = await redis.lget(
+            "active_groups: {0}".format(self.admin_id),
+        )
+        if not group_ids:
+            group_ids = [admin.get_active_group(self.admin_id).id]
+        alphabet = students.get_unique_second_name_letters_in_a_group(
+            group_ids,
+        )
+        half_len = len(alphabet) // 2
+        halves = alphabet[:half_len], alphabet[half_len:]
 
-    def students(self, letter: str) -> str:
+        kb = Keyboard()
+
+        for letter in halves[half]:
+            if len(kb.buttons[-1]) == 4:
+                kb.add_row()
+            kb.add_text_button(letter, payload={"button": "letter", "value": letter})
+        if kb.buttons[-1]:
+            kb.add_row()
+        kb.add_text_button("◀️ Назад", payload={"button": self.return_to})
+
+        return kb.get_keyboard()
+
+    @orm.db_session
+    def students(self, group_ids: List[int], letter: str) -> str:
         """
         Список студентов на букву.
 
         Args:
+            group_ids: Идентификаторы групп
             letter: Первая буква фамилии для поиска студентов
 
         Returns:
             str: Клавиатура
 
         """
-        kb = super().students(letter)
-        return kb
+        data = students.get_list_of_students_by_letter(group_ids, letter)
+        selected = managers.MentionStorageManager(
+            self.admin_id,
+        ).get_mentioned_students()
+        half_index = self._find_half_index_of_letter(letter)
+        kb = Keyboard()
+        for item in data:
+            if len(kb.buttons[-1]) == 2:
+                kb.add_row()
+            label = " "
+            if item.id in selected:
+                label = "✅ "
+            kb.add_text_button(
+                text=f"{label}{item.last_name} {item.first_name}",
+                payload={
+                    "button": "student",
+                    "student_id": item.id,
+                    "letter": letter,
+                    "name": f"{item.last_name} {item.first_name}",
+                },
+            )
+        if kb.buttons[-1]:
+            kb.add_row()
+        kb.add_text_button(
+            text="◀️ Назад",
+            payload={"button": "half", "half": half_index},
+        )
+
+        return kb.get_keyboard()
 
 
 class CallNavigator(StudentsNavigator):
