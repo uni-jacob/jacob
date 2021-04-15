@@ -104,7 +104,6 @@ async def delete(key: str) -> list:
     async with RedisConn() as redis:
         request = await redis.delete(
             key,
-            encoding="utf-8",
         )
 
     return request
