@@ -19,6 +19,7 @@ class CallKeyboards(Keyboards):
         super().__init__(admin_id)
         self.return_to = return_to
 
+    @orm.db_session
     def menu(self) -> str:
         """
         Главное меню призыва (половины алфавита, сохранить, отменить, изменить).
@@ -33,6 +34,11 @@ class CallKeyboards(Keyboards):
         kb.add_text_button(text="📜 Пресеты", payload={"button": "presets"})
         kb.add_row()
         kb.add_text_button(text="✏️ Изменить текст", payload={"button": "call"})
+        if len(admin.get_admin_feud(self.admin_id)) > 1:
+            kb.add_text_button(
+                "Выбрать группы",
+                payload={"button": "mention_select_groups"},
+            )
         kb.add_row()
         kb.add_text_button(text="🚫 Отмена", payload={"button": "cancel_call"})
 
