@@ -38,7 +38,7 @@ class Keyboards(ABC):
     @abstractmethod
     def submenu(self, half: int) -> str:
         alphabet = students.get_unique_second_name_letters_in_a_group(
-            admin.get_active_group(self.admin_id),
+            [admin.get_active_group(self.admin_id).id],
         )
         half_len = len(alphabet) // 2
         halfs = alphabet[:half_len], alphabet[half_len:]
@@ -58,7 +58,8 @@ class Keyboards(ABC):
     @orm.db_session
     @abstractmethod
     def students(self, letter: str) -> JSONStr:
-        data = students.get_list_of_students_by_letter(self.admin_id, letter)
+        group_ids = [admin.get_active_group(self.admin_id).id]
+        data = students.get_list_of_students_by_letter(group_ids, letter)
         selected = managers.MentionStorageManager(
             self.admin_id,
         ).get_mentioned_students()
@@ -96,7 +97,7 @@ class Keyboards(ABC):
             t.Tuple[t.List[str]]: Половины алфавита
         """
         alphabet_: t.List[str] = students.get_unique_second_name_letters_in_a_group(
-            admin.get_active_group(self.admin_id),
+            [admin.get_active_group(self.admin_id).id],
         )
         half_len = len(alphabet_) // 2
 
@@ -147,7 +148,7 @@ def alphabet(admin_id: int) -> Keyboard:
     """
     kb = Keyboard()
     abc = students.get_unique_second_name_letters_in_a_group(
-        admin.get_active_group(admin_id),
+        [admin.get_active_group(admin_id).id],
     )
     half_len = len(abc) // 2
     f_alphabet, s_alphabet = abc[:half_len], abc[half_len:]

@@ -1,7 +1,7 @@
 from pony import orm
 from vkwave.bots import Keyboard
 
-from jacob.database.utils import lists, students
+from jacob.database.utils import admin, lists, students
 from jacob.services import keyboard as kbs
 from jacob.services.keyboard.common import Keyboards, StudentsNavigator
 
@@ -56,7 +56,8 @@ class ListsKeyboards(Keyboards):
 
         """
         with orm.db_session:
-            data = students.get_list_of_students_by_letter(self.admin_id, letter)
+            group_ids = [admin.get_active_group(self.admin_id).id]
+            data = students.get_list_of_students_by_letter(group_ids, letter)
             half_index = self._find_half_index_of_letter(letter)
             selected = lists.get_students_in_list(self.list_id)
 
