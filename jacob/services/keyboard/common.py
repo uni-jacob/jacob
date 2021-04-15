@@ -36,7 +36,7 @@ class Keyboards(ABC):
         pass
 
     @abstractmethod
-    def submenu(self, half: int) -> str:
+    async def submenu(self, half: int) -> str:
         alphabet = students.get_unique_second_name_letters_in_a_group(
             [admin.get_active_group(self.admin_id).id],
         )
