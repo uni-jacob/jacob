@@ -189,3 +189,29 @@ def presets():
     kb.add_text_button(text="◀️ Назад", payload={"button": "skip_call_message"})
 
     return kb.get_keyboard()
+
+
+@orm.db_session
+def list_of_groups(admin_id: int, selected: List[int]):
+    kb = Keyboard()
+
+    groups = admin.get_admin_feud(admin_id)
+
+    for group in groups:
+        if len(kb.buttons) == 2:
+            kb.add_row()
+        label = ""
+        if group.id in selected:
+            label = "✅ "
+
+        kb.add_text_button(
+            "{0}{1}".format(label, group.group_num),
+            payload={"button": "group", "group": group.id},
+        )
+
+    if kb.buttons[-1]:
+        kb.add_row()
+
+    kb.add_text_button("Сохранить", payload={"button": "mention_save_selected_groups"})
+
+    return kb.get_keyboard()
