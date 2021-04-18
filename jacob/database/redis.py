@@ -71,7 +71,7 @@ async def lget(key: str) -> list:
     return request
 
 
-async def linsert(key: str, value: list) -> list:
+async def rpush(key: str, value: list) -> list:
     """Подключается к Redis и вставляет новые элементы в список по ключу.
 
     Args:
@@ -82,11 +82,29 @@ async def linsert(key: str, value: list) -> list:
         list: список
     """
     async with RedisConn() as redis:
-        request = await redis.linsert(
+        request = await redis.rpush(
+            key,
+            value,
+        )
+
+    return request
+
+
+async def lrem(key: str, value: str) -> int:
+    """Подключается к Redis и удаляет элементы из списка по ключу.
+
+    Args:
+        key: ключ
+        value: значение
+
+    Returns:
+        int: количество удалённых значений
+    """
+    async with RedisConn() as redis:
+        request = await redis.lrem(
             key,
             0,
             value,
-            encoding="utf-8",
         )
 
     return request
