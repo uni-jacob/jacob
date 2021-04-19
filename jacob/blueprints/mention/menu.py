@@ -387,8 +387,10 @@ async def _change_chat(ans: bots.SimpleBotEvent):
 async def _show_available_groups(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
     selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
+    group_id = admin.get_active_group(admin_id).id
 
-    logger.debug(selected)
+    if str(group_id) not in selected:
+        await redis.rpush("mention_selected_groups:{0}".format(admin_id), group_id)
 
     await ans.answer(
         "Выберите группы для Призыва",
@@ -404,7 +406,12 @@ async def _show_available_groups(ans: bots.SimpleBotEvent):
 )
 async def _select_group(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+
     selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
+
+    if str(group_id) not in selected:
+        await redis.rpush("mention_selected_groups:{0}".format(admin_id), group_id)
 
     if str(ans.payload.get("group")) in selected:
         await redis.lrem(
