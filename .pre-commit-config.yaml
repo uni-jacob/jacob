@@ -7,10 +7,6 @@ repos:
   repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v3.3.0
 - hooks:
-  - id: flakehell
-  repo: https://github.com/life4/flakehell
-  rev: v.0.8.0
-- hooks:
   - id: black
   repo: https://github.com/psf/black
   rev: 20.8b1
