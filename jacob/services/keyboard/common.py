@@ -31,7 +31,7 @@ class Keyboards(ABC):
         self.return_to = ""
 
     @abstractmethod
-    def menu(self) -> str:
+    def menu(self, group_ids: t.List[int]) -> str:
         """Главное меню функции, реализуется в подклассах."""
         pass
 
@@ -136,19 +136,19 @@ class StudentsNavigator(ABC):
         return Keyboards(self.admin_id)
 
 
-def alphabet(admin_id: int) -> Keyboard:
+def alphabet(group_ids: t.List[int]) -> Keyboard:
     """
-    Генерирует фрагмент клавиатуры с половинами алфавита фамилиий студентов.
+    Генерирует фрагмент клавиатуры с половинами алфавита фамилий студентов.
 
     Args:
-        admin_id: Идентификатор администратора
+        group_ids: Идентификаторы групп
 
     Returns:
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
     abc = students.get_unique_second_name_letters_in_a_group(
-        [admin.get_active_group(admin_id).id],
+        group_ids,
     )
     half_len = len(abc) // 2
     f_alphabet, s_alphabet = abc[:half_len], abc[half_len:]

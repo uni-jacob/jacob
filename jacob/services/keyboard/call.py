@@ -20,14 +20,14 @@ class CallKeyboards(Keyboards):
         self.return_to = return_to
 
     @orm.db_session
-    def menu(self) -> str:
+    def menu(self, group_ids: List[int]) -> str:
         """
         Главное меню призыва (половины алфавита, сохранить, отменить, изменить).
 
         Returns:
             str: Клавиатура
         """
-        kb = kbs.common.alphabet(self.admin_id)
+        kb = kbs.common.alphabet(group_ids)
         if len(kb.buttons[-1]):
             kb.add_row()
         kb.add_text_button(text="✅ Сохранить", payload={"button": "save_selected"})
@@ -55,9 +55,10 @@ class CallKeyboards(Keyboards):
             str: Клавиатура
 
         """
-        group_ids: List[int] = await redis.lget(
-            "active_groups: {0}".format(self.admin_id),
+        group_ids: List[str] = await redis.lget(
+            "mention_selected_groups:{0}".format(self.admin_id),
         )
+        group_ids: List[int] = list(map(int, group_ids))
         if not group_ids:
             group_ids = [admin.get_active_group(self.admin_id).id]
         alphabet = students.get_unique_second_name_letters_in_a_group(
