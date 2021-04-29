@@ -32,7 +32,11 @@ class Keyboards(ABC):
 
     @abstractmethod
     def menu(self, group_ids: t.List[int]) -> str:
-        """Главное меню функции, реализуется в подклассах."""
+        """Главное меню функции, реализуется в подклассах.
+
+        Args:
+            group_ids: Список идентификаторов групп
+        """
         pass
 
     @abstractmethod

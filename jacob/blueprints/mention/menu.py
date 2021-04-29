@@ -44,7 +44,7 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     letter = payload["value"]
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     group_ids: List[int] = await redis.lget(
-        "mention_selected_groups:{0}".format(admin_id)
+        "mention_selected_groups:{0}".format(admin_id),
     )
     group_ids = list(map(int, group_ids))
     if not group_ids:

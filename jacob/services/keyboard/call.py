@@ -24,6 +24,9 @@ class CallKeyboards(Keyboards):
         """
         Главное меню призыва (половины алфавита, сохранить, отменить, изменить).
 
+        Args:
+            group_ids: Список идентификаторов групп
+
         Returns:
             str: Клавиатура
         """
@@ -55,10 +58,14 @@ class CallKeyboards(Keyboards):
             str: Клавиатура
 
         """
-        group_ids: List[str] = await redis.lget(
-            "mention_selected_groups:{0}".format(self.admin_id),
+        group_ids: List[int] = list(
+            map(
+                int,
+                await redis.lget(
+                    "mention_selected_groups:{0}".format(self.admin_id),
+                ),
+            ),
         )
-        group_ids: List[int] = list(map(int, group_ids))
         if not group_ids:
             group_ids = [admin.get_active_group(self.admin_id).id]
         alphabet = students.get_unique_second_name_letters_in_a_group(
