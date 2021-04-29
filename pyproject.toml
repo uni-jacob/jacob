@@ -84,6 +84,7 @@ inline_quotes = "double"
 multiline_quotes = "double"
 docstring_quotes = "double"
 convention = "google"
+extended_default_ignore=[]
 
 [tool.flakehell.plugins]
 flake8-annotations-coverage = ["+*"]
