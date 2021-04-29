@@ -82,7 +82,7 @@ async def _create_issue(ans: bots.SimpleBotEvent):
     new_issue = repo.create_issue(
         title=issue_store.get_or_create().title,
         body=issue_store.generate_issue_text(),
-        labels=["report"],
+        labels=["type: report"],
     )
 
     state_manager = managers.StateStorageManager(
