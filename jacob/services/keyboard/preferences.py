@@ -119,6 +119,7 @@ def index_chat(
     return kb.get_keyboard()
 
 
+@orm.db_session
 def list_of_groups(admin_id: int) -> JSONStr:
     """
     Генерирует клавиатуру с группами, доступных пользователю для администрирования.

@@ -20,8 +20,9 @@ class TestAdmin:
 
         test_student_id = 3
 
-        with pytest.raises(UserIsNotAnAdmin):
-            admin.is_user_admin(test_student_id)
+        status = admin.is_user_admin(test_student_id)
+
+        expect(status).to.equal(False)
 
     def test_get_admin_feud(self):
 

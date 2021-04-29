@@ -1,27 +1,19 @@
 """Главное меню Призыва."""
 
-import os
 import random
+from typing import List
 
 import ujson
-from loguru import logger
 from pony import orm
-from vkwave import api, bots, client
+from vkwave import bots
 
-from jacob.database import models
+from jacob.database import models, redis
 from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
 from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
-from jacob.services.logger import config as logger_config
 
 call_menu_router = bots.DefaultRouter()
-api_session = api.API(
-    tokens=os.getenv("VK_TOKEN"),
-    clients=client.AIOHTTPClient(),
-)
-api_context = api_session.get_context()
-logger.configure(**logger_config.config)
 
 
 @bots.simple_bot_message_handler(
@@ -35,7 +27,9 @@ async def _select_half(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
     await ans.answer(
         "Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().submenu(payload["half"]),
+        keyboard=await kbs.call.CallNavigator(admin_id)
+        .render()
+        .submenu(payload["half"]),
     )
 
 
@@ -49,9 +43,20 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
     await ans.answer(
         "Список студентов на букву {0}".format(letter),
-        keyboard=kbs.call.CallNavigator(admin_id).render().students(letter),
+        keyboard=kbs.call.CallNavigator(admin_id)
+        .render()
+        .students(
+            group_ids,
+            letter,
+        ),
     )
 
 
@@ -62,10 +67,16 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
-    student_id = payload["student_id"]
+    student_id = ans.payload.get("student_id")
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
     mention_manager = managers.MentionStorageManager(admin_id)
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
     if student_id in mention_manager.get_mentioned_students():
         mention_manager.remove_from_mentioned(
             student_id,
@@ -77,12 +88,12 @@ async def _select_student(ans: bots.SimpleBotEvent):
         )
         label = "добавлен в список призыва"
     await ans.answer(
-        "{0} {1}".format(payload["name"], label),
+        "{0} {1}".format(ans.payload.get("name"), label),
         keyboard=kbs.call.CallNavigator(
             admin_id,
         )
         .render()
-        .students(payload["letter"]),
+        .students(group_ids, ans.payload.get("letter")),
     )
 
 
@@ -102,7 +113,7 @@ async def _confirm_call(ans: bots.SimpleBotEvent):
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
 
-    chat_name = await chats.get_chat_name(api_context, chat_id)
+    chat_name = await chats.get_chat_name(ans.api_ctx, chat_id)
 
     if not msg and not mention_storage.get_attaches():
         raise exceptions.EmptyCallMessage("Сообщение призыва не может быть пустым")
@@ -147,13 +158,13 @@ async def _subgroups(ans: bots.SimpleBotEvent):
 async def _call_by_subgroup(ans: bots.SimpleBotEvent):
     admin_id: int = students.get_system_id_of_student(ans.from_id)
     with orm.db_session:
-        active_students: list[
+        active_students: List[
             models.Student
         ] = students.get_active_students_by_subgroup(
             admin.get_active_group(admin_id),
             ans.payload.get("subgroup"),
         )
-        mentioned_list: list[int] = [st.id for st in active_students]
+        mentioned_list: List[int] = [st.id for st in active_students]
         mention_storage = managers.MentionStorageManager(admin_id)
 
         if set(mentioned_list).issubset(mention_storage.get_mentioned_students()):
@@ -213,7 +224,6 @@ async def _call_by_ac_status(ans: bots.SimpleBotEvent):
                 for elem in mention_storage.get_mentioned_students()
                 if elem not in mentioned_list
             ]
-            logger.debug(list_)
             mention_storage.update_mentioned_students(list_)
             await ans.answer(
                 "Все студенты {0} формы обучения удалены из списка Призыва".format(
@@ -317,7 +327,7 @@ async def _send_call(ans: bots.SimpleBotEvent):
     bits = 64
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
-    await api_context.messages.send(
+    await ans.api_ctx.messages.send(
         peer_id=chat_id,
         message=msg,
         random_id=random.getrandbits(bits),
@@ -352,7 +362,7 @@ async def _invert_names_usage(ans: bots.SimpleBotEvent):
 )
 async def _select_chat(ans: bots.SimpleBotEvent):
     kb = await kbs.common.list_of_chats(
-        api_context,
+        ans.api_ctx,
         students.get_system_id_of_student(ans.object.object.message.from_id),
     )
     await ans.answer("Выберите чат", keyboard=kb.get_keyboard())
@@ -373,3 +383,81 @@ async def _change_chat(ans: bots.SimpleBotEvent):
         active_chat=payload["chat_id"],
     )
     await _confirm_call(ans)
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.StateFilter("mention_select_mentioned"),
+    filters.PLFilter({"button": "mention_select_groups"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _show_available_groups(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
+    group_id = admin.get_active_group(admin_id).id
+
+    if str(group_id) not in selected:
+        await redis.rpush("mention_selected_groups:{0}".format(admin_id), group_id)
+
+    await ans.answer(
+        "Выберите группы для Призыва",
+        keyboard=kbs.call.list_of_groups(admin_id, list(map(int, selected))),
+    )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.StateFilter("mention_select_mentioned"),
+    filters.PLFilter({"button": "group"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _select_group(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_id = admin.get_active_group(admin_id).id
+
+    selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
+
+    if str(group_id) not in selected:
+        await redis.rpush("mention_selected_groups:{0}".format(admin_id), group_id)
+
+    if str(ans.payload.get("group")) in selected:
+        await redis.lrem(
+            "mention_selected_groups:{0}".format(admin_id),
+            str(ans.payload.get("group")),
+        )
+        selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
+        await ans.answer(
+            "Группа убрана из выбранных",
+            keyboard=kbs.call.list_of_groups(admin_id, list(map(int, selected))),
+        )
+    else:
+        await redis.rpush(
+            "mention_selected_groups:{0}".format(admin_id),
+            ans.payload.get("group"),
+        )
+        selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
+        await ans.answer(
+            "Группа выбрана",
+            keyboard=kbs.call.list_of_groups(admin_id, list(map(int, selected))),
+        )
+
+
+@bots.simple_bot_message_handler(
+    call_menu_router,
+    filters.StateFilter("mention_select_mentioned"),
+    filters.PLFilter({"button": "mention_save_selected_groups"}),
+    bots.MessageFromConversationTypeFilter("from_pm"),
+)
+async def _save_selected_groups(ans: bots.SimpleBotEvent):
+    admin_id = students.get_system_id_of_student(ans.from_id)
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
+    await ans.answer(
+        "Выберите призываемых студентов",
+        keyboard=kbs.call.CallNavigator(admin_id).render().menu(group_ids),
+    )

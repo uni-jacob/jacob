@@ -35,6 +35,7 @@ async def _invite_user(ans: bots.SimpleBotEvent):
             group=group_id,
             academic_status=1,
         )
+    await redis.delete(str(user_id))
     await ans.answer(
         "Пользователь @id{0} добавлен в вашу группу".format(user_id),
         keyboard=kbs.main.main_menu(admin_id),
@@ -69,6 +70,7 @@ async def _decline_user(ans: bots.SimpleBotEvent):
         str(user_id),
         "requested_group",
     )
+    await redis.delete(str(user_id))
     await ans.answer(
         "Вы отклонили запрос на добавление студента",
         keyboard=kbs.main.main_menu(admin_id),

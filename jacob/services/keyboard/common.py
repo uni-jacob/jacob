@@ -31,14 +31,18 @@ class Keyboards(ABC):
         self.return_to = ""
 
     @abstractmethod
-    def menu(self) -> str:
-        """Главное меню функции, реализуется в подклассах."""
+    def menu(self, group_ids: t.List[int]) -> str:
+        """Главное меню функции, реализуется в подклассах.
+
+        Args:
+            group_ids: Список идентификаторов групп
+        """
         pass
 
     @abstractmethod
-    def submenu(self, half: int) -> str:
+    async def submenu(self, half: int) -> str:
         alphabet = students.get_unique_second_name_letters_in_a_group(
-            admin.get_active_group(self.admin_id),
+            [admin.get_active_group(self.admin_id).id],
         )
         half_len = len(alphabet) // 2
         halfs = alphabet[:half_len], alphabet[half_len:]
@@ -57,8 +61,9 @@ class Keyboards(ABC):
 
     @orm.db_session
     @abstractmethod
-    def students(self, letter: str) -> str:
-        data = students.get_list_of_students_by_letter(self.admin_id, letter)
+    def students(self, letter: str) -> JSONStr:
+        group_ids = [admin.get_active_group(self.admin_id).id]
+        data = students.get_list_of_students_by_letter(group_ids, letter)
         selected = managers.MentionStorageManager(
             self.admin_id,
         ).get_mentioned_students()
@@ -86,6 +91,8 @@ class Keyboards(ABC):
             payload={"button": "half", "half": half_index},
         )
 
+        return kb.get_keyboard()
+
     def _get_halves_of_alphabet(self) -> t.Tuple[t.List[str], t.List[str]]:
         """
         Создает половины алфавита из списка студентов.
@@ -94,7 +101,7 @@ class Keyboards(ABC):
             t.Tuple[t.List[str]]: Половины алфавита
         """
         alphabet_: t.List[str] = students.get_unique_second_name_letters_in_a_group(
-            admin.get_active_group(self.admin_id),
+            [admin.get_active_group(self.admin_id).id],
         )
         half_len = len(alphabet_) // 2
 
@@ -133,22 +140,22 @@ class StudentsNavigator(ABC):
         return Keyboards(self.admin_id)
 
 
-def alphabet(admin_id: int) -> Keyboard:
+def alphabet(group_ids: t.List[int]) -> Keyboard:
     """
-    Генерирует фрагмент клавиатуры с половинами алфавита фамилиий студентов.
+    Генерирует фрагмент клавиатуры с половинами алфавита фамилий студентов.
 
     Args:
-        admin_id: Идентификатор администратора
+        group_ids: Идентификаторы групп
 
     Returns:
         Keyboard: Фрагмент клавиатуры
     """
     kb = Keyboard()
-    alphabet = students.get_unique_second_name_letters_in_a_group(
-        admin.get_active_group(admin_id),
+    abc = students.get_unique_second_name_letters_in_a_group(
+        group_ids,
     )
-    half_len = len(alphabet) // 2
-    f_alphabet, s_alphabet = alphabet[:half_len], alphabet[half_len:]
+    half_len = len(abc) // 2
+    f_alphabet, s_alphabet = abc[:half_len], abc[half_len:]
     for index, half in enumerate([f_alphabet, s_alphabet]):
         if half[0] == half[-1]:
             title = f"{half[0]}"
