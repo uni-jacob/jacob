@@ -4,7 +4,6 @@ import random
 from typing import List
 
 import ujson
-from loguru import logger
 from pony import orm
 from vkwave import bots
 
@@ -44,7 +43,10 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     payload = ujson.loads(ans.object.object.message.payload)
     letter = payload["value"]
     admin_id = students.get_system_id_of_student(ans.object.object.message.from_id)
-    group_ids: List[int] = await redis.lget("active_groups:{0}".format(admin_id))
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id)
+    )
+    group_ids = list(map(int, group_ids))
     if not group_ids:
         group_ids = [admin.get_active_group(admin_id).id]
     await ans.answer(
@@ -65,10 +67,16 @@ async def _select_letter(ans: bots.SimpleBotEvent):
     bots.MessageFromConversationTypeFilter("from_pm"),
 )
 async def _select_student(ans: bots.SimpleBotEvent):
-    payload = ujson.loads(ans.object.object.message.payload)
-    student_id = payload["student_id"]
+    student_id = ans.payload.get("student_id")
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
     mention_manager = managers.MentionStorageManager(admin_id)
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
     if student_id in mention_manager.get_mentioned_students():
         mention_manager.remove_from_mentioned(
             student_id,
@@ -80,12 +88,12 @@ async def _select_student(ans: bots.SimpleBotEvent):
         )
         label = "добавлен в список призыва"
     await ans.answer(
-        "{0} {1}".format(payload["name"], label),
+        "{0} {1}".format(ans.payload.get("name"), label),
         keyboard=kbs.call.CallNavigator(
             admin_id,
         )
         .render()
-        .students(payload["letter"]),
+        .students(group_ids, ans.payload.get("letter")),
     )
 
 
@@ -216,7 +224,6 @@ async def _call_by_ac_status(ans: bots.SimpleBotEvent):
                 for elem in mention_storage.get_mentioned_students()
                 if elem not in mentioned_list
             ]
-            logger.debug(list_)
             mention_storage.update_mentioned_students(list_)
             await ans.answer(
                 "Все студенты {0} формы обучения удалены из списка Призыва".format(
@@ -424,11 +431,9 @@ async def _select_group(ans: bots.SimpleBotEvent):
             keyboard=kbs.call.list_of_groups(admin_id, list(map(int, selected))),
         )
     else:
-        logger.debug(
-            await redis.rpush(
-                "mention_selected_groups:{0}".format(admin_id),
-                ans.payload.get("group"),
-            ),
+        await redis.rpush(
+            "mention_selected_groups:{0}".format(admin_id),
+            ans.payload.get("group"),
         )
         selected = await redis.lget("mention_selected_groups:{0}".format(admin_id))
         await ans.answer(
@@ -445,7 +450,14 @@ async def _select_group(ans: bots.SimpleBotEvent):
 )
 async def _save_selected_groups(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.from_id)
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
     await ans.answer(
         "Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().menu(),
+        keyboard=kbs.call.CallNavigator(admin_id).render().menu(group_ids),
     )

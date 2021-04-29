@@ -1,25 +1,18 @@
 """Запуск и первоначальная настройка Призыва."""
 
-import os
+from typing import List
 
-from loguru import logger
 from pony import orm
-from vkwave import api, bots, client
+from vkwave import bots
 
+from jacob.database import redis
 from jacob.database.utils import admin, chats, students
 from jacob.database.utils.storages import managers
 from jacob.services import filters
 from jacob.services import keyboard as kbs
 from jacob.services import media
-from jacob.services.logger.config import config
 
 call_start_router = bots.DefaultRouter()
-api_session = api.API(
-    tokens=os.getenv("VK_TOKEN"),
-    clients=client.AIOHTTPClient(),
-)
-api_context = api_session.get_context()
-logger.configure(**config)
 
 
 @bots.simple_bot_message_handler(
@@ -88,9 +81,15 @@ async def _skip_register_call_message(ans: bots.SimpleBotEvent):
     state_store.update(
         state=state_store.get_id_of_state("mention_select_mentioned"),
     )
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
     await ans.answer(
         "Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().menu(),
+        keyboard=kbs.call.CallNavigator(admin_id).render().menu(group_ids),
     )
 
 
@@ -109,7 +108,7 @@ async def _register_call_message(ans: bots.SimpleBotEvent):
         raw_attachments = extended_message.response.items[0].attachments
     if raw_attachments:
         attachments = await media.load_attachments(
-            api_context,
+            ans.api_ctx,
             raw_attachments,
             ans.object.object.message.peer_id,
         )
@@ -121,7 +120,15 @@ async def _register_call_message(ans: bots.SimpleBotEvent):
     mention_store = managers.MentionStorageManager(admin_id)
     mention_store.update_text(ans.object.object.message.text)
     mention_store.update_attaches(attachments)
+
+    group_ids: List[int] = await redis.lget(
+        "mention_selected_groups:{0}".format(admin_id),
+    )
+    group_ids = list(map(int, group_ids))
+    if not group_ids:
+        group_ids = [admin.get_active_group(admin_id).id]
+
     await ans.answer(
         "Сообщение сохранено. Выберите призываемых студентов",
-        keyboard=kbs.call.CallNavigator(admin_id).render().menu(),
+        keyboard=kbs.call.CallNavigator(admin_id).render().menu(group_ids),
     )
