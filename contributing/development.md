@@ -31,6 +31,15 @@ pip install poetry docker-compose
 cd jacob
 ```
 
+Используйте файл `.env.example`, чтобы настроить свои переменные окружения
+```bash
+mv .env.example .env
+```
+
+```bash
+vim .env
+```
+
 Установите зависимости:
 
 ``` bash
