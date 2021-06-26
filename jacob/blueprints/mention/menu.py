@@ -10,8 +10,8 @@ from vkwave import bots
 from jacob.database import models, redis
 from jacob.database.utils import admin, lists, students
 from jacob.database.utils.storages import managers
-from jacob.services import call, chats, exceptions, filters
 from jacob.services import keyboard as kbs
+from jacob.services import mention, chats, exceptions, filters
 
 call_menu_router = bots.DefaultRouter()
 
@@ -104,7 +104,7 @@ async def _select_student(ans: bots.SimpleBotEvent):
 )
 async def _confirm_call(ans: bots.SimpleBotEvent):
     admin_id = students.get_system_id_of_student(ans.object.object.message.peer_id)
-    msg = call.generate_message(admin_id)
+    msg = mention.generate_message(admin_id)
 
     admin_storage = managers.AdminConfigManager(admin_id)
     mention_storage = managers.MentionStorageManager(admin_id)
@@ -323,7 +323,7 @@ async def _send_call(ans: bots.SimpleBotEvent):
     mention_storage = managers.MentionStorageManager(admin_id)
     admin_storage = managers.AdminConfigManager(admin_id)
 
-    msg = call.generate_message(admin_id)
+    msg = mention.generate_message(admin_id)
     bits = 64
     with orm.db_session:
         chat_id = admin_storage.get_active_chat().vk_id
