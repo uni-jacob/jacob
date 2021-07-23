@@ -1,0 +1,73 @@
+[tool.poetry]
+name = "jacob"
+version = "0.0.1"
+description = "Universal bot-helper for student's group for VK"
+authors = ["Daniil <dadyarri@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+wemake-python-styleguide = "^0.15.3"
+flakehell = "^0.9.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"
+tag_format = "v$version"
+version_files = [
+    "pyproject.toml:version"
+]
+update_changelog_on_bump = true
+changelog_incremental = true
+bump_message = "build(project): update version $current_version to $new_version"
+
+[tool.poe.tasks]
+lint = "flakehell lint"
+
+[tool.flakehell]
+extended_default_ignore=[]
+exclude = [".git", "__pycache__", "tests", "polygon.py", "generate_test_data.py"]
+format = "wemake"
+max_line_length = 88
+max_complexity = 10
+max_cognitive_complexity = 10
+count = true
+show_source = true
+statistics = true
+inline_quotes = "double"
+multiline_quotes = "double"
+docstring_quotes = "double"
+convention = "google"
+
+[tool.flakehell.plugins]
+flake8-annotations-coverage = ["+*"]
+flake8-bandit = ["+*"]
+flake8-broken-line = ["+*"]
+flake8-bugbear = ["+*"]
+flake8-cognitive-complexity = ["+*"]
+flake8-commas = ["+*"]
+flake8-comprehensions = ["+*"]
+flake8-darglint = ["+*"]
+flake8-debugger = ["+*"]
+flake8-docstrings = ["-D104"]
+flake8-eradicate = ["+*"]
+flake8-isort = ["+*"]
+flake8-mypy = ["+*", "-T499"]
+flake8-print = ["+*"]
+flake8-pytest-style = ["+*"]
+flake8-quotes = ["+*"]
+flake8-rst-docstrings = ["-*"]
+flake8-simplify = ["+*"]
+flake8-string-format = ["-P103"]
+mccabe = ["+*"]
+pep8-naming = ["+*"]
+pycodestyle = ["-E501", "-W503", ]
+pyflakes = ["+*"]
+pylint = ["+*"]
+
