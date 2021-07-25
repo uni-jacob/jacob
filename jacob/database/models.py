@@ -59,3 +59,49 @@ class Student(User):
     class Meta:
         table = "students"
         table_description = "Зарегистрированный студент"
+
+
+class Group(Model):
+    """Студенческая группа."""
+
+    id: int = fields.IntField(
+        pk=True,
+        description="ИД группы",
+    )
+    group_number: str = fields.CharField(
+        max_length=20,
+        description="Номер группы",
+    )
+    specialty: str = fields.CharField(
+        max_length=255,
+        description="Название специальности",
+    )
+    university: int = fields.ForeignKeyField(
+        "models.university",
+        description="Университет",
+    )
+    private: bool = fields.BooleanField(
+        description="Приватность группы",
+    )
+
+    class Meta:
+        table = "groups"
+        table_description = "Студенческая группа"
+
+
+class University(Model):
+    """Университет."""
+
+    id: int = fields.IntField(
+        pk=True,
+        description="ИД университета",
+    )
+    name: str = fields.CharField(
+        max_length=255,
+        null=False,
+        description="Название университета",
+    )
+
+    class Meta:
+        table = "universities"
+        table_description = "Университет"
