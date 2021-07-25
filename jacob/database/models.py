@@ -12,5 +12,6 @@ class User(Model):
         description="ИД ВК пользователя",
     )
     mode: int = fields.ForeignKeyField(
-        "BotMode", description="Текущий режим бота у пользователя"
+        "BotMode",
+        description="Текущий режим бота у пользователя",
     )
