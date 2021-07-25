@@ -1,9 +1,12 @@
+import re
+
 from tortoise import fields
 from tortoise.models import Model
+from tortoise.validators import RegexValidator
 
 
 class User(Model):
-    """Зарегистрированный пользователь."""
+    """Анонимный пользователь."""
 
     id: int = fields.IntField(pk=True, description="ИД пользователя")
     vk_id: int = fields.IntField(
@@ -11,7 +14,44 @@ class User(Model):
         unique=True,
         description="ИД ВК пользователя",
     )
-    mode: int = fields.ForeignKeyField(
-        "BotMode",
-        description="Текущий режим бота у пользователя",
+
+    class Meta:
+        table = "anonymous_users"
+        table_description = "Анонимный пользователь"
+
+
+class Student(User):
+    """Зарегистрированный студент."""
+
+    first_name: str = fields.CharField(
+        max_length=255,
+        null=False,
+        description="Имя студента",
     )
+    last_name: str = fields.CharField(
+        max_length=255,
+        null=False,
+        description="Фамилия студента",
+    )
+    group = fields.ForeignKeyField(
+        "Group",
+        description="Группа",
+    )
+    subgroup = fields.IntField()
+    email = fields.CharField(
+        max_length=255,
+        validators=RegexValidator(
+            r"^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$",
+            re.I,
+        ),
+    )
+    phone = fields.IntField(
+        validators=RegexValidator(
+            r"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$",
+            re.I,
+        ),
+    )
+
+    class Meta:
+        table = "students"
+        table_description = "Зарегистрированный студент"
