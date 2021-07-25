@@ -34,22 +34,26 @@ class Student(User):
         description="Фамилия студента",
     )
     group = fields.ForeignKeyField(
-        "Group",
+        "models.Group",
         description="Группа",
     )
     subgroup = fields.IntField()
     email = fields.CharField(
         max_length=255,
-        validators=RegexValidator(
-            r"^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$",
-            re.I,
-        ),
+        validators=[
+            RegexValidator(
+                r"^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$",
+                re.I,
+            )
+        ],
     )
     phone = fields.IntField(
-        validators=RegexValidator(
-            r"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$",
-            re.I,
-        ),
+        validators=[
+            RegexValidator(
+                r"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$",
+                re.I,
+            )
+        ],
     )
 
     class Meta:
