@@ -7,6 +7,9 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+vkbottle = "^3.0.2"
+tortoise-orm = "^0.17.5"
+asyncpg = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 wemake-python-styleguide = "^0.15.3"
