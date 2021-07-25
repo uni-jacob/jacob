@@ -77,7 +77,7 @@ class Group(Model):
         description="Название специальности",
     )
     university: int = fields.ForeignKeyField(
-        "models.university",
+        "models.University",
         description="Университет",
     )
     private: bool = fields.BooleanField(
