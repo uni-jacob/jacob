@@ -4,6 +4,8 @@ import os
 from vkbottle import Bot, load_blueprints_from_package
 from vkbottle.bot import Message
 
+from jacob.database.utils.users import is_user
+
 logging.basicConfig(level="DEBUG")
 
 bot = Bot(token=os.getenv("VK_TOKEN"))
@@ -17,7 +19,7 @@ for bp in load_blueprints_from_package("blueprints"):
 async def greeting(message: Message):
     await message.answer("Привет!")
 
-    if ...:  # Собеседник не пользователь
+    if not is_user(message.peer_id):  # Собеседник не пользователь
         await message.answer(
             "Вы не являетесь пользователем. Создайте новую группу или введите код приглашения",
             keyboard=...,
