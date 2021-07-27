@@ -44,7 +44,7 @@ class Student(User):
             RegexValidator(
                 r"^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$",
                 re.I,
-            )
+            ),
         ],
     )
     phone = fields.IntField(
@@ -52,7 +52,7 @@ class Student(User):
             RegexValidator(
                 r"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$",
                 re.I,
-            )
+            ),
         ],
     )
 
