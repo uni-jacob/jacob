@@ -11,6 +11,7 @@ bp.labeler.auto_rules = [EventPayloadContainsRule({"block": "registration"})]
     EventPayloadContainsRule({"action": "init"}),
 )
 async def init_registration(message: Message):
+    # TODO: Смена стейта на invite:select_university
     await message.answer(
         "Выберите или создайте университет",
     )
@@ -20,6 +21,7 @@ async def init_registration(message: Message):
     EventPayloadContainsRule({"action": "enter_invite"}),
 )
 async def enter_invite_code(message: Message):
+    # TODO: Смена стейта на invite:enter_code
     await message.answer(
         message="Введите код приглашения",
         keyboard=EMPTY_KEYBOARD,  # TODO: Кнопка отмены
