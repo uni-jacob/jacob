@@ -1,11 +1,11 @@
-from vkbottle import Callback, Keyboard
+from vkbottle import Keyboard, Text
 
 
 def register_or_invite() -> str:
     kb = Keyboard()
-    kb.add(Callback("Регистрация", payload={"block": "registration", "action": "init"}))
+    kb.add(Text("Регистрация", payload={"block": "registration", "action": "init"}))
     kb.add(
-        Callback(
+        Text(
             "У меня есть код",
             payload={"block": "registration", "action": "enter_invite"},
         ),
