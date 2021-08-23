@@ -1,21 +1,26 @@
-from vkbottle.bot import Blueprint
-from vkbottle_types.events import GroupEventType, MessageEvent
+from vkbottle.bot import Blueprint, Message
+from vkbottle.tools.dev_tools.keyboard import EMPTY_KEYBOARD
 
-from jacob.services.rules import PayloadContainsRule
+from jacob.services.rules import EventPayloadContainsRule
 
 bp = Blueprint("Group registration")
-bp.labeler.auto_rules = [PayloadContainsRule({"block": "registration"})]
+bp.labeler.auto_rules = [EventPayloadContainsRule({"block": "registration"})]
 
 
-@bp.on.raw_event(
-    GroupEventType.MESSAGE_EVENT,
-    MessageEvent,
-    PayloadContainsRule({"action": "init"}),
+@bp.on.message(
+    EventPayloadContainsRule({"action": "init"}),
 )
-async def init_registration(message: MessageEvent):
-    await message.ctx_api.messages.send_message_event_answer(
-        event_id=message.object.event_id,
-        peer_id=message.object.peer_id,
-        user_id=message.object.user_id,
-        event_data='{"type": "show_snackbar", "text": "Работает!"}',
+async def init_registration(message: Message):
+    await message.answer(
+        "Выберите или создайте университет",
+    )
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"action": "enter_invite"}),
+)
+async def enter_invite_code(message: Message):
+    await message.answer(
+        message="Введите код приглашения",
+        keyboard=EMPTY_KEYBOARD,  # TODO: Кнопка отмены
     )
