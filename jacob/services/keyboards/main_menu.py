@@ -2,7 +2,7 @@ from vkbottle import Keyboard, Text
 
 
 def register_or_invite() -> str:
-    kb = Keyboard()
+    kb = Keyboard(inline=True)
     kb.add(Text("Регистрация", payload={"block": "registration", "action": "init"}))
     kb.add(
         Text(
