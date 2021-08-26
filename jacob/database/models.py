@@ -129,11 +129,11 @@ class StateStorage(Model):
         pk=True,
         description="ИД хранилища стейтов",
     )
-    user_id: int = fields.ForeignKeyField(
+    user: int = fields.ForeignKeyField(
         "models.User",
         "ИД пользователя",
     )
-    state_id: int = fields.ForeignKeyField(
+    state: int = fields.ForeignKeyField(
         "models.State",
         "ИД стейта",
     )
