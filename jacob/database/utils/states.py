@@ -5,7 +5,7 @@ from tortoise.transactions import in_transaction
 from jacob.database import models
 
 
-def get_state_id_by_name(state_name: str) -> Optional[int]:
+async def get_state_id_by_name(state_name: str) -> Optional[int]:
     """
     Получает ИД стейта по его имени.
     Args:
@@ -23,7 +23,7 @@ def get_state_id_by_name(state_name: str) -> Optional[int]:
             return None
 
 
-def get_state_name_by_id(state_id: int) -> Optional[str]:
+async def get_state_name_by_id(state_id: int) -> Optional[str]:
     """
     Получает имя стейта по его ИД.
     Args:
