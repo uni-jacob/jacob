@@ -105,3 +105,34 @@ class University(Model):
     class Meta:
         table = "universities"
         table_description = "Университет"
+
+
+class State(Model):
+    id: int = fields.IntField(
+        pk=True,
+        description="ИД стейта",
+    )
+    description: str = fields.CharField(
+        max_length=255,
+        null=False,
+        description="Описание стейта",
+    )
+
+    class Meta:
+        table = "states"
+        table_description = "Стейт"
+
+
+class StateStorage(Model):
+    id: int = fields.IntField(
+        pk=True,
+        description="ИД хранилища стейтов",
+    )
+    user_id: int = fields.ForeignKeyField(
+        "models.User",
+        "ИД пользователя",
+    )
+    state_id: int = fields.ForeignKeyField(
+        "models.State",
+        "ИД стейта",
+    )
