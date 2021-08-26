@@ -24,8 +24,8 @@ async def greeting(message: Message):
     if not await is_user(message.peer_id):  # Собеседник не пользователь
         # TODO: Создать анонимного пользователя
         await message.answer(
-            "Вы не являетесь пользователем. Создайте новую группу или введите код приглашения",
-            keyboard=kb.main_menu.register_or_invite(),
+            "Вы не являетесь пользователем. Создайте новую группу.",
+            keyboard=kb.main_menu.register_start(),
         )
 
 
