@@ -16,8 +16,8 @@ class User(Model):
     )
 
     class Meta:
-        table = "anonymous_users"
-        table_description = "Анонимный пользователь"
+        table = "users"
+        table_description = "Пользователь"
 
 
 class Student(User):
