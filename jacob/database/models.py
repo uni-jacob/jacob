@@ -20,9 +20,10 @@ class User(Model):
         table_description = "Пользователь"
 
 
-class Student(User):
+class Student(Model):
     """Зарегистрированный студент."""
 
+    user: int = fields.ForeignKeyField("models.User", description="ИД пользователя")
     first_name: str = fields.CharField(
         max_length=255,
         null=False,
