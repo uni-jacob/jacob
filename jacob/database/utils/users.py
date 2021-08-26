@@ -27,10 +27,12 @@ async def create_user(vk_id: int) -> models.User:
     Returns:
         models.User: Объект нового пользователя
     """
+    state_id = await get_state_id_by_name("main")
     async with in_transaction():
         user = await models.User.create(vk_id=vk_id)
+        await user.save()
         await models.StateStorage.create(
             user_id=user.id,
-            state_id=get_state_id_by_name("main"),
+            state_id=state_id,
         )
         return user
