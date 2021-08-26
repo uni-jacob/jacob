@@ -50,13 +50,12 @@ async def create_user(vk_id: int) -> models.User:
     """
     state_id = await get_state_id_by_name("main")
     async with in_transaction():
-        user = await models.User.create(vk_id=vk_id)
-        await user.save()
-        await models.StateStorage.create(
-            user_id=user.id,
+        user = await models.User.get_or_create(vk_id=vk_id)
+        await models.StateStorage.get_or_create(
+            user_id=user[0].id,
             state_id=state_id,
         )
-        return user
+        return user[0]
 
 
 async def get_state_of_user(vk_id: int) -> Optional[int]:
