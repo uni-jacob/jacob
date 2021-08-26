@@ -21,7 +21,7 @@ async def list_of_universities():
     kb.add(
         Text(
             "Назад",
-            {"block": "registration", "action": "registration:select_university"},
+            {"block": "main_menu"},
         )
     )
     return kb.get_json()
