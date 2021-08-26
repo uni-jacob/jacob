@@ -57,3 +57,41 @@ async def create_user(vk_id: int) -> models.User:
             state_id=state_id,
         )
         return user
+
+
+async def get_state_of_user(vk_id: int) -> Optional[int]:
+    """
+    Получает стейт пользователя.
+
+    Args:
+        vk_id: ИД ВК пользователя
+
+    Returns:
+        Optional[int]: ИД стейта
+    """
+    user_id = await get_user_id(vk_id)
+    async with in_transaction():
+        query = await models.StateStorage.get_or_none(user_id=user_id)
+
+        try:
+            return query.state
+        except AttributeError:
+            return None
+
+
+async def set_state(vk_id: int, state_name: str) -> str:
+    """
+    Изменяет стейт у пользователя.
+
+    Args:
+        vk_id: ИД ВК пользователя
+        state_name: Название стейта
+
+    Returns:
+        str: Установленное имя стейта.
+    """
+    user_id = await get_user_id(vk_id)
+    state_id = await get_state_id_by_name(state_name)
+    async with in_transaction():
+        await models.StateStorage.filter(user_id=user_id).update(state_id=state_id)
+    return state_name
