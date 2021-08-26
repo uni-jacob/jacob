@@ -4,6 +4,12 @@ from jacob.database import models
 
 
 async def get_universities() -> list[models.University]:
+    """
+    Получает список всех университетов.
+
+    Returns:
+        list[University]: Список университетов.
+    """
     async with in_transaction():
         return await models.University.all()
 
