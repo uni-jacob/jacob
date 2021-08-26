@@ -6,7 +6,7 @@ from vkbottle import Bot, load_blueprints_from_package
 from vkbottle.bot import Message
 
 from jacob.database.utils.init import init_db_connection
-from jacob.database.utils.users import is_user
+from jacob.database.utils.users import is_user, create_user
 from jacob.services import keyboards as kb
 
 logging.basicConfig(level="DEBUG")
@@ -22,7 +22,7 @@ for bp in load_blueprints_from_package("jacob/blueprints"):
 async def greeting(message: Message):
     await message.answer("Привет!")
     if not await is_user(message.peer_id):  # Собеседник не пользователь
-        # TODO: Создать анонимного пользователя
+        await create_user(message.peer_id)
         await message.answer(
             "Вы не являетесь пользователем. Создайте новую группу.",
             keyboard=kb.main_menu.register_start(),
