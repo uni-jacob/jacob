@@ -13,6 +13,6 @@ async def is_student(vk_id: int) -> bool:
     Returns:
         bool: Зарегистрирован ли студент.
     """
-    user_id = get_user_id(vk_id)
+    user_id = await get_user_id(vk_id)
     async with in_transaction():
         return bool(await models.Student.get_or_none(user_id=user_id))
