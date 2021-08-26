@@ -2,25 +2,35 @@ import asyncio
 import logging
 import os
 
-from vkbottle import Bot, load_blueprints_from_package
+from vkbottle import Bot, load_blueprints_from_package, OrFilter
 from vkbottle.bot import Message
+from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.init import init_db_connection
 from jacob.database.utils.students import is_student
 from jacob.database.utils.users import create_user
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
+from jacob.services.rules import EventPayloadContainsRule
 
 logging.basicConfig(level="DEBUG")
 
 bot = Bot(token=os.getenv("VK_TOKEN"))
 bot.labeler.vbml_ignore_case = True
+vbml_rule = VBMLRule.with_config(
+    bot.labeler.rule_config
+)  # FIXME: temporary fix, bug in vkbottle
 
 for bp in load_blueprints_from_package("jacob/blueprints"):
     bp.load(bot)
 
 
-@bot.on.message(text=["привет", "начать", "hello", "hi"])
+@bot.on.message(
+    OrFilter(
+        vbml_rule(["привет", "начать", "hello", "hi"]),
+        EventPayloadContainsRule({"block": "main_menu"}),
+    )
+)
 async def greeting(message: Message):
     await message.answer("Привет!")
     if not await is_student(message.peer_id):
