@@ -1,3 +1,5 @@
+from typing import Optional
+
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
@@ -15,6 +17,25 @@ async def is_user(vk_id: int) -> bool:
     """
     async with in_transaction():
         return bool(await models.User.get_or_none(vk_id=vk_id))
+
+
+async def get_user_id(vk_id: int) -> Optional[int]:
+    """
+    Получает ИД пользователя в системе.
+
+    Args:
+        vk_id: ИД ВК пользователя
+
+    Returns:
+        Optional[int]: ИД пользователя
+    """
+    async with in_transaction():
+        query = await models.User.get_or_none(vk_id=vk_id)
+
+        try:
+            return query.id
+        except AttributeError:
+            return None
 
 
 async def create_user(vk_id: int) -> models.User:
