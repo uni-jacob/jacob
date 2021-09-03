@@ -5,10 +5,10 @@ from jacob.services.rules import EventPayloadContainsRule
 from jacob.services import keyboards as kb
 
 bp = Blueprint("Group registration")
-bp.labeler.auto_rules = [EventPayloadContainsRule({"block": "registration"})]
 
 
 @bp.on.message(
+    EventPayloadContainsRule({"block": "registration"}),
     EventPayloadContainsRule({"action": "init"}),
 )
 async def init_registration(message: Message):
@@ -20,6 +20,7 @@ async def init_registration(message: Message):
 
 
 @bp.on.message(
+    EventPayloadContainsRule({"block": "registration"}),
     EventPayloadContainsRule({"action": "university:select"}),
 )
 async def select_university(message: Message):
@@ -27,6 +28,7 @@ async def select_university(message: Message):
 
 
 @bp.on.message(
+    EventPayloadContainsRule({"block": "registration"}),
     EventPayloadContainsRule({"action": "university:create"}),
 )
 async def create_university(message: Message):
