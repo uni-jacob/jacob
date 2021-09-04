@@ -136,4 +136,5 @@ class StateStorage(Model):
     state: "State" = fields.ForeignKeyField(
         "models.State",
         "ИД стейта",
+        default=1,
     )
