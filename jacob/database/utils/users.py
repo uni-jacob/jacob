@@ -73,7 +73,11 @@ async def get_state_of_user(vk_id: int) -> Optional[int]:
         query = await models.StateStorage.get_or_none(user_id=user_id)
 
         try:
-            return query.state_id  # Fucking tortoise (it does work, but so not obvious)
+            state = await query.state
+        except AttributeError:
+            return None
+        try:
+            return state.id
         except AttributeError:
             return None
 
