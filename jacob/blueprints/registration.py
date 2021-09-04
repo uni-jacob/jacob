@@ -1,10 +1,9 @@
-from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.users import set_state
-from jacob.services.rules import EventPayloadContainsRule, StateRule
 from jacob.services import keyboards as kb
+from jacob.services.rules import EventPayloadContainsRule, StateRule
 
 bp = Blueprint("Group registration")
 
@@ -35,7 +34,15 @@ async def select_university(message: Message):
 )
 async def create_university(message: Message):
     await set_state(message.peer_id, "registration:ask_university_name")
-    await message.answer("Введите название университета", keyboard=EMPTY_KEYBOARD)
+    await message.answer("Введите название университета", keyboard=kb.cancel())
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"action": "cancel"}),
+    StateRule("registration:ask_university_name"),
+)
+async def cancel_creating_university(message: Message):
+    await init_registration(message)
 
 
 @bp.on.message(
