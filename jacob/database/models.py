@@ -102,6 +102,11 @@ class University(Model):
         null=False,
         description="Название университета",
     )
+    abbreviation: str = fields.CharField(
+        max_length=13,
+        null=True,
+        description="Сокращенное название университета",
+    )
 
     class Meta:
         table = "universities"
