@@ -6,9 +6,11 @@ from jacob.database.utils.universities import get_universities
 async def list_of_universities():
     kb = Keyboard()
     for university in await get_universities():
+        if len(kb.buttons) == 4:
+            kb.row()
         kb.add(
             Text(
-                university.name,
+                university.abbreviation,
                 {
                     "block": "registration",
                     "action": "university:select",
