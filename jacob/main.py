@@ -8,7 +8,7 @@ from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.init import init_db_connection
 from jacob.database.utils.students import is_student
-from jacob.database.utils.users import create_user
+from jacob.database.utils.users import create_user, set_state
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
 from jacob.services.rules import EventPayloadContainsRule
@@ -35,6 +35,7 @@ async def greeting(message: Message):
     await message.answer("Привет!")
     if not await is_student(message.peer_id):
         await create_user(message.peer_id)
+        await set_state(message.peer_id, "main")
         await send_empty_keyboard(message)
         await message.answer(
             "Вы не являетесь пользователем. Создайте новую группу.",
