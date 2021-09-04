@@ -34,7 +34,7 @@ class Student(Model):
         null=False,
         description="Фамилия студента",
     )
-    group = fields.ForeignKeyField(
+    group: "Group" = fields.ForeignKeyField(
         "models.Group",
         description="Группа",
     )
@@ -77,7 +77,7 @@ class Group(Model):
         max_length=255,
         description="Название специальности",
     )
-    university: int = fields.ForeignKeyField(
+    university: "University" = fields.ForeignKeyField(
         "models.University",
         description="Университет",
     )
@@ -129,11 +129,11 @@ class StateStorage(Model):
         pk=True,
         description="ИД хранилища стейтов",
     )
-    user: int = fields.ForeignKeyField(
+    user: "User" = fields.ForeignKeyField(
         "models.User",
         "ИД пользователя",
     )
-    state: int = fields.ForeignKeyField(
+    state: "State" = fields.ForeignKeyField(
         "models.State",
         "ИД стейта",
     )
