@@ -16,3 +16,22 @@ async def is_student(vk_id: int) -> bool:
     user_id = await get_user_id(vk_id)
     async with in_transaction():
         return bool(await models.Student.get_or_none(user_id=user_id))
+
+
+async def create_student(
+    user_id: int, first_name: str, last_name: str, group_id: int
+) -> models.Student:
+    """
+    Создаёт студента
+
+    Args:
+        user_id: ИД пользователя
+        first_name: Имя
+        last_name: Фамилия
+        group_id: ИД группы
+
+    Returns:
+        Student: ИД студента
+    """
+    async with in_transaction():
+        return await models.Student.create(**locals())
