@@ -153,7 +153,7 @@ class Admin(Model):
     )
     user: "User" = fields.ForeignKeyField(
         "models.User",
-        "ИД пользователя",
+        "ИД пользователя 2",
     )
     group: "Group" = fields.ForeignKeyField(
         "models.Group",
