@@ -38,7 +38,9 @@ class Student(Model):
         "models.Group",
         description="Группа",
     )
-    subgroup = fields.IntField()
+    subgroup = fields.IntField(
+        null=True,
+    )
     email = fields.CharField(
         max_length=255,
         validators=[
@@ -47,6 +49,7 @@ class Student(Model):
                 re.I,
             ),
         ],
+        null=True,
     )
     phone = fields.IntField(
         validators=[
@@ -55,6 +58,7 @@ class Student(Model):
                 re.I,
             ),
         ],
+        null=True,
     )
 
     class Meta:
