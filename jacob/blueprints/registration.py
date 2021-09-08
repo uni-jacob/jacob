@@ -34,7 +34,11 @@ async def init_registration(message: Message):
     EventPayloadContainsRule({"action": "university:select"}),
 )
 async def select_university(message: Message):
-    ...
+    payload = json.loads(message.payload)
+    university = await get_university_by_id(payload.get("university"))
+    await set_state(message.peer_id, "registration:ask_group_name")
+    await message.answer(f"Выбран университет {university.abbreviation}")
+    await message.answer("Введите название группы")
 
 
 @bp.on.message(
