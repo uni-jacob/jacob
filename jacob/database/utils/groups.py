@@ -3,7 +3,9 @@ from tortoise.transactions import in_transaction
 from jacob.database import models
 
 
-async def create_group(group_number: str, specialty: str, university_id: int):
+async def create_group(
+    group_number: str, specialty: str, university_id: int
+) -> models.Group:
     """
     Создаёт новую группу
 
@@ -13,7 +15,7 @@ async def create_group(group_number: str, specialty: str, university_id: int):
         university_id: ИД университета
 
     Returns:
-        int: ИД группы
+        Group: Объект созданной группы
     """
     async with in_transaction():
         return await models.Group.create(**locals())
