@@ -81,9 +81,6 @@ class Group(Model):
         "models.University",
         description="Университет",
     )
-    private: bool = fields.BooleanField(
-        description="Приватность группы",
-    )
 
     class Meta:
         table = "groups"
