@@ -4,7 +4,7 @@ from vkbottle import EMPTY_KEYBOARD, OrFilter
 from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
-from jacob.database.utils.admins import create_admin
+from jacob.database.utils.admins import create_admin, is_admin
 from jacob.database.utils.groups import create_group
 from jacob.database.utils.states import get_state_name_by_id
 from jacob.database.utils.students import create_student
@@ -175,3 +175,7 @@ async def save_group(message: Message, specialty_name: str, university_payload: 
     await create_student(user_id, vk_user[0].first_name, vk_user[0].last_name, group.id)
     await create_admin(user_id, group.id)
     await message.answer("Группа сохранена")
+    await set_state(message.peer_id, "main")
+    await message.answer(
+        "Добро пожаловать!", keyboard=kb.main_menu(await is_admin(user_id))
+    )
