@@ -141,6 +141,10 @@ class StateStorage(Model):
         default=1,
     )
 
+    class Meta:
+        table = "statestorage"
+        table_description = "Хранилище стейтов"
+
 
 class Admin(Model):
     id: int = fields.IntField(
