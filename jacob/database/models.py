@@ -140,3 +140,22 @@ class StateStorage(Model):
         "ИД стейта",
         default=1,
     )
+
+
+class Admin(Model):
+    id: int = fields.IntField(
+        pk=True,
+        description="ИД админа",
+    )
+    user: "User" = fields.ForeignKeyField(
+        "models.User",
+        "ИД пользователя",
+    )
+    group: "Group" = fields.ForeignKeyField(
+        "models.Group",
+        "ИД группы",
+    )
+
+    class Meta:
+        table = "admin"
+        table_description = "Админ"
