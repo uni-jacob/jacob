@@ -6,9 +6,10 @@ from vkbottle import Bot, load_blueprints_from_package, OrFilter
 from vkbottle.bot import Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
+from jacob.database.utils.admins import is_admin
 from jacob.database.utils.init import init_db_connection
 from jacob.database.utils.students import is_student
-from jacob.database.utils.users import create_user, set_state
+from jacob.database.utils.users import create_user, set_state, get_user_id
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
 from jacob.services.rules import EventPayloadContainsRule
@@ -39,7 +40,12 @@ async def greeting(message: Message):
         await send_empty_keyboard(message)
         await message.answer(
             "Вы не являетесь пользователем. Создайте новую группу.",
-            keyboard=kb.main_menu.register_start(),
+            keyboard=kb.register_start(),
+        )
+    else:
+        user_id = await get_user_id(message.peer_id)
+        await message.answer(
+            "Добро пожаловать!", keyboard=kb.main_menu(await is_admin(user_id))
         )
 
 
