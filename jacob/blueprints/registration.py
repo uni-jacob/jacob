@@ -4,14 +4,16 @@ from vkbottle import EMPTY_KEYBOARD, OrFilter
 from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
+from jacob.database.utils.admins import create_admin
 from jacob.database.utils.groups import create_group
 from jacob.database.utils.states import get_state_name_by_id
+from jacob.database.utils.students import create_student
 from jacob.database.utils.universities import (
     create_new_university,
     get_university_by_id,
     update_university_abbreviation,
 )
-from jacob.database.utils.users import set_state, get_state_of_user
+from jacob.database.utils.users import set_state, get_state_of_user, get_user_id
 from jacob.services import keyboards as kb
 from jacob.services.api import get_previous_payload
 from jacob.services.common import generate_abbreviation
@@ -167,5 +169,9 @@ async def save_group(message: Message, specialty_name: str, university_payload: 
     group_payload = await get_previous_payload(message, 1)
     group_name = group_payload.get("group_name")
     university_id = university_payload.get("university_id")
-    await create_group(group_name, specialty_name, university_id)
+    group = await create_group(group_name, specialty_name, university_id)
+    user_id = await get_user_id(message.peer_id)
+    vk_user = await message.ctx_api.users.get([str(message.peer_id)])
+    await create_student(user_id, vk_user[0].first_name, vk_user[0].last_name, group.id)
+    await create_admin(user_id, group.id)
     await message.answer("Группа сохранена")
