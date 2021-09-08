@@ -1,16 +1,17 @@
 import json
 
-from vkbottle import EMPTY_KEYBOARD
+from vkbottle import EMPTY_KEYBOARD, OrFilter
 from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.groups import create_group
+from jacob.database.utils.states import get_state_name_by_id
 from jacob.database.utils.universities import (
     create_new_university,
     get_university_by_id,
     update_university_abbreviation,
 )
-from jacob.database.utils.users import set_state
+from jacob.database.utils.users import set_state, get_state_of_user
 from jacob.services import keyboards as kb
 from jacob.services.api import get_previous_payload
 from jacob.services.common import generate_abbreviation
@@ -38,14 +39,13 @@ async def init_registration(message: Message):
 async def select_university(message: Message):
     payload = json.loads(message.payload)
     university = await get_university_by_id(payload.get("university"))
-    await set_state(message.peer_id, "registration:ask_group_name")
     await message.answer(
         f"Выбран университет {university.abbreviation}",
         payload=json.dumps(
             {"university_id": university.id},
         ),
     )
-    await message.answer("Введите название группы")
+    await start_create_group(message, "select")
 
 
 @bp.on.message(
@@ -95,6 +95,7 @@ async def save_generated_abbreviation(message: Message):
         f"Аббревиатура {abbreviation} сохранена",
         keyboard=EMPTY_KEYBOARD,
     )
+    await start_create_group(message, "create")
 
 
 @bp.on.message(
@@ -119,27 +120,51 @@ async def save_university_abbreviation(message: Message, abbreviation: str):
         f"Аббревиатура {abbreviation} сохранена",
         keyboard=EMPTY_KEYBOARD,
     )
+    await start_create_group(message, "create")
 
 
 @bp.on.message(
     VBMLRule("<group_name>"),
-    StateRule("registration:ask_group_name"),
+    OrFilter(
+        StateRule("registration:ask_group_name:select"),
+        StateRule("registration:ask_group_name:create"),
+    ),
 )
 async def ask_specialty(message: Message, group_name: str):
-    await set_state(message.peer_id, "registration:ask_specialty_name")
+    query = await get_state_name_by_id(await get_state_of_user(message.peer_id))
+    ref = query.split(":")[-1]
+    await set_state(message.peer_id, f"registration:ask_specialty_name:{ref}")
     await message.answer(
         f"Введите название специальности для группы {group_name}",
         payload=json.dumps({"group_name": group_name}),
     )
 
 
+async def start_create_group(message: Message, ref: str):
+    await set_state(message.peer_id, f"registration:ask_group_name:{ref}")
+    await message.answer("Введите название группы")
+
+
 @bp.on.message(
     VBMLRule("<specialty_name>"),
-    StateRule("registration:ask_specialty_name"),
+    StateRule("registration:ask_specialty_name:select"),
 )
-async def save_group(message: Message, specialty_name: str):
-    group_payload = await get_previous_payload(message, 1)
+async def save_group_from_selecting(message: Message, specialty_name: str):
     university_payload = await get_previous_payload(message, 4)
+    await save_group(message, specialty_name, university_payload)
+
+
+@bp.on.message(
+    VBMLRule("<specialty_name>"),
+    StateRule("registration:ask_specialty_name:create"),
+)
+async def save_group_from_creating(message: Message, specialty_name: str):
+    university_payload = await get_previous_payload(message, 6)
+    await save_group(message, specialty_name, university_payload)
+
+
+async def save_group(message: Message, specialty_name: str, university_payload: dict):
+    group_payload = await get_previous_payload(message, 1)
     group_name = group_payload.get("group_name")
     university_id = university_payload.get("university_id")
     await create_group(group_name, specialty_name, university_id)
