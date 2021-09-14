@@ -8,3 +8,9 @@ class PayloadIsEmptyOrNotFound(Exception):
     """Возбуждается когда пейлоад не найден или пуст"""
 
     pass
+
+
+class UnknownEnvironmentType(Exception):
+    """Возбуждается при попытке получить токен для неопределённого типа окружения."""
+
+    pass
