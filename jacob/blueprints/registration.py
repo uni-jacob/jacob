@@ -17,9 +17,11 @@ from jacob.database.utils.users import set_state, get_state_of_user, get_user_id
 from jacob.services import keyboards as kb
 from jacob.services.api import get_previous_payload
 from jacob.services.common import generate_abbreviation
+from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule, StateRule
 
 bp = Blueprint("Group registration")
+bp.labeler.message_view.register_middleware(ChangeSentryUser())
 
 
 @bp.on.message(
