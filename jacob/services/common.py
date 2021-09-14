@@ -17,9 +17,8 @@ def generate_abbreviation(phrase: str) -> str:
 
 
 def get_token():
-    if os.getenv("ENV") == "production":
-        return os.getenv("STABLE_VK_TOKEN")
-    elif os.getenv("ENV") == "dev":
-        return os.getenv("CANARY_VK_TOKEN")
-    else:
-        raise UnknownEnvironmentType(f"{os.getenv('ENV')} не определён")
+    environment = os.getenv("ENV").upper()
+    if environment in ("PRODUCTION", "DEV"):
+        return os.getenv(f"{environment}_VK_TOKEN")
+
+    raise UnknownEnvironmentType(f"{environment} не определён")
