@@ -13,5 +13,7 @@ def main_menu(is_admin: bool) -> str:
 
     if is_admin:
         kb.add(Text("Расписание", payload={"block": "schedule", "action": "init"}))
+        kb.row()
+        kb.add(Text("Назад к группам", payload={"block": "groups", "action": "show"}))
 
     return kb.get_json()
