@@ -13,12 +13,13 @@ from jacob.database.utils.students import is_student
 from jacob.database.utils.users import create_user, set_state, get_user_id
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
+from jacob.services.common import get_token
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
 logging.basicConfig(level="DEBUG")
 
-bot = Bot(token=os.getenv("VK_TOKEN"))
+bot = Bot(token=get_token())
 bot.labeler.vbml_ignore_case = True
 bot.labeler.message_view.register_middleware(ChangeSentryUser())
 vbml_rule = VBMLRule.with_config(
