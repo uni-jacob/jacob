@@ -5,6 +5,7 @@ import os
 from vkbottle import Bot, load_blueprints_from_package, OrFilter
 from vkbottle.bot import Message
 from vkbottle.dispatch.rules.bot import VBMLRule
+import sentry_sdk
 
 from jacob.database.utils.admins import is_admin
 from jacob.database.utils.init import init_db_connection
@@ -21,6 +22,11 @@ bot.labeler.vbml_ignore_case = True
 vbml_rule = VBMLRule.with_config(
     bot.labeler.rule_config
 )  # FIXME: temporary fix, bug in vkbottle
+
+sentry_sdk.init(
+    os.getenv("SENTRY_URL"),
+    traces_sample_rate=1.0,
+)
 
 for bp in load_blueprints_from_package("jacob/blueprints"):
     bp.load(bot)
