@@ -1,4 +1,5 @@
 import json
+import logging
 
 from vkbottle import EMPTY_KEYBOARD, OrFilter
 from vkbottle.bot import Blueprint, Message
@@ -29,6 +30,7 @@ bp.labeler.message_view.register_middleware(ChangeSentryUser())
     EventPayloadContainsRule({"action": "init"}),
 )
 async def init_registration(message: Message):
+    logging.info("Запущена регистрация новой группы")
     await set_state(message.peer_id, "registration:select_university")
     await message.answer(
         "Выберите или создайте университет",
@@ -43,6 +45,7 @@ async def init_registration(message: Message):
 async def select_university(message: Message):
     payload = json.loads(message.payload)
     university = await get_university_by_id(payload.get("university"))
+    logging.info(f"Выбран университет {university.abbreviation}")
     await message.answer(
         f"Выбран университет {university.abbreviation}",
         payload=json.dumps(
@@ -57,6 +60,7 @@ async def select_university(message: Message):
     EventPayloadContainsRule({"action": "university:create"}),
 )
 async def create_university(message: Message):
+    logging.info("Запущено создание нового университета: Ожидание названия...")
     await set_state(message.peer_id, "registration:ask_university_name")
     await message.answer("Введите название университета", keyboard=kb.cancel())
 
@@ -66,6 +70,7 @@ async def create_university(message: Message):
     StateRule("registration:ask_university_name"),
 )
 async def cancel_creating_university(message: Message):
+    logging.info("Регистрация университета отменена")
     await init_registration(message)
 
 
@@ -78,6 +83,10 @@ async def save_university(message: Message, university_name: str):
     await set_state(message.peer_id, "registration:confirm_abbreviation")
     university = await create_new_university(university_name)
     await message.answer(f"Университет {university_name} создан")
+    logging.info(f"Университет {university_name} создан")
+    logging.info(
+        f"Вопрос к пользователю - верна ли автоматически созданная аббревиатура: {abbreviation}?"
+    )
     await message.answer(
         f"Аббревиатура {abbreviation} верна?",
         keyboard=kb.yes_no(),
@@ -90,6 +99,7 @@ async def save_university(message: Message, university_name: str):
     StateRule("registration:confirm_abbreviation"),
 )
 async def save_generated_abbreviation(message: Message):
+    logging.info("Автоматически созданная аббревиатура верна. Обновление записи в БД.")
     payload = await get_previous_payload(message, 1)
     university_id = payload.get("university_id")
     university = await get_university_by_id(university_id)
@@ -107,6 +117,9 @@ async def save_generated_abbreviation(message: Message):
     StateRule("registration:confirm_abbreviation"),
 )
 async def ask_for_abbreviation(message: Message):
+    logging.info(
+        "Автоматически созданная аббревиатура не верна. Запрос корректной аббревиатуры"
+    )
     await set_state(message.peer_id, "registration:ask_for_abbreviation")
     await message.answer("Введите корректную аббревиатуру (до 13 символов)")
 
@@ -116,6 +129,7 @@ async def ask_for_abbreviation(message: Message):
     StateRule("registration:ask_for_abbreviation"),
 )
 async def save_university_abbreviation(message: Message, abbreviation: str):
+    logging.info("Получена новая аббревиатура. Обновление записи в БД.")
     payload = await get_previous_payload(message, 3)
     university_id = payload.get("university_id")
     university = await get_university_by_id(university_id)
@@ -135,6 +149,7 @@ async def save_university_abbreviation(message: Message, abbreviation: str):
     ),
 )
 async def ask_specialty(message: Message, group_name: str):
+    logging.info("Запрос названия специальности")
     query = await get_state_name_by_id(await get_state_of_user(message.peer_id))
     ref = query.split(":")[-1]
     await set_state(message.peer_id, f"registration:ask_specialty_name:{ref}")
@@ -145,6 +160,7 @@ async def ask_specialty(message: Message, group_name: str):
 
 
 async def start_create_group(message: Message, ref: str):
+    logging.info("Начато создание новой группы")
     await set_state(message.peer_id, f"registration:ask_group_name:{ref}")
     await message.answer("Введите название группы")
 
@@ -154,6 +170,7 @@ async def start_create_group(message: Message, ref: str):
     StateRule("registration:ask_specialty_name:select"),
 )
 async def save_group_from_selecting(message: Message, specialty_name: str):
+    logging.info("Новая группа в существовавшем университете создана")
     university_payload = await get_previous_payload(message, 4)
     await save_group(message, specialty_name, university_payload)
 
@@ -163,6 +180,7 @@ async def save_group_from_selecting(message: Message, specialty_name: str):
     StateRule("registration:ask_specialty_name:create"),
 )
 async def save_group_from_creating(message: Message, specialty_name: str):
+    logging.info("Новая группа в новом университете создана")
     university_payload = await get_previous_payload(message, 6)
     await save_group(message, specialty_name, university_payload)
 

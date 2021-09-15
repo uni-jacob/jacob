@@ -43,8 +43,10 @@ for bp in load_blueprints_from_package("jacob/blueprints"):
     )
 )
 async def greeting(message: Message):
+    logging.info("Приветствие пользователя")
     await message.answer("Привет!")
     if not await is_student(message.peer_id):
+        logging.info("Пользователь здесь впервые, создание анонимного профиля")
         await create_user(message.peer_id)
         await set_state(message.peer_id, "main")
         await send_empty_keyboard(message)
@@ -53,6 +55,7 @@ async def greeting(message: Message):
             keyboard=kb.register_start(),
         )
     else:
+        logging.info("Пользователь здесь уже был. Отправка клавиатуры главного меню")
         user_id = await get_user_id(message.peer_id)
         await message.answer(
             "Добро пожаловать!", keyboard=kb.main_menu(await is_admin(user_id))

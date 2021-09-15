@@ -1,3 +1,5 @@
+import logging
+
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
@@ -15,7 +17,9 @@ async def is_student(vk_id: int) -> bool:
     """
     user_id = await get_user_id(vk_id)
     async with in_transaction():
-        return bool(await models.Student.get_or_none(user_id=user_id))
+        query = bool(await models.Student.get_or_none(user_id=user_id))
+        logging.info(f"Пользователь {vk_id} {'' if query else 'не'} является студентом")
+        return query
 
 
 async def create_student(
@@ -34,4 +38,5 @@ async def create_student(
         Student: ИД студента
     """
     async with in_transaction():
+        logging.info(f"Создание студента с параметрами {locals()}")
         return await models.Student.create(**locals())

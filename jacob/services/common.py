@@ -1,3 +1,4 @@
+import logging
 import os
 
 from jacob.services.exceptions import UnknownEnvironmentType
@@ -13,7 +14,9 @@ def generate_abbreviation(phrase: str) -> str:
     Returns:
         str: Аббревиатура
     """
-    return "".join([word[0].upper() for word in phrase.split(" ")])
+    abbr = "".join([word[0].upper() for word in phrase.split(" ")])
+    logging.info(f"Аббревиатура {phrase} - {abbr}")
+    return abbr
 
 
 def get_token() -> str:
@@ -27,7 +30,10 @@ def get_token() -> str:
         str: Токен VK Bot API
     """
     environment = os.getenv("ENV").upper()
-    if environment in ("PRODUCTION", "DEV"):
-        return os.getenv(f"{environment}_VK_TOKEN")
+    var_name = f"{environment}_VK_TOKEN"
+    token = os.getenv(var_name)
+    if token is None:
+        raise UnknownEnvironmentType(f"{environment} не определён")
 
-    raise UnknownEnvironmentType(f"{environment} не определён")
+    logging.info(f"Выбран токен {var_name}")
+    return token

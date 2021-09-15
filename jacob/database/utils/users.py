@@ -1,9 +1,11 @@
+import logging
 from typing import Optional
 
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
 from jacob.database.utils.states import get_state_id_by_name
+from jacob.services.exceptions import UserNotFound
 
 
 async def is_user(vk_id: int) -> bool:
@@ -16,7 +18,9 @@ async def is_user(vk_id: int) -> bool:
         bool: Зарегистрирован ли пользователь.
     """
     async with in_transaction():
-        return bool(await models.User.get_or_none(vk_id=vk_id))
+        b = bool(await models.User.get_or_none(vk_id=vk_id))
+        logging.info(f"Пользователь {vk_id} {'' if b else 'не'} зарегистрирован")
+        return b
 
 
 async def get_user_id(vk_id: int) -> Optional[int]:
@@ -30,12 +34,14 @@ async def get_user_id(vk_id: int) -> Optional[int]:
         Optional[int]: ИД пользователя
     """
     async with in_transaction():
+        logging.info(f"Поиск пользователя @id{vk_id}...")
         query = await models.User.get_or_none(vk_id=vk_id)
 
         try:
+            logging.info(f"ИД пользователя @id{vk_id} = {query.id}")
             return query.id
         except AttributeError:
-            return None
+            raise UserNotFound(f"Университет №{vk_id} не найден")
 
 
 async def create_user(vk_id: int) -> models.User:
@@ -49,7 +55,9 @@ async def create_user(vk_id: int) -> models.User:
         models.User: Объект нового пользователя
     """
     async with in_transaction():
-        user = await models.User.get_or_create(vk_id=vk_id)
+        logging.info(f"Создание пользователя с параметрами {locals()}...")
+        user = await models.User.get_or_create(**locals())
+        logging.info(f"Создание хранилища пользователя {user[0].id}...")
         await models.StateStorage.get_or_create(
             user_id=user[0].id,
         )
@@ -95,4 +103,5 @@ async def set_state(vk_id: int, state_name: str) -> str:
     state_id = await get_state_id_by_name(state_name)
     async with in_transaction():
         await models.StateStorage.filter(user_id=user_id).update(state_id=state_id)
+        logging.info(f"Пользователю @id{vk_id} установлен стейт {state_name}")
     return state_name

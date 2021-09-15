@@ -1,3 +1,5 @@
+import logging
+
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
@@ -14,7 +16,9 @@ async def is_admin(user_id: int) -> bool:
         bool: Пользователь админ?
     """
     async with in_transaction():
-        return bool(await models.Admin.get_or_none(user_id=user_id))
+        query = bool(await models.Admin.get_or_none(user_id=user_id))
+        logging.info(f"{user_id} {'' if query else 'не'} админ")
+        return query
 
 
 async def create_admin(user_id: int, group_id: int) -> models.Admin:
@@ -28,4 +32,5 @@ async def create_admin(user_id: int, group_id: int) -> models.Admin:
         Admin: Объект администратора
     """
     async with in_transaction():
+        logging.info(f"Создание админа с параметрами {locals()}")
         return await models.Admin.create(**locals())

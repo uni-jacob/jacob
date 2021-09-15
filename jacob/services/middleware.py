@@ -7,9 +7,14 @@ from vkbottle.bot import Message
 
 
 class ChangeSentryUser(BaseMiddleware):
+    """Миддлварь для изменения юзера в событии Sentry."""
+
     async def pre(self, message: Message):
+        """Устанавливает юзера Sentry в ИД ВК или отображаемое имя, если есть."""
         user = await message.get_user()
-        set_user({"username": user.screen_name or str(message.peer_id)})
+        id_ = {"username": user.screen_name or str(message.peer_id)}
+        set_user(id_)
+        logging.info(f"Юзер Sentry установлен в {id_}")
         return MiddlewareResponse(True)
 
     async def post(
@@ -19,9 +24,6 @@ class ChangeSentryUser(BaseMiddleware):
         handle_responses: List[Any],
         handlers: List["ABCHandler"],
     ):
+        """Очищает юзера Sentry."""
         set_user(None)
-
-        if not handlers:
-            return
-
-        logging.debug(f"{handlers} caught the event {message}")
+        logging.info("Юзер Sentry очищен")

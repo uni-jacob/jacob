@@ -3,6 +3,7 @@ import logging
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
+from jacob.services.exceptions import UniversityNotFound
 
 
 async def get_universities() -> list[models.University]:
@@ -13,7 +14,9 @@ async def get_universities() -> list[models.University]:
         list[University]: Список университетов.
     """
     async with in_transaction():
-        return await models.University.all()
+        all_ = await models.University.all()
+        logging.info(f"Зарегистрированные университеты: {all_}")
+        return all_
 
 
 async def get_university_by_id(university_id: int) -> models.University:
@@ -22,25 +25,34 @@ async def get_university_by_id(university_id: int) -> models.University:
     Args:
         university_id: ИД университета.
 
+    Raises:
+        UniversityNotFound: если университет не существует
+
     Returns:
         University: Объект университета.
     """
     async with in_transaction():
-        return await models.University.get_or_none(id=university_id)
+        query = await models.University.get_or_none(id=university_id)
+
+        if query is None:
+            raise UniversityNotFound(f"Университет №{university_id} не найден")
+
+        return query
 
 
-async def create_new_university(university_name: str) -> models.University:
+async def create_new_university(name: str) -> models.University:
     """
     Создаёт новый университет.
 
     Args:
-        university_name: Название университета
+        name: Название университета
 
     Returns:
         University: Объект созданного университета
     """
     async with in_transaction():
-        return await models.University.create(name=university_name)
+        logging.info(f"Создание университета с параметрами {locals()}")
+        return await models.University.create(**locals())
 
 
 async def update_university_abbreviation(university_id: int, new_abbreviation: str):
@@ -52,8 +64,9 @@ async def update_university_abbreviation(university_id: int, new_abbreviation: s
         new_abbreviation: Новая аббревиатура
     """
     async with in_transaction():
-        logging.debug(university_id)
-        logging.debug(new_abbreviation)
+        logging.info(
+            f"Обновление аббревиатуры университета №{university_id}. Новое значение {new_abbreviation}"
+        )
         await models.University.filter(id=university_id).update(
             abbreviation=new_abbreviation
         )

@@ -14,3 +14,15 @@ class UnknownEnvironmentType(Exception):
     """Возбуждается при попытке получить токен для неопределённого типа окружения."""
 
     pass
+
+
+class UniversityNotFound(Exception):
+    """Возбуждается, когда не удаётся найти университет."""
+
+    pass
+
+
+class UserNotFound(Exception):
+    """Возбуждается, когда не удаётся найти зарегистрированного пользователя."""
+
+    pass
