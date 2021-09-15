@@ -1,6 +1,7 @@
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
+from jacob.database.utils.users import get_user_id
 
 
 async def create_group(
@@ -19,3 +20,18 @@ async def create_group(
     """
     async with in_transaction():
         return await models.Group.create(**locals())
+
+
+async def get_managed_groups(vk_id: int) -> list[models.Admin]:
+    """
+    Получает список групп, которыми может управлять пользователь.
+
+    Args:
+        vk_id: ИД ВК пользователя.
+
+    Returns:
+        list[models.Group]: список модерируемых групп
+    """
+    user_id = await get_user_id(vk_id)
+    async with in_transaction():
+        return await models.Admin.filter(user=user_id)
