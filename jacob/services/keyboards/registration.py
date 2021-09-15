@@ -5,6 +5,7 @@ from jacob.database.utils.universities import get_universities
 
 async def list_of_universities():
     kb = Keyboard()
+    # FIXME: Клавиатура не должна пинать базу данных, вытащить в аргумент
     for university in await get_universities():
         if len(kb.buttons) == 4:
             kb.row()
