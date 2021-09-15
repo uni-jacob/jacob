@@ -163,6 +163,7 @@ class Admin(Model):
         "models.Group",
         "ИД группы",
     )
+    is_active: bool = fields.BooleanField(default=True)
 
     class Meta:
         table = "admin"
