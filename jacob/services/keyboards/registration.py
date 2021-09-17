@@ -1,12 +1,11 @@
 from vkbottle import Keyboard, Text
 
-from jacob.database.utils.universities import get_universities
+from jacob.database import models
 
 
-async def list_of_universities():
+async def list_of_universities(universities: list[models.University]) -> str:
     kb = Keyboard()
-    # FIXME: Клавиатура не должна пинать базу данных, вытащить в аргумент
-    for university in await get_universities():
+    for university in universities:
         if len(kb.buttons) == 4:
             kb.row()
         kb.add(

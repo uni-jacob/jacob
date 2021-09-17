@@ -13,6 +13,7 @@ from jacob.database.utils.universities import (
     create_new_university,
     get_university_by_id,
     update_university_abbreviation,
+    get_universities,
 )
 from jacob.database.utils.users import set_state, get_state_of_user, get_user_id
 from jacob.services import keyboards as kb
@@ -32,9 +33,10 @@ bp.labeler.message_view.register_middleware(ChangeSentryUser())
 async def init_registration(message: Message):
     logging.info("Запущена регистрация новой группы")
     await set_state(message.peer_id, "registration:select_university")
+    universities = await get_universities()
     await message.answer(
         "Выберите или создайте университет",
-        keyboard=await kb.list_of_universities(),
+        keyboard=await kb.list_of_universities(universities),
     )
 
 
