@@ -16,7 +16,7 @@ async def is_admin(user_id: int) -> bool:
         bool: Пользователь админ?
     """
     async with in_transaction():
-        query = bool(await models.Admin.get_or_none(user_id=user_id))
+        query = bool(await models.Admin.filter(user_id=user_id))
         logging.info(f"{user_id} {'' if query else 'не'} админ")
         return query
 
