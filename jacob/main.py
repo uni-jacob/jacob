@@ -2,10 +2,10 @@ import asyncio
 import logging
 import os
 
+import sentry_sdk
 from vkbottle import Bot, load_blueprints_from_package, OrFilter
 from vkbottle.bot import Message
 from vkbottle.dispatch.rules.bot import VBMLRule
-import sentry_sdk
 
 from jacob.database.utils.admins import is_admin
 from jacob.database.utils.init import init_db_connection
