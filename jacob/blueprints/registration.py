@@ -1,13 +1,12 @@
 import json
 import logging
 
-from vkbottle import EMPTY_KEYBOARD, OrFilter
+from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.admins import create_admin, is_admin
 from jacob.database.utils.groups import create_group
-from jacob.database.utils.states import get_state_name_by_id
 from jacob.database.utils.students import create_student
 from jacob.database.utils.universities import (
     create_new_university,
@@ -15,7 +14,7 @@ from jacob.database.utils.universities import (
     update_university_abbreviation,
     get_universities,
 )
-from jacob.database.utils.users import set_state, get_state_of_user, get_user_id
+from jacob.database.utils.users import set_state, get_user_id
 from jacob.services import keyboards as kb
 from jacob.services.api import get_previous_payload
 from jacob.services.common import generate_abbreviation
@@ -54,7 +53,7 @@ async def select_university(message: Message):
             {"university_id": university.id},
         ),
     )
-    await start_create_group(message, "select")
+    await start_create_group(message)
 
 
 @bp.on.message(
@@ -92,7 +91,7 @@ async def save_university(message: Message, university_name: str):
     await message.answer(
         f"Аббревиатура {abbreviation} верна?",
         keyboard=kb.yes_no(),
-        payload=json.dumps({"university_id": university.id}),
+        payload=json.dumps({"bot:university_id": university.id}),
     )
 
 
@@ -102,8 +101,8 @@ async def save_university(message: Message, university_name: str):
 )
 async def save_generated_abbreviation(message: Message):
     logging.info("Автоматически созданная аббревиатура верна. Обновление записи в БД.")
-    payload = await get_previous_payload(message, 1)
-    university_id = payload.get("university_id")
+    payload = await get_previous_payload(message, "bot:university_id")
+    university_id = payload.get("bot:university_id")
     university = await get_university_by_id(university_id)
     abbreviation = generate_abbreviation(university.name)
     await update_university_abbreviation(university.id, abbreviation)
@@ -111,7 +110,7 @@ async def save_generated_abbreviation(message: Message):
         f"Аббревиатура {abbreviation} сохранена",
         keyboard=EMPTY_KEYBOARD,
     )
-    await start_create_group(message, "create")
+    await start_create_group(message)
 
 
 @bp.on.message(
@@ -132,65 +131,46 @@ async def ask_for_abbreviation(message: Message):
 )
 async def save_university_abbreviation(message: Message, abbreviation: str):
     logging.info("Получена новая аббревиатура. Обновление записи в БД.")
-    payload = await get_previous_payload(message, 3)
-    university_id = payload.get("university_id")
+    payload = await get_previous_payload(message, "bot:university_id")
+    university_id = payload.get("bot:university_id")
     university = await get_university_by_id(university_id)
     await update_university_abbreviation(university.id, abbreviation)
     await message.answer(
         f"Аббревиатура {abbreviation} сохранена",
         keyboard=EMPTY_KEYBOARD,
     )
-    await start_create_group(message, "create")
+    await start_create_group(message)
 
 
 @bp.on.message(
     VBMLRule("<group_name>"),
-    OrFilter(
-        StateRule("registration:ask_group_name:select"),
-        StateRule("registration:ask_group_name:create"),
-    ),
+    StateRule("registration:ask_group_name"),
 )
 async def ask_specialty(message: Message, group_name: str):
     logging.info("Запрос названия специальности")
-    query = await get_state_name_by_id(await get_state_of_user(message.peer_id))
-    ref = query.split(":")[-1]
-    await set_state(message.peer_id, f"registration:ask_specialty_name:{ref}")
+    await set_state(message.peer_id, "registration:ask_specialty_name")
     await message.answer(
         f"Введите название специальности для группы {group_name}",
-        payload=json.dumps({"group_name": group_name}),
+        payload=json.dumps({"bot:group_name": group_name}),
     )
 
 
-async def start_create_group(message: Message, ref: str):
+async def start_create_group(message: Message):
     logging.info("Начато создание новой группы")
-    await set_state(message.peer_id, f"registration:ask_group_name:{ref}")
+    await set_state(message.peer_id, "registration:ask_group_name")
     await message.answer("Введите название группы")
 
 
 @bp.on.message(
     VBMLRule("<specialty_name>"),
-    StateRule("registration:ask_specialty_name:select"),
+    StateRule("registration:ask_specialty_name"),
 )
-async def save_group_from_selecting(message: Message, specialty_name: str):
-    logging.info("Новая группа в существовавшем университете создана")
-    university_payload = await get_previous_payload(message, 4)
-    await save_group(message, specialty_name, university_payload)
-
-
-@bp.on.message(
-    VBMLRule("<specialty_name>"),
-    StateRule("registration:ask_specialty_name:create"),
-)
-async def save_group_from_creating(message: Message, specialty_name: str):
-    logging.info("Новая группа в новом университете создана")
-    university_payload = await get_previous_payload(message, 6)
-    await save_group(message, specialty_name, university_payload)
-
-
-async def save_group(message: Message, specialty_name: str, university_payload: dict):
-    group_payload = await get_previous_payload(message, 1)
-    group_name = group_payload.get("group_name")
-    university_id = university_payload.get("university_id")
+async def save_group(message: Message, specialty_name: str):
+    logging.debug("Начато создание групы")
+    group_payload = await get_previous_payload(message, "bot:group_name")
+    group_name = group_payload.get("bot:group_name")
+    university_payload = await get_previous_payload(message, "bot:university_id")
+    university_id = university_payload.get("bot:university_id")
     group = await create_group(group_name, specialty_name, university_id)
     user_id = await get_user_id(message.peer_id)
     vk_user = await message.ctx_api.users.get([str(message.peer_id)])
