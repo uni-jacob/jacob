@@ -1,10 +1,8 @@
 import json
-import logging
+from typing import Optional
 
 from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Message
-
-from jacob.services.exceptions import PayloadIsEmptyOrNotFound
 
 
 async def send_empty_keyboard(message: Message):
@@ -17,22 +15,26 @@ async def send_empty_keyboard(message: Message):
     await message.ctx_api.messages.delete([msg_id], delete_for_all=True)
 
 
-async def get_previous_payload(message: Message, offset: int) -> dict:
+async def get_previous_payload(message: Message, key: str) -> Optional[dict]:
     """
-    Получает пейлоад предыдущего сообщения по указанному отступу
+    Ищет пейлоад с конкретным ключом в 20 последних сообщениях
     Args:
         message: Объект сообщения
-        offset: Отступ от последнего сообщения
+        key: Искомый ключ
 
     Returns:
         dict: Пейлоад сообщения
     """
-    query = await message.ctx_api.messages.get_by_id([message.id - offset])
-    msg = query.items[0]
-    try:
-        payload = json.loads(msg.payload)
-    except (TypeError, AttributeError):
-        raise PayloadIsEmptyOrNotFound(f'Пейлоад в сообщении "{msg.text}" не найден')
-    logging.info(f"Пейлоад в сообщении: {payload}")
+    query = await message.ctx_api.messages.get_history(
+        offset=0,
+        count=20,
+        peer_id=message.peer_id,
+        start_message_id=message.id,
+    )
+    for msg in query.items:
+        if msg.payload is not None:
+            payload = json.loads(msg.payload)
+            if key in payload:
+                return payload
 
-    return payload
+    return None
