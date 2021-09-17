@@ -56,6 +56,12 @@ multiline_quotes = "double"
 docstring_quotes = "double"
 convention = "google"
 
+[tool.isort]
+line_length = 79
+multi_line_output = 3
+include_trailing_comma = true
+profile = "black"
+
 [tool.flakehell.plugins]
 flake8-annotations-coverage = ["+*"]
 flake8-bandit = ["+*"]
@@ -68,7 +74,7 @@ flake8-darglint = ["+*"]
 flake8-debugger = ["+*"]
 flake8-docstrings = ["-D104"]
 flake8-eradicate = ["+*"]
-flake8-isort = ["+*"]
+flake8-isort = ["-*"]
 flake8-mypy = ["+*", "-T499"]
 flake8-print = ["+*"]
 flake8-pytest-style = ["+*"]
