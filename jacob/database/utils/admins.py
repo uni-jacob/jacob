@@ -24,6 +24,7 @@ async def is_admin(user_id: int) -> bool:
 async def create_admin(user_id: int, group_id: int) -> models.Admin:
     """
     Создаёт нового администратора
+
     Args:
         user_id: ИД пользователя
         group_id: ИД группы

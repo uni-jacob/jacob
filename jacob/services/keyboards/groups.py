@@ -9,6 +9,7 @@ async def managed_groups(entries: list[models.Admin]) -> str:
 
     Args:
         entries: Список модерируемых групп
+
     Returns:
         str: Клавиатура
 

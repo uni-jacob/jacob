@@ -2,7 +2,12 @@ from vkbottle import Keyboard, KeyboardButtonColor, Text
 
 
 def cancel() -> str:
-    """Создаёт универсальную клавиатуру с кнопкой "Отмена"."""
+    """
+    Создаёт универсальную клавиатуру с кнопкой "Отмена".
+
+    Returns:
+          str: JSON клавиатуры
+    """
     kb = Keyboard()
     kb.add(Text("Отмена", {"action": "cancel"}), color=KeyboardButtonColor.NEGATIVE)
 
@@ -10,7 +15,11 @@ def cancel() -> str:
 
 
 def yes_no() -> str:
-    """Создаёт универсальную клавиатуру с кнопками "Да"/"Нет"."""
+    """
+    Создаёт универсальную клавиатуру с кнопками "Да"/"Нет".
+
+    Returns:
+          str: JSON клавиатуры"""
     kb = Keyboard()
     kb.add(Text("Да", {"action": "yes"}), color=KeyboardButtonColor.POSITIVE)
     kb.add(Text("Нет", {"action": "no"}), color=KeyboardButtonColor.NEGATIVE)

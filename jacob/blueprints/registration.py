@@ -86,7 +86,7 @@ async def save_university(message: Message, university_name: str):
     await message.answer(f"Университет {university_name} создан")
     logging.info(f"Университет {university_name} создан")
     logging.info(
-        f"Вопрос к пользователю - верна ли автоматически созданная аббревиатура: {abbreviation}?"
+        f"Вопрос к пользователю - верна ли автоматически созданная аббревиатура: {abbreviation}?",
     )
     await message.answer(
         f"Аббревиатура {abbreviation} верна?",
@@ -119,7 +119,7 @@ async def save_generated_abbreviation(message: Message):
 )
 async def ask_for_abbreviation(message: Message):
     logging.info(
-        "Автоматически созданная аббревиатура не верна. Запрос корректной аббревиатуры"
+        "Автоматически созданная аббревиатура не верна. Запрос корректной аббревиатуры",
     )
     await set_state(message.peer_id, "registration:ask_for_abbreviation")
     await message.answer("Введите корректную аббревиатуру (до 13 символов)")
@@ -181,5 +181,6 @@ async def save_group(message: Message, specialty_name: str):
     await message.answer("Группа сохранена")
     await set_state(message.peer_id, "main")
     await message.answer(
-        "Добро пожаловать!", keyboard=kb.main_menu(await is_admin(user_id))
+        "Добро пожаловать!",
+        keyboard=kb.main_menu(await is_admin(user_id)),
     )

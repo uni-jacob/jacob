@@ -7,7 +7,9 @@ from jacob.database.utils.users import get_user_id
 
 
 async def create_group(
-    group_number: str, specialty: str, university_id: int
+    group_number: str,
+    specialty: str,
+    university_id: int,
 ) -> models.Group:
     """
     Создаёт новую группу

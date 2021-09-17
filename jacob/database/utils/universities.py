@@ -22,6 +22,7 @@ async def get_universities() -> list[models.University]:
 async def get_university_by_id(university_id: int) -> models.University:
     """
     Получает университет по его ИД.
+
     Args:
         university_id: ИД университета.
 
@@ -65,8 +66,8 @@ async def update_university_abbreviation(university_id: int, new_abbreviation: s
     """
     async with in_transaction():
         logging.info(
-            f"Обновление аббревиатуры университета №{university_id}. Новое значение {new_abbreviation}"
+            f"Обновление аббревиатуры университета №{university_id}. Новое значение {new_abbreviation}",
         )
         await models.University.filter(id=university_id).update(
-            abbreviation=new_abbreviation
+            abbreviation=new_abbreviation,
         )

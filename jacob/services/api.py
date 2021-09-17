@@ -7,7 +7,8 @@ from vkbottle.bot import Message
 
 async def send_empty_keyboard(message: Message):
     """
-    Отправляет сообщение с пустой клавиатурой и удаляет его
+    Отправляет сообщение с пустой клавиатурой и удаляет его.
+
     Args:
         message: Объект сообщения
     """
@@ -17,7 +18,8 @@ async def send_empty_keyboard(message: Message):
 
 async def get_previous_payload(message: Message, key: str) -> Optional[dict]:
     """
-    Ищет пейлоад с конкретным ключом в 20 последних сообщениях
+    Ищет пейлоад с конкретным ключом в 20 последних сообщениях.
+
     Args:
         message: Объект сообщения
         key: Искомый ключ

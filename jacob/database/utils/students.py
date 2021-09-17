@@ -23,7 +23,10 @@ async def is_student(vk_id: int) -> bool:
 
 
 async def create_student(
-    user_id: int, first_name: str, last_name: str, group_id: int
+    user_id: int,
+    first_name: str,
+    last_name: str,
+    group_id: int,
 ) -> models.Student:
     """
     Создаёт студента

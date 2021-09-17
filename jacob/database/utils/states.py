@@ -10,8 +10,12 @@ from jacob.services.exceptions import StateNotFound
 async def get_state_id_by_name(state_name: str) -> Optional[int]:
     """
     Получает ИД стейта по его имени.
+
     Args:
         state_name: имя стейта
+
+    Raises:
+        StateNotFound: когда стейт не существует в базе данных
 
     Returns:
         Optional[int]: ИД стейта
@@ -30,8 +34,12 @@ async def get_state_id_by_name(state_name: str) -> Optional[int]:
 async def get_state_name_by_id(state_id: int) -> Optional[str]:
     """
     Получает имя стейта по его ИД.
+
     Args:
         state_id: ИД стейта
+
+    Raises:
+        StateNotFound: когда стейт не существует в базе данных
 
     Returns:
         Optional[str]: имя стейта

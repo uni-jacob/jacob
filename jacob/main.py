@@ -23,7 +23,7 @@ bot = Bot(token=get_token())
 bot.labeler.vbml_ignore_case = True
 bot.labeler.message_view.register_middleware(ChangeSentryUser())
 vbml_rule = VBMLRule.with_config(
-    bot.labeler.rule_config
+    bot.labeler.rule_config,
 )  # FIXME: temporary fix, bug in vkbottle
 
 sentry_sdk.init(
@@ -40,7 +40,7 @@ for bp in load_blueprints_from_package("jacob/blueprints"):
     OrFilter(
         vbml_rule(["привет", "начать", "hello", "hi"]),
         EventPayloadContainsRule({"block": "main_menu"}),
-    )
+    ),
 )
 async def greeting(message: Message):
     logging.info("Приветствие пользователя")
@@ -58,7 +58,8 @@ async def greeting(message: Message):
         logging.info("Пользователь здесь уже был. Отправка клавиатуры главного меню")
         user_id = await get_user_id(message.peer_id)
         await message.answer(
-            "Добро пожаловать!", keyboard=kb.main_menu(await is_admin(user_id))
+            "Добро пожаловать!",
+            keyboard=kb.main_menu(await is_admin(user_id)),
         )
 
 
