@@ -5,7 +5,6 @@ from tortoise.transactions import in_transaction
 
 from jacob.database import models
 from jacob.database.utils.states import get_state_id_by_name
-from jacob.services.exceptions import UserNotFound
 
 
 async def is_user(vk_id: int) -> bool:
@@ -41,7 +40,8 @@ async def get_user_id(vk_id: int) -> Optional[int]:
             logging.info(f"ИД пользователя @id{vk_id} = {query.id}")
             return query.id
         except AttributeError:
-            raise UserNotFound(f"Пользователь №{vk_id} не найден")
+            logging.error(f"Пользователь №{vk_id} не найден")
+            return None
 
 
 async def create_user(vk_id: int) -> models.User:
