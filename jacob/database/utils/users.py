@@ -41,7 +41,7 @@ async def get_user_id(vk_id: int) -> Optional[int]:
             logging.info(f"ИД пользователя @id{vk_id} = {query.id}")
             return query.id
         except AttributeError:
-            raise UserNotFound(f"Университет №{vk_id} не найден")
+            raise UserNotFound(f"Пользователь №{vk_id} не найден")
 
 
 async def create_user(vk_id: int) -> models.User:
