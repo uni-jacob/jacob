@@ -50,7 +50,7 @@ async def select_university(message: Message):
     await message.answer(
         f"Выбран университет {university.abbreviation}",
         payload=json.dumps(
-            {"university_id": university.id},
+            {"bot:university_id": university.id},
         ),
     )
     await start_create_group(message)
