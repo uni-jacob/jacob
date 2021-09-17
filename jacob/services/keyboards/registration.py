@@ -10,7 +10,7 @@ async def list_of_universities(universities: list[models.University]) -> str:
             kb.row()
         kb.add(
             Text(
-                university.abbreviation,
+                university.abbreviation or university.name,
                 {
                     "block": "registration",
                     "action": "university:select",
