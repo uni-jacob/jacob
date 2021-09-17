@@ -122,7 +122,10 @@ async def ask_for_abbreviation(message: Message):
         "Автоматически созданная аббревиатура не верна. Запрос корректной аббревиатуры",
     )
     await set_state(message.peer_id, "registration:ask_for_abbreviation")
-    await message.answer("Введите корректную аббревиатуру (до 13 символов)")
+    await message.answer(
+        "Введите корректную аббревиатуру (до 13 символов)",
+        keyboard=EMPTY_KEYBOARD,
+    )
 
 
 @bp.on.message(
