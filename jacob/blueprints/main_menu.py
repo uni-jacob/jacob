@@ -22,3 +22,6 @@ async def show_managed_groups(message: Message):
         "Выберите активные группы",
         keyboard=await kb.managed_groups(managed_groups),
     )
+    # TODO:
+    #   - Добавить хранилище активных групп
+    #   - Добавить переключение активности группы
