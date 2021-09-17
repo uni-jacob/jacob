@@ -1,8 +1,8 @@
 import json
 from typing import Union
 
-from vkbottle.dispatch.rules.bot import ABCMessageRule
 from vkbottle.bot import Message
+from vkbottle.dispatch.rules.bot import ABCMessageRule
 from vkbottle_types.events import MessageEvent
 
 from jacob.database.utils.states import get_state_id_by_name

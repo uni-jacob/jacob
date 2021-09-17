@@ -3,14 +3,14 @@ import logging
 import os
 
 import sentry_sdk
-from vkbottle import Bot, load_blueprints_from_package, OrFilter
+from vkbottle import Bot, OrFilter, load_blueprints_from_package
 from vkbottle.bot import Message
 from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.admins import is_admin
 from jacob.database.utils.init import init_db_connection
 from jacob.database.utils.students import is_student
-from jacob.database.utils.users import create_user, set_state, get_user_id
+from jacob.database.utils.users import create_user, get_user_id, set_state
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
 from jacob.services.common import get_token

@@ -1,8 +1,8 @@
 import logging
-from typing import List, Any
+from typing import Any, List
 
 from sentry_sdk import set_user
-from vkbottle import BaseMiddleware, ABCView, ABCHandler, MiddlewareResponse
+from vkbottle import ABCHandler, ABCView, BaseMiddleware, MiddlewareResponse
 from vkbottle.bot import Message
 
 

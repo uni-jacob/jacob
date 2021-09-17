@@ -10,11 +10,11 @@ from jacob.database.utils.groups import create_group
 from jacob.database.utils.students import create_student
 from jacob.database.utils.universities import (
     create_new_university,
+    get_universities,
     get_university_by_id,
     update_university_abbreviation,
-    get_universities,
 )
-from jacob.database.utils.users import set_state, get_user_id
+from jacob.database.utils.users import get_user_id, set_state
 from jacob.services import keyboards as kb
 from jacob.services.api import get_previous_payload
 from jacob.services.common import generate_abbreviation

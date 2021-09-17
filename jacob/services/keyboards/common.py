@@ -1,4 +1,4 @@
-from vkbottle import Keyboard, Text, KeyboardButtonColor
+from vkbottle import Keyboard, KeyboardButtonColor, Text
 
 
 def cancel() -> str:

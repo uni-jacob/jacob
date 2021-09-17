@@ -3,9 +3,9 @@ import logging
 from vkbottle.bot import Blueprint, Message
 
 from jacob.database.utils.groups import get_managed_groups
+from jacob.services import keyboards as kb
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
-from jacob.services import keyboards as kb
 
 bp = Blueprint("UpperMenu")
 bp.labeler.message_view.register_middleware(ChangeSentryUser())
