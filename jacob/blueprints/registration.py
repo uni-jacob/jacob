@@ -7,7 +7,7 @@ from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.admins import create_admin, is_admin
 from jacob.database.utils.groups import create_group
-from jacob.database.utils.students import create_student
+from jacob.database.utils.students import create_student, get_student
 from jacob.database.utils.universities import (
     create_new_university,
     get_universities,
@@ -174,9 +174,13 @@ async def save_group(message: Message, specialty_name: str):
     group = await create_group(group_name, specialty_name, university_id)
     user_id = await get_user_id(message.peer_id)
     vk_user = await message.ctx_api.users.get([str(message.peer_id)])
-    # FIXME: Дублирует запись, если пользователь уже есть в другой группе
-    await create_student(user_id, vk_user[0].first_name, vk_user[0].last_name, group.id)
-    # FIXME: Падает, если пользователь уже админ другой группы
+    if await get_student(user_id=user_id) is None:
+        await create_student(
+            user_id,
+            vk_user[0].first_name,
+            vk_user[0].last_name,
+            group.id,
+        )
     await create_admin(user_id, group.id)
     await message.answer("Группа сохранена")
     await set_state(message.peer_id, "main")
