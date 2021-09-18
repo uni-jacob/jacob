@@ -62,17 +62,21 @@ async def update_group_selection(user_id: int, group_id: int, is_active: bool):
 
     """
     async with in_transaction():
-        return await models.Admin.filter(user_id=user_id, group_id=group_id).update(
-            is_active=is_active
+        await models.Admin.filter(user_id=user_id, group_id=group_id).update(
+            is_active=is_active,
         )
 
 
 async def toggle_group_selection(group_id: int, user_id: int):
     """
-    Переключает активность группы
+    Переключает активность группы.
+
     Args:
         group_id: ИД группы
         user_id: ИД пользователя
+
+    Raises:
+        GroupNotFound: когда невозможно найти группу
 
     Returns:
         bool: Новое состояние группы
@@ -82,9 +86,10 @@ async def toggle_group_selection(group_id: int, user_id: int):
         selection = not group.is_active
         try:
             logging.info(
-                f"Переключение активности группы {group_id} в положение {selection}"
+                f"Переключение активности группы {group_id} в положение {selection}",
             )
         except AttributeError:
             raise GroupNotFound(f"Группа №{group_id} не существует")
 
         await update_group_selection(user_id, group_id, selection)
+        return selection

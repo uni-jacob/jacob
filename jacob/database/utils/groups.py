@@ -50,7 +50,7 @@ async def update_group(group_id: int, **kwargs):
 
     """
     async with in_transaction():
-        return await models.Group.filter(id=group_id).update(**kwargs)
+        await models.Group.filter(id=group_id).update(**kwargs)
 
 
 async def get_managed_groups(vk_id: int) -> list[models.Admin]:

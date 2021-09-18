@@ -30,7 +30,7 @@ async def managed_groups(entries: list[models.Admin]) -> str:
                     "action": "select",
                     "group_id": group.id,
                 },
-            )
+            ),
         )
 
     kb.row()
