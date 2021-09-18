@@ -2,13 +2,6 @@ import json
 
 import pytest
 
-from jacob.database.utils.init import init_db_connection
-
-
-@pytest.fixture(autouse=True)
-async def connect_database():
-    await init_db_connection()
-
 
 @pytest.mark.asyncio
 async def test_managed_groups():
