@@ -22,7 +22,16 @@ async def managed_groups(entries: list[models.Admin]) -> str:
         selected = "✅ " if entry.is_active else ""
         group = await entry.group
         university = await group.university
-        kb.add(Text(f"{selected}{group.group_number}@{university.abbreviation}"))
+        kb.add(
+            Text(
+                f"{selected}{group.group_number}@{university.abbreviation}",
+                {
+                    "block": "groups",
+                    "action": "select",
+                    "group_id": group.id,
+                },
+            )
+        )
 
     kb.row()
     kb.add(Text("Создать новую группу", {"block": "registration", "action": "init"}))
