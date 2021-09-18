@@ -35,6 +35,6 @@ jobs:
         flakehell lint
     - name: Test with pytest
       env:
-        DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
       run: |
         PYTHONPATH=. pytest
