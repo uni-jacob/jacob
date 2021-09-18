@@ -37,3 +37,18 @@ def get_token() -> str:
 
     logging.info(f"Выбран токен {var_name}")
     return token
+
+
+def get_database_url() -> str:
+    """
+    Получает URL базы данных в зависимости от того, запущен ли проект с помощью pytest.
+
+    Returns:
+        str: URL базы данных
+    """
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        logging.debug("Выбрана тестовая БД")
+        return os.getenv("TEST_DATABASE_URL")
+
+    logging.debug("Выбрана основная БД")
+    return os.getenv("DATABASE_URL")
