@@ -41,7 +41,7 @@ class ABCStudentsPagination(ABC):
                 Text(
                     title,
                     {"block": "pagination:students", "action": "half", "half": index},
-                )
+                ),
             )
 
         return kb
@@ -49,7 +49,6 @@ class ABCStudentsPagination(ABC):
     def _get_letters_in_half(self, half_ind: int) -> Keyboard:
         kb = Keyboard()
         halves = self._get_alphabet_ranges()
-        print(halves)
         for letter in halves[half_ind]:
             if len(kb.buttons) == 5:
                 kb.row()
