@@ -7,7 +7,10 @@ async def init_db_connection():
     await Tortoise.init(
         db_url=get_database_url(),
         modules={
-            "models": ["jacob.database.models"],
+            "models": [
+                "jacob.database.models.base",
+                "jacob.database.models.schedule",
+            ],
         },
     )
     await Tortoise.generate_schemas()
