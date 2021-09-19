@@ -23,6 +23,7 @@ class User(Model):
 class Student(Model):
     """Зарегистрированный студент."""
 
+    id: int = fields.IntField(pk=True, description="ИД студента")
     user: int = fields.ForeignKeyField("models.User", description="ИД пользователя")
     first_name: str = fields.CharField(
         max_length=255,

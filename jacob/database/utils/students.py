@@ -57,3 +57,9 @@ async def create_student(
     async with in_transaction():
         logging.info(f"Создание студента с параметрами {locals()}")
         return await models.Student.create(**locals())
+
+
+async def get_students_in_group(group_id: int) -> list[models.Student]:
+    async with in_transaction():
+        logging.info(f"Поиск студентов в группе {group_id}")
+        return await models.Student.filter(group_id=group_id).order_by("last_name")
