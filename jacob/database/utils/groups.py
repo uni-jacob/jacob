@@ -66,7 +66,8 @@ async def get_managed_groups(vk_id: int) -> list[models.Admin]:
     user_id = await get_user_id(vk_id)
     async with in_transaction():
         query = await models.Admin.filter(user=user_id).prefetch_related(
-            "group", "group__university"
+            "group",
+            "group__university",
         )
         logging.info(f"Найдены управляемые группы {query}")
         return query
