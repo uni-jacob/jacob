@@ -28,6 +28,9 @@ def weeks(source: list[models.Week]) -> str:
     """
     Клавиатура со списком доступных недель.
 
+    Args:
+        source: Список объектов типов недель.
+
     Returns:
         str: Клавиатура
     """
@@ -54,6 +57,9 @@ def weeks(source: list[models.Week]) -> str:
 def days(source: list[models.DayOfWeek]) -> str:
     """
     Клавиатура со списком доступных дней недели.
+
+    Args:
+        source: Список объектов дней недели.
 
     Returns:
         str: Клавиатура
