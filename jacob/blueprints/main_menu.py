@@ -23,7 +23,7 @@ async def show_managed_groups(message: Message):
     managed_groups = await get_managed_groups(message.peer_id)
     await message.answer(
         "Выберите активные группы",
-        keyboard=await kb.managed_groups(managed_groups),
+        keyboard=kb.managed_groups(managed_groups),
     )
 
 
