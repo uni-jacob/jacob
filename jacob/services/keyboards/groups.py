@@ -31,7 +31,8 @@ def managed_groups(entries: list[models.Admin]) -> str:
         if len(kb.buttons[-1]) == 2:
             kb.row()
 
-    kb.row()
+    if kb.buttons[-1]:
+        kb.row()
     kb.add(Text("Создать новую группу", {"block": "registration", "action": "init"}))
     kb.add(Text("Сохранить", {"block": "main_menu"}))
 
