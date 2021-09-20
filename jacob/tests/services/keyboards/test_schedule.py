@@ -39,7 +39,7 @@ def test_schedule_main_if_is_admin():
 
 
 def test_schedule_main_if_is_not_admin():
-    keyboard = schedule_main(True)
+    keyboard = schedule_main(False)
     assert json.loads(keyboard) == {
         "buttons": [
             [
