@@ -15,8 +15,6 @@ async def list_of_universities(universities: list[models.University]) -> str:
     """
     kb = Keyboard()
     for university in universities:
-        if len(kb.buttons) == 4:
-            kb.row()
         kb.add(
             Text(
                 university.abbreviation or university.name,
@@ -27,6 +25,8 @@ async def list_of_universities(universities: list[models.University]) -> str:
                 },
             ),
         )
+        if len(kb.buttons[-1]) == 4:
+            kb.row()
     kb.row()
     kb.add(Text("Создать", {"block": "registration", "action": "university:create"}))
     kb.add(

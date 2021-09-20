@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple, Union
 
@@ -32,7 +31,6 @@ class ABCStudentsPagination(ABC):
     def _halves(self) -> Keyboard:
         kb = Keyboard()
         for index, half in enumerate(self._get_alphabet_ranges()):
-            logging.debug(half)
             if half[0] == half[-1]:
                 title = half[0]
             else:
@@ -64,8 +62,6 @@ class ABCStudentsPagination(ABC):
     def _get_students_in_letter(self, letter: str) -> Keyboard:
         kb = Keyboard()
         for student in self.source:
-            if len(kb.buttons) == 2:
-                kb.row()
             if student.last_name.startswith(letter):
                 kb.add(
                     Text(
@@ -77,6 +73,8 @@ class ABCStudentsPagination(ABC):
                         },
                     ),
                 )
+            if len(kb.buttons[-1]) == 2:
+                kb.row()
         return kb
 
     @abstractmethod

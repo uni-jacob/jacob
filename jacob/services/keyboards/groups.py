@@ -17,8 +17,6 @@ def managed_groups(entries: list[models.Admin]) -> str:
     kb = Keyboard()
 
     for entry in entries:
-        if len(kb.buttons) == 2:
-            kb.row()
         selected = "✅ " if entry.is_active else ""
         kb.add(
             Text(
@@ -30,6 +28,8 @@ def managed_groups(entries: list[models.Admin]) -> str:
                 },
             ),
         )
+        if len(kb.buttons[-1]) == 2:
+            kb.row()
 
     kb.row()
     kb.add(Text("Создать новую группу", {"block": "registration", "action": "init"}))
