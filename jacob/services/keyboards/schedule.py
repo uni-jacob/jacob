@@ -49,3 +49,30 @@ def weeks(source: list[models.Week]) -> str:
     kb.add(Text("Назад", {"block": "schedule", "action": "init"}))
 
     return kb.get_json()
+
+
+def days(source: list[models.DayOfWeek]) -> str:
+    """
+    Клавиатура со списком доступных дней недели.
+
+    Returns:
+        str: Клавиатура
+    """
+    kb = Keyboard()
+    for day in source:
+        kb.add(
+            Text(
+                day.name,
+                {
+                    "block": "schedule",
+                    "action": "select:day",
+                    "day": day.id,
+                },
+            ),
+        )
+        if len(kb.buttons[-1]) == 3:
+            kb.row()
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "edit"}))
+
+    return kb.get_json()
