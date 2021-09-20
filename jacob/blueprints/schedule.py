@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 
+from jacob.services import keyboards as kb
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
@@ -14,4 +15,4 @@ bp.labeler.message_view.register_middleware(ChangeSentryUser())
     ),
 )
 async def open_schedule(message: Message):
-    await message.answer("Блок Расписание")
+    await message.answer("Блок Расписание", keyboard=kb.schedule_main())
