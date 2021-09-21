@@ -1,6 +1,8 @@
 import logging
 import os
 
+from vkbottle.dispatch.rules.bot import VBMLRule
+
 from jacob.services.exceptions import UnknownEnvironmentType
 
 
@@ -52,3 +54,9 @@ def get_database_url() -> str:
 
     logging.debug("Выбрана основная БД")
     return os.getenv("DATABASE_URL")
+
+
+def vbml_rule(bot):
+    return VBMLRule.with_config(
+        bot.labeler.rule_config,
+    )  # FIXME: temporary fix, bug in vkbottle
