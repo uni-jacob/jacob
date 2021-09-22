@@ -1,6 +1,7 @@
 import logging
 import os
 
+from vkbottle import VKAPIError
 from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.services.exceptions import UnknownEnvironmentType
@@ -60,3 +61,7 @@ def vbml_rule(bot):
     return VBMLRule.with_config(
         bot.labeler.rule_config,
     )  # FIXME: temporary fix, bug in vkbottle
+
+
+async def handle_captcha(e: VKAPIError):
+    logging.debug(f"Rate limit error: {e.raw_error['captcha_img']}")

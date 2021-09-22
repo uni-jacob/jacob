@@ -3,7 +3,7 @@ import logging
 import os
 
 import sentry_sdk
-from vkbottle import Bot, OrFilter, load_blueprints_from_package
+from vkbottle import Bot, OrFilter, VKAPIError, load_blueprints_from_package
 from vkbottle.bot import Message
 
 from jacob.database.utils.admins import is_admin
@@ -12,7 +12,7 @@ from jacob.database.utils.students import is_student
 from jacob.database.utils.users import create_user, get_user_id, set_state
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
-from jacob.services.common import get_token, vbml_rule
+from jacob.services.common import get_token, handle_captcha, vbml_rule
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
@@ -21,6 +21,7 @@ logging.basicConfig(level="DEBUG")
 bot = Bot(token=get_token())
 bot.labeler.vbml_ignore_case = True
 bot.labeler.message_view.register_middleware(ChangeSentryUser())
+bot.error_handler.register_error_handler(VKAPIError(14), handle_captcha)
 vbml_rule = vbml_rule(bot)
 
 sentry_sdk.init(
