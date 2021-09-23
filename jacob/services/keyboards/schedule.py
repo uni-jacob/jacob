@@ -82,3 +82,37 @@ def days(source: list[models.DayOfWeek]) -> str:
     kb.add(Text("Назад", {"block": "schedule", "action": "edit"}))
 
     return kb.get_json()
+
+
+def timetable(source: list[models.Timetable]) -> str:
+    """
+    Клавиатура со списком доступных пар.
+
+    Args:
+        source: Список объектов пар.
+
+    Returns:
+        str: Клавиатура
+    """
+    kb = Keyboard()
+    for lesson_time in source:
+        kb.add(
+            Text(
+                f"{lesson_time.start_time} - {lesson_time.end_time}",
+                {
+                    "block": "schedule",
+                    "action": "select:lesson",
+                    "day": lesson_time.id,
+                },
+            ),
+        )
+        if len(kb.buttons[-1]) == 3:
+            kb.row()
+    kb.row()
+    kb.add(
+        Text("Создать время занятия", {"block": "schedule", "action": "create:time"})
+    )
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "select:week"}))
+
+    return kb.get_json()
