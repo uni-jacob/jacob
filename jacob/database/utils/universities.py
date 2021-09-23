@@ -3,6 +3,7 @@ import logging
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
+from jacob.database.utils.students import get_student
 from jacob.services.exceptions import UniversityNotFound
 
 
@@ -71,3 +72,18 @@ async def update_university_abbreviation(university_id: int, new_abbreviation: s
         await models.University.filter(id=university_id).update(
             abbreviation=new_abbreviation,
         )
+
+
+async def find_university_of_user(user_id: int) -> models.University:
+    """
+    Ищет университет пользователя.
+
+    Args:
+        user_id: ИД пользователя
+
+    Returns:
+        University: модель университета пользователя
+    """
+    student = await get_student(user_id=user_id)
+    group = await student.group
+    return await group.university
