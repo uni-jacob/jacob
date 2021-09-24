@@ -113,7 +113,10 @@ def timetable(source: list[models.Timetable]) -> str:
         kb.row()
 
     kb.add(
-        Text("Создать время занятия", {"block": "schedule", "action": "create:time"})
+        Text(
+            "Создать время занятия",
+            {"block": "schedule", "action": "create:time"},
+        ),
     )
     kb.row()
     kb.add(Text("Назад", {"block": "schedule", "action": "select:week"}))

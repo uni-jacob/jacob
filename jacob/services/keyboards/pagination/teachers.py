@@ -13,14 +13,14 @@ class TeachersPagination(ABCPersonalitiesPagination):
             Text(
                 "Создать преподавателя",
                 {"block": "schedule", "action": "create:teacher"},
-            )
+            ),
         )
         kb.row()
         kb.add(
             Text(
                 "Назад",
                 {"block": "schedule", "action": "select:lesson"},
-            )
+            ),
         )
         return kb.get_json()
 

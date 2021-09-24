@@ -16,12 +16,12 @@ class ABCPersonalitiesPagination(ABC):
 
     def _get_alphabet_ranges(
         self,
-    ) -> Union[Tuple[list[str], list[str]], Tuple[list[str]]]:
+    ) -> Union[Tuple, Tuple[list[str]]]:
         alphabet = self._generate_list_of_letters()
         ranges_len = len(alphabet) // 2
         ranges = (alphabet[:ranges_len], alphabet[ranges_len:])
         if not any(ranges):
-            return tuple()
+            return ()
         if not all(ranges):
             return (alphabet[:ranges_len] or alphabet[ranges_len:],)
         return alphabet[ranges_len:], alphabet[:ranges_len]
@@ -91,10 +91,24 @@ class ABCPersonalitiesPagination(ABC):
 
     @abstractmethod
     def submenu(self, half_ind: int) -> str:
-        """Подменю функции (список букв в половине алфавита). Имплементируется в подклассах конкретных функций."""
+        """Подменю функции (список букв в половине алфавита). Имплементируется в подклассах конкретных функций.
+
+        Args:
+            half_ind: ИД половины алфавита
+
+        Returns:
+            str: Клавиатура
+        """
         pass
 
     @abstractmethod
     def entries_menu(self, letter: str) -> str:
-        """Меню элементов списка. Имплементируется в подклассах конкретных функций."""
+        """Меню элементов списка. Имплементируется в подклассах конкретных функций.
+
+        Args:
+            letter: Буква
+
+        Returns:
+            str: Клавиатура
+        """
         pass

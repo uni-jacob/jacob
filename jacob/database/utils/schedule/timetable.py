@@ -9,7 +9,9 @@ async def get_timetable(university_id: int) -> list[models.Timetable]:
 
 
 async def create_lesson_time(
-    university_id: int, start_time: str, end_time: str
+    university_id: int,
+    start_time: str,
+    end_time: str,
 ) -> models.Timetable:
     async with in_transaction():
         return await models.Timetable.create(**locals())

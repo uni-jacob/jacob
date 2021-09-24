@@ -150,7 +150,10 @@ async def create_teacher(message: Message):
     StateRule("schedule:create_teacher"),
 )
 async def save_teacher(
-    message: Message, last_name: str, first_name: str, patronymic: str
+    message: Message,
+    last_name: str,
+    first_name: str,
+    patronymic: str,
 ):
     university = await find_university_of_user(await get_user_id(message.peer_id))
     await create_new_teacher(
@@ -192,7 +195,7 @@ async def select_letter(message: Message):
     await message.answer(
         "Выберите преподавателя",
         keyboard=TeachersPagination(teachers, "schedule").entries_menu(
-            payload.get("letter")
+            payload.get("letter"),
         ),
     )
 
