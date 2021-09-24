@@ -6,13 +6,13 @@ from vkbottle import Keyboard, Text
 from jacob.database import models
 
 
-class ABCStudentsPagination(ABC):
-    def __init__(self, source: list[models.Student]):
+class ABCPersonalitiesPagination(ABC):
+    def __init__(self, source: list[models.Personality]):
         self.source = source
         self.block = ""
 
     def _generate_list_of_letters(self) -> list[str]:
-        return [student.last_name[0] for student in self.source]
+        return [personality.last_name[0] for personality in self.source]
 
     def _get_alphabet_ranges(
         self,
@@ -38,7 +38,11 @@ class ABCStudentsPagination(ABC):
             kb.add(
                 Text(
                     title,
-                    {"block": "pagination:students", "action": "half", "half": index},
+                    {
+                        "block": "pagination:personality",
+                        "action": "half",
+                        "half": index,
+                    },
                 ),
             )
 
@@ -48,28 +52,28 @@ class ABCStudentsPagination(ABC):
         kb = Keyboard()
         halves = self._get_alphabet_ranges()
         for letter in halves[half_ind]:
-            if len(kb.buttons) == 5:
-                kb.row()
             kb.add(
                 Text(
                     letter,
                     {"block": self.block, "action": "select_letter", "letter": letter},
                 ),
             )
+            if len(kb.buttons) == 5:
+                kb.row()
 
         return kb
 
-    def _get_students_in_letter(self, letter: str) -> Keyboard:
+    def _get_personalities_in_letter(self, letter: str) -> Keyboard:
         kb = Keyboard()
-        for student in self.source:
-            if student.last_name.startswith(letter):
+        for personality in self.source:
+            if personality.last_name.startswith(letter):
                 kb.add(
                     Text(
-                        f"{student.first_name} {student.last_name}",
+                        f"{personality.first_name} {personality.last_name}",
                         {
                             "block": self.block,
-                            "action": "select_student",
-                            "student_id": student.id,
+                            "action": "select_personality",
+                            "personality_id": personality.id,
                         },
                     ),
                 )
