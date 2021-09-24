@@ -7,9 +7,9 @@ from jacob.database import models
 
 
 class ABCPersonalitiesPagination(ABC):
-    def __init__(self, source: list[models.Personality]):
+    def __init__(self, source: list[models.Personality], block: str = ""):
         self.source = source
-        self.block = ""
+        self.block = block
 
     def _generate_list_of_letters(self) -> list[str]:
         return [personality.last_name[0] for personality in self.source]
@@ -19,7 +19,10 @@ class ABCPersonalitiesPagination(ABC):
     ) -> Union[Tuple[list[str], list[str]], Tuple[list[str]]]:
         alphabet = self._generate_list_of_letters()
         ranges_len = len(alphabet) // 2
-        if not all((alphabet[:ranges_len], alphabet[ranges_len:])):
+        ranges = (alphabet[:ranges_len], alphabet[ranges_len:])
+        if not any(ranges):
+            return tuple()
+        if not all(ranges):
             return (alphabet[:ranges_len] or alphabet[ranges_len:],)
         return alphabet[ranges_len:], alphabet[:ranges_len]
 
@@ -39,7 +42,7 @@ class ABCPersonalitiesPagination(ABC):
                 Text(
                     title,
                     {
-                        "block": "pagination:personality",
+                        "block": self.block,
                         "action": "half",
                         "half": index,
                     },
@@ -87,11 +90,11 @@ class ABCPersonalitiesPagination(ABC):
         pass
 
     @abstractmethod
-    def submenu(self) -> str:
+    def submenu(self, half_ind: int) -> str:
         """Подменю функции (список букв в половине алфавита). Имплементируется в подклассах конкретных функций."""
         pass
 
     @abstractmethod
-    def entries_menu(self) -> str:
+    def entries_menu(self, letter: str) -> str:
         """Меню элементов списка. Имплементируется в подклассах конкретных функций."""
         pass
