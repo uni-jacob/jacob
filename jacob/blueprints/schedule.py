@@ -5,6 +5,7 @@ from vkbottle.bot import Blueprint, Message
 
 from jacob.database.utils.admins import is_admin
 from jacob.database.utils.schedule.days import get_days
+from jacob.database.utils.schedule.lesson_types import get_lesson_types
 from jacob.database.utils.schedule.timetable import (
     create_lesson_time,
     get_timetable,
@@ -98,3 +99,14 @@ async def save_time(message: Message, time: str):
         await select_day(message)
     else:
         await message.answer("Неверный формат времени")
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule(
+        {"action": "select:lesson"},
+    ),
+)
+async def select_lesson_type(message: Message):
+    lesson_types = await get_lesson_types()
+    await message.answer("Выберите тип занятия", keyboard=kb.lesson_types(lesson_types))
