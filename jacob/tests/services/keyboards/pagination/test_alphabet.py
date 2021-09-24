@@ -3,15 +3,17 @@ import json
 import pytest
 
 from jacob.database.utils.students import get_students_in_group
-from jacob.services.keyboards.pagination.alphabet import ABCStudentsPagination
+from jacob.services.keyboards.pagination.alphabet import (
+    ABCPersonalitiesPagination,
+)
 
 
 @pytest.fixture
 async def pagination():
     source = await get_students_in_group(15)
 
-    ABCStudentsPagination.__abstractmethods__ = set()
-    return ABCStudentsPagination(source)
+    ABCPersonalitiesPagination.__abstractmethods__ = set()
+    return ABCPersonalitiesPagination(source)
 
 
 class TestHalvesKeyboard:
