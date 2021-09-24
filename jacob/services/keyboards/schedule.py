@@ -116,3 +116,34 @@ def timetable(source: list[models.Timetable]) -> str:
     kb.add(Text("Назад", {"block": "schedule", "action": "select:week"}))
 
     return kb.get_json()
+
+
+def lesson_types(source: list[models.LessonType]) -> str:
+    """
+    Клавиатура со списком доступных типов пар.
+
+    Args:
+        source: Список объектов типов пар.
+
+    Returns:
+        str: Клавиатура
+    """
+    kb = Keyboard()
+    for lesson_type in source:
+        kb.add(
+            Text(
+                lesson_type.name,
+                {
+                    "block": "schedule",
+                    "action": "select:lesson_type",
+                    "day": lesson_type.id,
+                },
+            ),
+        )
+        if len(kb.buttons[-1]) == 2:
+            kb.row()
+
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "select:day"}))
+
+    return kb.get_json()
