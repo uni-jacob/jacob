@@ -38,11 +38,7 @@ class TestHalvesKeyboard:
                     {
                         "action": {
                             "label": "Г",
-                            "payload": {
-                                "action": "half",
-                                "block": "pagination:students",
-                                "half": 0,
-                            },
+                            "payload": {"action": "half", "block": "", "half": 0},
                             "type": "text",
                         }
                     }
@@ -73,17 +69,17 @@ class TestHalvesKeyboard:
             "one_time": False,
         }
 
-    def test__get_students_in_letter(self, pagination):
-        assert json.loads(pagination._get_students_in_letter("Г").get_json()) == {
+    def test__get_personalities_in_letter(self, pagination):
+        assert json.loads(pagination._get_personalities_in_letter("Г").get_json()) == {
             "buttons": [
                 [
                     {
                         "action": {
                             "label": "Даниил Голубев",
                             "payload": {
-                                "action": "select_student",
+                                "action": "select_personality",
                                 "block": "",
-                                "student_id": 7,
+                                "personality_id": 1,
                             },
                             "type": "text",
                         }

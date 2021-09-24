@@ -23,7 +23,18 @@ async def test_list_of_universities():
                         },
                         "type": "text",
                     }
-                }
+                },
+                {
+                    "action": {
+                        "label": "G",
+                        "payload": {
+                            "action": "university:select",
+                            "block": "registration",
+                            "university": 29,
+                        },
+                        "type": "text",
+                    }
+                },
             ],
             [
                 {
