@@ -1,3 +1,4 @@
+import json
 import re
 
 from vkbottle import EMPTY_KEYBOARD
@@ -6,6 +7,10 @@ from vkbottle.bot import Blueprint, Message
 from jacob.database.utils.admins import is_admin
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
+from jacob.database.utils.schedule.teachers import (
+    create_new_teacher,
+    get_teachers,
+)
 from jacob.database.utils.schedule.timetable import (
     create_lesson_time,
     get_timetable,
@@ -15,6 +20,7 @@ from jacob.database.utils.universities import find_university_of_user
 from jacob.database.utils.users import get_user_id, set_state
 from jacob.services import keyboards as kb
 from jacob.services.common import vbml_rule
+from jacob.services.keyboards.pagination.teachers import TeachersPagination
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule, StateRule
 
@@ -110,3 +116,92 @@ async def save_time(message: Message, time: str):
 async def select_lesson_type(message: Message):
     lesson_types = await get_lesson_types()
     await message.answer("Выберите тип занятия", keyboard=kb.lesson_types(lesson_types))
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule(
+        {"action": "select:lesson_type"},
+    ),
+)
+async def select_teacher(message: Message):
+    await set_state(message.peer_id, "schedule:edit:select_teacher")
+    university = await find_university_of_user(await get_user_id(message.peer_id))
+    teachers = await get_teachers(university.id)
+    await message.answer(
+        "Выберите преподавателя",
+        keyboard=TeachersPagination(teachers, "schedule").function_menu(),
+    )
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule(
+        {"action": "create:teacher"},
+    ),
+)
+async def create_teacher(message: Message):
+    await set_state(message.peer_id, "schedule:create_teacher")
+    await message.answer("Введите полное имя преподавателя (ФИО) через пробел")
+
+
+@bp.on.message(
+    vbml_rule("<last_name> <first_name> <patronymic>"),
+    StateRule("schedule:create_teacher"),
+)
+async def save_teacher(
+    message: Message, last_name: str, first_name: str, patronymic: str
+):
+    university = await find_university_of_user(await get_user_id(message.peer_id))
+    await create_new_teacher(
+        university.id,
+        last_name,
+        first_name,
+        patronymic,
+    )
+    await message.answer("Преподаватель сохранён")
+    await select_teacher(message)
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule(
+        {"action": "half"},
+    ),
+)
+async def select_half(message: Message):
+    payload = json.loads(message.payload)
+    university = await find_university_of_user(await get_user_id(message.peer_id))
+    teachers = await get_teachers(university.id)
+    await message.answer(
+        "Выберите преподавателя",
+        keyboard=TeachersPagination(teachers, "schedule").submenu(payload.get("half")),
+    )
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule(
+        {"action": "select_letter"},
+    ),
+)
+async def select_letter(message: Message):
+    payload = json.loads(message.payload)
+    university = await find_university_of_user(await get_user_id(message.peer_id))
+    teachers = await get_teachers(university.id)
+    await message.answer(
+        "Выберите преподавателя",
+        keyboard=TeachersPagination(teachers, "schedule").entries_menu(
+            payload.get("letter")
+        ),
+    )
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule(
+        {"action": "select_personality"},
+    ),
+)
+async def select_subject(message: Message):
+    await message.answer("Выберите предмет")
