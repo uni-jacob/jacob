@@ -108,7 +108,10 @@ def timetable(source: list[models.Timetable]) -> str:
         )
         if len(kb.buttons[-1]) == 3:
             kb.row()
-    kb.row()
+
+    if kb.buttons[-1]:
+        kb.row()
+
     kb.add(
         Text("Создать время занятия", {"block": "schedule", "action": "create:time"})
     )
