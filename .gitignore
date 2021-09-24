@@ -323,3 +323,7 @@ fabric.properties
 #!! ERROR: vscode is undefined. Use list command to see defined gitignore types !!#
 
 # End of https://www.toptal.com/developers/gitignore/api/python,vscode,pycharm,django
+
+.envrc
+docker-compose.yml
+Dockerfile
