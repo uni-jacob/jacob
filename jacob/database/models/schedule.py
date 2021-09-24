@@ -1,7 +1,7 @@
 from tortoise import fields
 from tortoise.models import Model
 
-from jacob.database.models import University
+from jacob.database.models import Personality, University
 
 
 class DayOfWeek(Model):
@@ -37,11 +37,10 @@ class LessonType(Model):
         table_description = "Типы занятий"
 
 
-class Teacher(Model):
-    id: int = fields.IntField(pk=True, description="ИД преподавателя")
-    full_name: str = fields.CharField(
+class Teacher(Personality):
+    patronymic: str = fields.CharField(
         max_length=30,
-        description="Полное имя преподавателя",
+        description="Отчество преподавателя",
     )
     university: University = fields.ForeignKeyField(
         "models.University",

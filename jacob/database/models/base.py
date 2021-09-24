@@ -5,6 +5,20 @@ from tortoise.models import Model
 from tortoise.validators import RegexValidator
 
 
+class Personality(Model):
+    id: int = fields.IntField(pk=True, description="ИД")
+    first_name: str = fields.CharField(
+        max_length=255,
+        null=False,
+        description="Имя",
+    )
+    last_name: str = fields.CharField(
+        max_length=255,
+        null=False,
+        description="Фамилия",
+    )
+
+
 class User(Model):
     """Анонимный пользователь."""
 
@@ -20,27 +34,13 @@ class User(Model):
         table_description = "Пользователь"
 
 
-class Student(Model):
+class Student(Personality):
     """Зарегистрированный студент."""
 
-    id: int = fields.IntField(pk=True, description="ИД студента")
     user: int = fields.ForeignKeyField("models.User", description="ИД пользователя")
-    first_name: str = fields.CharField(
-        max_length=255,
-        null=False,
-        description="Имя студента",
-    )
-    last_name: str = fields.CharField(
-        max_length=255,
-        null=False,
-        description="Фамилия студента",
-    )
     group: "Group" = fields.ForeignKeyField(
         "models.Group",
         description="Группа",
-    )
-    subgroup = fields.IntField(
-        null=True,
     )
     email = fields.CharField(
         max_length=255,
