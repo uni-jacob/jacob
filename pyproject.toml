@@ -46,6 +46,10 @@ bump_message = "build(project): update version $current_version to $new_version"
 [tool.poe.tasks]
 lint = "flakehell lint"
 
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = 10
+
 [tool.flakehell]
 extended_default_ignore=[]
 exclude = [".git", "__pycache__", "tests", "polygon.py", "generate_test_data.py"]
