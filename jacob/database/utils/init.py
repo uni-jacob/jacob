@@ -2,15 +2,20 @@ from tortoise import Tortoise
 
 from jacob.services.common import get_database_url
 
-
-async def init_db_connection():
-    await Tortoise.init(
-        db_url=get_database_url(),
-        modules={
+TORTOISE_ORM = {
+    "connections": {"default": get_database_url()},
+    "apps": {
+        "models": {
             "models": [
                 "jacob.database.models.base",
                 "jacob.database.models.schedule",
-            ],
-        },
-    )
+                "aerich.models",
+            ]
+        }
+    },
+}
+
+
+async def init_db_connection():
+    await Tortoise.init(TORTOISE_ORM)
     await Tortoise.generate_schemas()
