@@ -1,7 +1,7 @@
 from tortoise import fields
 from tortoise.models import Model
 
-from jacob.database.models import Personality, University
+from jacob.database.models import Group, Personality, University
 
 
 class DayOfWeek(Model):
@@ -59,9 +59,9 @@ class Subject(Model):
         max_length=15,
         description="Аббревиатура названия",
     )
-    university: University = fields.ForeignKeyField(
-        "models.University",
-        description="Университет",
+    group: Group = fields.ForeignKeyField(
+        "models.Group",
+        description="Группа",
     )
 
     class Meta:
