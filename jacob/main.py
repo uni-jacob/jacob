@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import os
+from logging.handlers import SysLogHandler
 
 import sentry_sdk
+from loguru import logger
 from vkbottle import Bot, OrFilter, load_blueprints_from_package
 from vkbottle.bot import Message
 
@@ -16,7 +18,8 @@ from jacob.services.common import get_token, vbml_rule
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
-logging.basicConfig(level="DEBUG")
+handler = SysLogHandler(address=("localhost", 514))
+logger.add(handler)
 
 bot = Bot(token=get_token())
 bot.labeler.vbml_ignore_case = True
