@@ -10,8 +10,8 @@ TORTOISE_ORM = {
                 "jacob.database.models.base",
                 "jacob.database.models.schedule",
                 "aerich.models",
-            ]
-        }
+            ],
+        },
     },
 }
 
