@@ -7,8 +7,7 @@ TORTOISE_ORM = {
     "apps": {
         "models": {
             "models": [
-                "jacob.database.models.base",
-                "jacob.database.models.schedule",
+                "jacob.database.models",
                 "aerich.models",
             ],
         },
