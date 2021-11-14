@@ -36,4 +36,9 @@ async def create_new_teacher(
         Teacher: Объект преподавателя
     """
     async with in_transaction():
-        return await models.Teacher.create(**locals())
+        return await models.Teacher.create(
+            university_id=university_id,
+            last_name=last_name,
+            first_name=first_name,
+            patronymic=patronymic,
+        )

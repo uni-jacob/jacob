@@ -25,7 +25,11 @@ async def create_group(
     """
     async with in_transaction():
         logging.info(f"Создание группы с параметрами {locals()}")
-        return await models.Group.create(**locals())
+        return await models.Group.create(
+            group_number=group_number,
+            specialty=specialty,
+            university_id=university_id,
+        )
 
 
 async def get_group(**kwargs) -> Optional[models.Group]:

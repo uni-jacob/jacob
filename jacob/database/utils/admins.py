@@ -49,7 +49,10 @@ async def create_admin(user_id: int, group_id: int) -> models.Admin:
     """
     async with in_transaction():
         logging.info(f"Создание админа с параметрами {locals()}")
-        return await models.Admin.create(**locals())
+        return await models.Admin.create(
+            user_id=user_id,
+            group_id=group_id,
+        )
 
 
 async def update_group_selection(user_id: int, group_id: int, is_active: bool):
