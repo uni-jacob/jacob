@@ -12,13 +12,15 @@ class AbstractPersonalitiesPagination(ABC):
     source: list[models.Personality]
     block: str
 
+    @property
     def _generate_list_of_letters(self) -> list[str]:
         return [personality.last_name[0] for personality in self.source]
 
+    @property
     def _get_alphabet_ranges(
         self,
     ) -> Union[Tuple, Tuple[list[str]]]:
-        alphabet = self._generate_list_of_letters()
+        alphabet = self._generate_list_of_letters
         ranges_len = len(alphabet) // 2
         ranges = (alphabet[:ranges_len], alphabet[ranges_len:])
         if not any(ranges):
@@ -28,13 +30,14 @@ class AbstractPersonalitiesPagination(ABC):
         return alphabet[ranges_len:], alphabet[:ranges_len]
 
     def _find_half_index_of_letter(self, letter: str) -> Optional[int]:
-        for index, half in enumerate(self._get_alphabet_ranges()):
+        for index, half in enumerate(self._get_alphabet_ranges):
             if letter in half:
                 return index
 
+    @property
     def _halves(self) -> Keyboard:
         kb = Keyboard()
-        for index, half in enumerate(self._get_alphabet_ranges()):
+        for index, half in enumerate(self._get_alphabet_ranges):
             if half[0] == half[-1]:
                 title = half[0]
             else:
@@ -54,7 +57,7 @@ class AbstractPersonalitiesPagination(ABC):
 
     def _get_letters_in_half(self, half_ind: int) -> Keyboard:
         kb = Keyboard()
-        halves = self._get_alphabet_ranges()
+        halves = self._get_alphabet_ranges
         for letter in halves[half_ind]:
             kb.add(
                 Text(
