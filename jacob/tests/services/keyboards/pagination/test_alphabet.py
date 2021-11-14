@@ -4,7 +4,7 @@ import pytest
 
 from jacob.database.utils.students import get_students_in_group
 from jacob.services.keyboards.pagination.alphabet import (
-    ABCPersonalitiesPagination,
+    AbstractPersonalitiesPagination,
 )
 
 
@@ -12,8 +12,8 @@ from jacob.services.keyboards.pagination.alphabet import (
 async def pagination():
     source = await get_students_in_group(15)
 
-    ABCPersonalitiesPagination.__abstractmethods__ = set()
-    return ABCPersonalitiesPagination(source)
+    AbstractPersonalitiesPagination.__abstractmethods__ = set()
+    return AbstractPersonalitiesPagination(source)
 
 
 class TestHalvesKeyboard:

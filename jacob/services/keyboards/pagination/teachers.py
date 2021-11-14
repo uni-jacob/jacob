@@ -1,11 +1,11 @@
 from vkbottle import Text
 
 from jacob.services.keyboards.pagination.alphabet import (
-    ABCPersonalitiesPagination,
+    AbstractPersonalitiesPagination,
 )
 
 
-class TeachersPagination(ABCPersonalitiesPagination):
+class TeachersPagination(AbstractPersonalitiesPagination):
     def function_menu(self) -> str:
         kb = self._halves()
         kb.row()

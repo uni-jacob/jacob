@@ -6,7 +6,7 @@ from vkbottle import Keyboard, Text
 from jacob.database import models
 
 
-class ABCPersonalitiesPagination(ABC):
+class AbstractPersonalitiesPagination(ABC):
     def __init__(self, source: list[models.Personality], block: str = ""):
         self.source = source
         self.block = block
