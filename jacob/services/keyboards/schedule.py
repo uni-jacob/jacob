@@ -153,3 +153,73 @@ def lesson_types(source: list[models.LessonType]) -> str:
     kb.add(Text("Назад", {"block": "schedule", "action": "select:day"}))
 
     return kb.get_json()
+
+
+def subjects(source: list[models.Subject]) -> str:
+    """
+    Клавиатура со списком доступных курсов.
+
+    Args:
+        source: Список объектов курсов.
+
+    Returns:
+        str: Клавиатура
+    """
+    kb = Keyboard()
+    for subject in source:
+        kb.add(
+            Text(
+                subject.full_name,
+                {
+                    "block": "schedule",
+                    "action": "select:subject",
+                    "day": subject.id,
+                },
+            ),
+        )
+        if len(kb.buttons[-1]) == 2:
+            kb.row()
+
+    if kb.buttons[-1]:
+        kb.row()
+
+    kb.add(Text("Создать предмет", {"block": "schedule", "action": "create:subject"}))
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "select:day"}))
+
+    return kb.get_json()
+
+
+def classrooms(source: list[models.Classroom]) -> str:
+    """
+    Клавиатура со списком доступных аудиторий.
+
+    Args:
+        source: Список объектов аудиторий.
+
+    Returns:
+        str: Клавиатура
+    """
+    kb = Keyboard()
+    for classroom in source:
+        kb.add(
+            Text(
+                f"{classroom.class_name}-{classroom.building}",
+                {
+                    "block": "schedule",
+                    "action": "select:classroom",
+                    "day": classroom.id,
+                },
+            ),
+        )
+        if len(kb.buttons[-1]) == 3:
+            kb.row()
+
+    if kb.buttons[-1]:
+        kb.row()
+
+    kb.add(Text("Создать предмет", {"block": "schedule", "action": "create:classroom"}))
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "select:day"}))
+
+    return kb.get_json()
