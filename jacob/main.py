@@ -18,7 +18,7 @@ from jacob.services.common import get_token, vbml_rule
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
-handler = SysLogHandler(address=("localhost", 514))
+handler = SysLogHandler(address=(os.getenv("LOG_HOST"), int(os.getenv("LOG_PORT"))))
 logger.add(handler)
 
 bot = Bot(token=get_token())
