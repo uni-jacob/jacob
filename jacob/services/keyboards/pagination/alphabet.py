@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Optional, Tuple, Union
 
 from vkbottle import Keyboard, Text
@@ -6,10 +7,10 @@ from vkbottle import Keyboard, Text
 from jacob.database import models
 
 
+@dataclass
 class AbstractPersonalitiesPagination(ABC):
-    def __init__(self, source: list[models.Personality], block: str = ""):
-        self.source = source
-        self.block = block
+    source: list[models.Personality]
+    block: str
 
     def _generate_list_of_letters(self) -> list[str]:
         return [personality.last_name[0] for personality in self.source]
