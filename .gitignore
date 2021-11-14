@@ -324,6 +324,7 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/python,vscode,pycharm,django
 
+.idea
 .envrc
 docker-compose.yml
 Dockerfile
