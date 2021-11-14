@@ -5,8 +5,10 @@ from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
 
 from jacob.database.utils.admins import is_admin
+from jacob.database.utils.classrooms import get_classrooms
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
+from jacob.database.utils.schedule.subjects import get_subjects
 from jacob.database.utils.schedule.teachers import (
     create_new_teacher,
     get_teachers,
@@ -16,6 +18,7 @@ from jacob.database.utils.schedule.timetable import (
     get_timetable,
 )
 from jacob.database.utils.schedule.weeks import get_weeks
+from jacob.database.utils.students import get_student
 from jacob.database.utils.universities import find_university_of_user
 from jacob.database.utils.users import get_user_id, set_state
 from jacob.services import keyboards as kb
@@ -207,4 +210,45 @@ async def select_letter(message: Message):
     ),
 )
 async def select_subject(message: Message):
-    await message.answer("Выберите предмет")
+    user_id = await get_user_id(message.peer_id)
+    student = await get_student(user_id=user_id)
+    group = await student.group
+    subjects = await get_subjects(group.id)
+    await message.answer("Выберите предмет", keyboard=kb.subjects(subjects))
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule({"action": "create:subject"}),
+)
+async def create_subject(message: Message):
+    await set_state(message.peer_id, "schedule:create_subject")
+    await message.answer("Введите название предмета")
+
+
+@bp.on.message(
+    vbml_rule("<name>"),
+    StateRule("schedule:create_subject"),
+)
+async def enter_subject_abbreviation(message: Message, name: str):
+    await set_state(message.peer_id, "schedule:enter_subject_abbreviation")
+    await message.answer(f"Введите аббревиатуру предмета {name}")
+
+
+@bp.on.message(
+    vbml_rule("<abbr>"),
+    StateRule("schedule:enter_subject_abbreviation"),
+)
+async def save_subject(message: Message, abbr: str):
+    await message.answer(f"Предмет сохранен")
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule({"action": "select:subject"}),
+)
+async def select_classroom(message: Message):
+    user_id = await get_user_id(message.peer_id)
+    university = find_university_of_user(user_id)
+    classrooms = await get_classrooms(university.id)
+    await message.answer("Выберите аудиторию", keyboard=kb.classrooms(classrooms))
