@@ -4,7 +4,6 @@ import re
 from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
 
-from jacob.database.utils.admins import is_admin
 from jacob.database.utils.classrooms import get_classrooms
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
@@ -17,43 +16,18 @@ from jacob.database.utils.schedule.timetable import (
     create_lesson_time,
     get_timetable,
 )
-from jacob.database.utils.schedule.weeks import get_weeks
 from jacob.database.utils.students import get_student
 from jacob.database.utils.universities import find_university_of_user
 from jacob.database.utils.users import get_user_id, set_state
-from jacob.services import keyboards as kb
+from jacob.services import keyboards
 from jacob.services.common import vbml_rule
 from jacob.services.keyboards.pagination.teachers import TeachersPagination
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule, StateRule
 
-bp = Blueprint("Schedule")
+bp = Blueprint("Schedule:edit")
 bp.labeler.message_view.register_middleware(ChangeSentryUser())
 vbml_rule = vbml_rule(bp)
-
-
-@bp.on.message(
-    EventPayloadContainsRule({"block": "schedule"}),
-    EventPayloadContainsRule(
-        {"action": "init"},
-    ),
-)
-async def open_schedule(message: Message):
-    await set_state(message.peer_id, "schedule:main")
-    is_admin_ = await is_admin(await get_user_id(message.peer_id))
-    await message.answer("Блок Расписание", keyboard=kb.schedule_main(is_admin_))
-
-
-@bp.on.message(
-    EventPayloadContainsRule({"block": "schedule"}),
-    EventPayloadContainsRule(
-        {"action": "edit"},
-    ),
-)
-async def init_editing_schedule(message: Message):
-    await set_state(message.peer_id, "schedule:edit:select_week")
-    weeks = await get_weeks()
-    await message.answer("Выбор недели", keyboard=kb.weeks(weeks))
 
 
 @bp.on.message(
@@ -65,7 +39,7 @@ async def init_editing_schedule(message: Message):
 async def select_week(message: Message):
     await set_state(message.peer_id, "schedule:edit:select_day")
     days = await get_days()
-    await message.answer("Выберите день", keyboard=kb.days(days))
+    await message.answer("Выберите день", keyboard=keyboards.days(days))
 
 
 @bp.on.message(
@@ -78,7 +52,9 @@ async def select_day(message: Message):
     await set_state(message.peer_id, "schedule:edit:select_time")
     university = await find_university_of_user(await get_user_id(message.peer_id))
     timetable = await get_timetable(university.id)
-    await message.answer("Выберите время занятия", keyboard=kb.timetable(timetable))
+    await message.answer(
+        "Выберите время занятия", keyboard=keyboards.timetable(timetable)
+    )
 
 
 @bp.on.message(
@@ -118,7 +94,9 @@ async def save_time(message: Message, time: str):
 )
 async def select_lesson_type(message: Message):
     lesson_types = await get_lesson_types()
-    await message.answer("Выберите тип занятия", keyboard=kb.lesson_types(lesson_types))
+    await message.answer(
+        "Выберите тип занятия", keyboard=keyboards.lesson_types(lesson_types)
+    )
 
 
 @bp.on.message(
@@ -214,7 +192,7 @@ async def select_subject(message: Message):
     student = await get_student(user_id=user_id)
     group = await student.group
     subjects = await get_subjects(group.id)
-    await message.answer("Выберите предмет", keyboard=kb.subjects(subjects))
+    await message.answer("Выберите предмет", keyboard=keyboards.subjects(subjects))
 
 
 @bp.on.message(
@@ -251,4 +229,6 @@ async def select_classroom(message: Message):
     user_id = await get_user_id(message.peer_id)
     university = find_university_of_user(user_id)
     classrooms = await get_classrooms(university.id)
-    await message.answer("Выберите аудиторию", keyboard=kb.classrooms(classrooms))
+    await message.answer(
+        "Выберите аудиторию", keyboard=keyboards.classrooms(classrooms)
+    )
