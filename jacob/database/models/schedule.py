@@ -58,6 +58,7 @@ class Subject(Model):
     abbreviation: str = fields.CharField(
         max_length=15,
         description="Subjects abbreviation",
+        null=True,
     )
     group: Group = fields.ForeignKeyField(
         "models.Group",
