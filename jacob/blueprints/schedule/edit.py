@@ -7,7 +7,11 @@ from vkbottle.bot import Blueprint, Message
 from jacob.database.utils.classrooms import get_classrooms
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
-from jacob.database.utils.schedule.subjects import get_subjects
+from jacob.database.utils.schedule.subjects import (
+    find_subject,
+    get_subjects,
+    update_subject,
+)
 from jacob.database.utils.schedule.teachers import (
     create_new_teacher,
     get_teachers,
@@ -20,6 +24,7 @@ from jacob.database.utils.students import get_student
 from jacob.database.utils.universities import find_university_of_user
 from jacob.database.utils.users import get_user_id, set_state
 from jacob.services import keyboards
+from jacob.services.api import get_previous_payload
 from jacob.services.common import vbml_rule
 from jacob.services.keyboards.pagination.teachers import TeachersPagination
 from jacob.services.middleware import ChangeSentryUser
@@ -209,8 +214,17 @@ async def create_subject(message: Message):
     StateRule("schedule:create_subject"),
 )
 async def enter_subject_abbreviation(message: Message, name: str):
+    from jacob.database.utils.schedule.subjects import create_subject
+
     await set_state(message.peer_id, "schedule:enter_subject_abbreviation")
-    await message.answer(f"Введите аббревиатуру предмета {name}")
+    user_id = await get_user_id(message.from_id)
+    student = await get_student(user_id=user_id)
+    group = await student.group
+    subj = await create_subject(group=group, full_name=name)
+    await message.answer(
+        f"Введите аббревиатуру предмета {name}",
+        payload=json.dumps({"subject_id": subj.id}),
+    )
 
 
 @bp.on.message(
@@ -218,6 +232,10 @@ async def enter_subject_abbreviation(message: Message, name: str):
     StateRule("schedule:enter_subject_abbreviation"),
 )
 async def save_subject(message: Message, abbr: str):
+    payload = get_previous_payload("subject_id")
+    subj = await find_subject(id=payload.get("subject_id"))
+
+    await update_subject(subj.id, abbreviation=abbr)
     await message.answer(f"Предмет сохранен")
 
 
