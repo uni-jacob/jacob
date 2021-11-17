@@ -1,6 +1,6 @@
 from tortoise import Tortoise
 
-from jacob.services.common import get_database_url
+from jacob.config import get_database_url
 
 TORTOISE_ORM = {
     "connections": {"default": get_database_url()},
