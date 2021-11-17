@@ -6,7 +6,7 @@ from vkbottle.bot import Blueprint, Message
 from jacob.database.utils.admins import toggle_group_selection
 from jacob.database.utils.groups import get_managed_groups
 from jacob.database.utils.users import get_user_id
-from jacob.services import keyboards as kb
+from jacob.services import keyboards
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
@@ -23,7 +23,7 @@ async def show_managed_groups(message: Message):
     managed_groups = await get_managed_groups(message.peer_id)
     await message.answer(
         "Выберите активные группы",
-        keyboard=kb.managed_groups(managed_groups),
+        keyboard=keyboards.managed_groups(managed_groups),
     )
 
 

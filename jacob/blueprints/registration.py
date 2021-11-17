@@ -14,7 +14,7 @@ from jacob.database.utils.universities import (
     update_university_abbreviation,
 )
 from jacob.database.utils.users import get_user_id, set_state
-from jacob.services import keyboards as kb
+from jacob.services import keyboards
 from jacob.services.api import get_previous_payload
 from jacob.services.common import generate_abbreviation, vbml_rule
 from jacob.services.middleware import ChangeSentryUser
@@ -35,7 +35,7 @@ async def init_registration(message: Message):
     universities = await get_universities()
     await message.answer(
         "Выберите или создайте университет",
-        keyboard=await kb.list_of_universities(universities),
+        keyboard=await keyboards.list_of_universities(universities),
     )
 
 
@@ -63,7 +63,7 @@ async def select_university(message: Message):
 async def create_university(message: Message):
     logging.info("Запущено создание нового университета: Ожидание названия...")
     await set_state(message.peer_id, "registration:ask_university_name")
-    await message.answer("Введите название университета", keyboard=kb.cancel())
+    await message.answer("Введите название университета", keyboard=keyboards.cancel())
 
 
 @bp.on.message(
@@ -90,7 +90,7 @@ async def save_university(message: Message, university_name: str):
     )
     await message.answer(
         f"Аббревиатура {abbreviation} верна?",
-        keyboard=kb.yes_no(),
+        keyboard=keyboards.yes_no(),
         payload=json.dumps({"bot:university_id": university.id}),
     )
 
@@ -189,5 +189,5 @@ async def save_group(message: Message, specialty_name: str):
     await set_state(message.peer_id, "main")
     await message.answer(
         "Добро пожаловать!",
-        keyboard=kb.main_menu(await is_admin(user_id)),
+        keyboard=keyboards.main_menu(await is_admin(user_id)),
     )
