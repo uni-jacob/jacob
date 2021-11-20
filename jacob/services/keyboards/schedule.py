@@ -180,7 +180,7 @@ def subjects(source: list[models.Subject]) -> str:
         if len(kb.buttons[-1]) == 2:
             kb.row()
 
-    if kb.buttons[-1]:
+    if kb.buttons and kb.buttons[-1]:
         kb.row()
 
     kb.add(Text("Создать предмет", {"block": "schedule", "action": "create:subject"}))
