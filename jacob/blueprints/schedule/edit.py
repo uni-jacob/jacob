@@ -7,11 +7,7 @@ from vkbottle.bot import Blueprint, Message
 from jacob.database.utils.classrooms import get_classrooms
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
-from jacob.database.utils.schedule.subjects import (
-    find_subject,
-    get_subjects,
-    update_subject,
-)
+from jacob.database.utils.schedule.subjects import get_subjects, update_subject
 from jacob.database.utils.schedule.teachers import (
     create_new_teacher,
     get_teachers,
@@ -232,11 +228,14 @@ async def enter_subject_abbreviation(message: Message, name: str):
     StateRule("schedule:enter_subject_abbreviation"),
 )
 async def save_subject(message: Message, abbr: str):
-    payload = get_previous_payload("subject_id")
-    subj = await find_subject(id=payload.get("subject_id"))
+    payload = await get_previous_payload(message, "subject_id")
+    user_id = await get_user_id(message.peer_id)
+    student = await get_student(user_id=user_id)
+    group = await student.group
+    subjects = await get_subjects(group.id)
 
-    await update_subject(subj.id, abbreviation=abbr)
-    await message.answer(f"Предмет сохранен")
+    await update_subject(payload.get("subject_id"), abbreviation=abbr)
+    await message.answer(f"Предмет сохранен", keyboard=keyboards.subjects(subjects))
 
 
 @bp.on.message(
