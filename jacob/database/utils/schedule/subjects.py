@@ -20,8 +20,8 @@ async def create_subject(group: models.Group, full_name: str) -> models.Subject:
         return await models.Subject.create(group=group, full_name=full_name)
 
 
-async def update_subject(subject_id: int, **kwargs) -> models.Subject:
+async def update_subject(subject_id: int, **kwargs):
     async with in_transaction():
-        query = await models.Subject(id=subject_id).update_from_dict(kwargs)
-        await query.save()
-        return await models.Subject.get(id=subject_id)
+        await models.Subject.filter(id=subject_id).update(
+            **kwargs,
+        )
