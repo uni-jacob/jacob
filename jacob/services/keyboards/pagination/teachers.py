@@ -7,7 +7,7 @@ from jacob.services.keyboards.pagination.alphabet import (
 
 class TeachersPagination(AbstractPersonalitiesPagination):
     def function_menu(self) -> str:
-        kb = self._halves()
+        kb = self._halves
         kb.row()
         kb.add(
             Text(
