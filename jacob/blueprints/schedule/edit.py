@@ -5,6 +5,7 @@ from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
 
 from jacob.database.utils.classrooms import get_classrooms
+from jacob.database.utils.schedule.classroom import update_or_create_classroom
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
 from jacob.database.utils.schedule.subjects import get_subjects, update_subject
@@ -252,4 +253,55 @@ async def select_classroom(message: Message):
     classrooms = await get_classrooms(university.id)
     await message.answer(
         "Выберите аудиторию", keyboard=keyboards.classrooms(classrooms)
+    )
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule({"action": "create:classroom"}),
+)
+async def init_create_classroom(message: Message):
+    await set_state(message.peer_id, "schedule:enter_building_number")
+    await message.answer("Введите номер корпуса", keyboard=EMPTY_KEYBOARD)
+
+
+@bp.on.message(
+    vbml_rule("<building>"),
+    StateRule("schedule:enter_building_number"),
+)
+async def save_building_number(message: Message, building: int):
+    if re.match(r"^\d+$", building):
+        user_id = await get_user_id(message.peer_id)
+        university = await find_university_of_user(user_id)
+        classroom = await update_or_create_classroom(
+            building=building, university=university
+        )
+
+        await set_state(message.peer_id, "schedule:enter_classroom_number")
+        await message.answer(
+            "Введите номер аудитории",
+            payload=json.dumps({"classroom_id": classroom.id}),
+        )
+    else:
+        await message.answer("Поддерживается только число!")
+
+
+@bp.on.message(
+    vbml_rule("<classroom>"),
+    StateRule("schedule:enter_classroom_number"),
+)
+async def save_classroom(message: Message, classroom: str):
+    payload = await get_previous_payload(message, "classroom_id")
+    await update_or_create_classroom(
+        id=payload.get("classroom_id"), class_name=classroom
+    )
+
+    user_id = await get_user_id(message.peer_id)
+    university = await find_university_of_user(user_id)
+    classrooms = await get_classrooms(university.id)
+
+    await set_state(message.peer_id, "schedule:main")
+    await message.answer(
+        "Аудитория сохранена!",
+        keyboard=keyboards.classrooms(classrooms),
     )
