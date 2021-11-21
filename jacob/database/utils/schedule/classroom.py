@@ -3,7 +3,19 @@ from tortoise.transactions import in_transaction
 from jacob.database import models
 
 
-async def update_or_create_classroom(**kwargs) -> models.Classroom:
+async def create_classroom(
+    building: int, university_id: int, **kwargs
+) -> models.Classroom:
     async with in_transaction():
-        res = await models.Classroom.update_or_create(**kwargs)
-        return res[0]
+        return await models.Classroom.create(
+            building=building,
+            university=university_id,
+            **kwargs,
+        )
+
+
+async def update_classroom(classroom_id: int, **kwargs):
+    async with in_transaction():
+        await models.Classroom.filter(id=classroom_id).update(
+            **kwargs,
+        )
