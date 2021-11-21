@@ -8,7 +8,7 @@ from jacob.services.common import vbml_rule
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
-bp = Blueprint("Schedule:")
+bp = Blueprint("Schedule:menu")
 bp.labeler.message_view.register_middleware(ChangeSentryUser())
 vbml_rule = vbml_rule(bp)
 
