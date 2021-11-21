@@ -235,6 +235,7 @@ async def save_subject(message: Message, abbr: str):
     subjects = await get_subjects(group.id)
 
     await update_subject(payload.get("subject_id"), abbreviation=abbr)
+    await set_state(message.peer_id, "schedule:main")
     await message.answer(f"Предмет сохранен", keyboard=keyboards.subjects(subjects))
 
 
