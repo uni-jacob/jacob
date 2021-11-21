@@ -77,7 +77,9 @@ class Classroom(Model):
         description="University",
     )
     building: int = fields.IntField(description="Buildings number")
-    class_name: str = fields.CharField(max_length=10, description="Classrooms number")
+    class_name: str = fields.CharField(
+        max_length=10, description="Classrooms number", null=True
+    )
 
     class Meta:
         table = "classrooms"
