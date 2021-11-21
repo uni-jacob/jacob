@@ -124,7 +124,9 @@ async def select_teacher(message: Message):
 )
 async def create_teacher(message: Message):
     await set_state(message.peer_id, "schedule:create_teacher")
-    await message.answer("Введите полное имя преподавателя (ФИО) через пробел")
+    await message.answer(
+        "Введите полное имя преподавателя (ФИО) через пробел", keyboard=EMPTY_KEYBOARD
+    )
 
 
 @bp.on.message(
@@ -202,7 +204,7 @@ async def select_subject(message: Message):
 )
 async def create_subject(message: Message):
     await set_state(message.peer_id, "schedule:create_subject")
-    await message.answer("Введите название предмета")
+    await message.answer("Введите название предмета", keyboard=EMPTY_KEYBOARD)
 
 
 @bp.on.message(
@@ -220,6 +222,7 @@ async def enter_subject_abbreviation(message: Message, name: str):
     await message.answer(
         f"Введите аббревиатуру предмета {name}",
         payload=json.dumps({"subject_id": subj.id}),
+        keyboard=EMPTY_KEYBOARD,
     )
 
 
