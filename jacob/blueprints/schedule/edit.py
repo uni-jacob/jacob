@@ -245,7 +245,7 @@ async def save_subject(message: Message, abbr: str):
 )
 async def select_classroom(message: Message):
     user_id = await get_user_id(message.peer_id)
-    university = find_university_of_user(user_id)
+    university = await find_university_of_user(user_id)
     classrooms = await get_classrooms(university.id)
     await message.answer(
         "Выберите аудиторию", keyboard=keyboards.classrooms(classrooms)
