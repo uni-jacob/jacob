@@ -270,20 +270,17 @@ async def init_create_classroom(message: Message):
     StateRule("schedule:enter_building_number"),
 )
 async def save_building_number(message: Message, building: int):
-    if re.match(r"^\d+$", building):
-        user_id = await get_user_id(message.peer_id)
-        university = await find_university_of_user(user_id)
-        classroom = await update_or_create_classroom(
-            building=building, university=university
-        )
+    user_id = await get_user_id(message.peer_id)
+    university = await find_university_of_user(user_id)
+    classroom = await update_or_create_classroom(
+        building=building, university=university
+    )
 
-        await set_state(message.peer_id, "schedule:enter_classroom_number")
-        await message.answer(
-            "Введите номер аудитории",
-            payload=json.dumps({"classroom_id": classroom.id}),
-        )
-    else:
-        await message.answer("Поддерживается только число!")
+    await set_state(message.peer_id, "schedule:enter_classroom_number")
+    await message.answer(
+        "Введите номер аудитории",
+        payload=json.dumps({"classroom_id": classroom.id}),
+    )
 
 
 @bp.on.message(
@@ -305,3 +302,11 @@ async def save_classroom(message: Message, classroom: str):
         "Аудитория сохранена!",
         keyboard=keyboards.classrooms(classrooms),
     )
+
+
+@bp.on.message(
+    EventPayloadContainsRule({"block": "schedule"}),
+    EventPayloadContainsRule({"action": "select:classroom"}),
+)
+async def select_classroom(message: Message):
+    await message.answer("Занятие сохранено!")
