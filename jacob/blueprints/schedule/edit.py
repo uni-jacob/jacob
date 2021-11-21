@@ -114,6 +114,7 @@ async def select_teacher(message: Message):
     await set_state(message.peer_id, "schedule:edit:select_teacher")
     university = await find_university_of_user(await get_user_id(message.peer_id))
     teachers = await get_teachers(university.id)
+    # TODO: add updating lesson type
     await message.answer(
         "Выберите преподавателя",
         keyboard=TeachersPagination(teachers, "schedule").function_menu(),
@@ -199,6 +200,7 @@ async def select_subject(message: Message):
     student = await get_student(user_id=user_id)
     group = await student.group
     subjects = await get_subjects(group.id)
+    # TODO: add updating teacher
     await message.answer("Выберите предмет", keyboard=keyboards.subjects(subjects))
 
 
@@ -254,6 +256,7 @@ async def select_classroom(message: Message):
     user_id = await get_user_id(message.peer_id)
     university = await find_university_of_user(user_id)
     classrooms = await get_classrooms(university.id)
+    # TODO: add updating subject
     await message.answer(
         "Выберите аудиторию", keyboard=keyboards.classrooms(classrooms)
     )
@@ -310,4 +313,5 @@ async def save_classroom(message: Message, classroom: str):
     EventPayloadContainsRule({"action": "select:classroom"}),
 )
 async def select_classroom(message: Message):
+    # TODO: add updating classroom
     await message.answer("Занятие сохранено!")
