@@ -215,7 +215,7 @@ def classrooms(source: list[models.Classroom]) -> str:
         if len(kb.buttons[-1]) == 3:
             kb.row()
 
-    if kb.buttons[-1]:
+    if kb.buttons and kb.buttons[-1]:
         kb.row()
 
     kb.add(Text("Создать предмет", {"block": "schedule", "action": "create:classroom"}))
