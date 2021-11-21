@@ -5,7 +5,10 @@ from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
 
 from jacob.database.utils.classrooms import get_classrooms
-from jacob.database.utils.schedule.classroom import update_or_create_classroom
+from jacob.database.utils.schedule.classroom import (
+    create_classroom,
+    update_classroom,
+)
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
 from jacob.database.utils.schedule.subjects import get_subjects, update_subject
@@ -272,9 +275,7 @@ async def init_create_classroom(message: Message):
 async def save_building_number(message: Message, building: int):
     user_id = await get_user_id(message.peer_id)
     university = await find_university_of_user(user_id)
-    classroom = await update_or_create_classroom(
-        building=building, university=university
-    )
+    classroom = await create_classroom(building=building, university_id=university.id)
 
     await set_state(message.peer_id, "schedule:enter_classroom_number")
     await message.answer(
@@ -289,8 +290,8 @@ async def save_building_number(message: Message, building: int):
 )
 async def save_classroom(message: Message, classroom: str):
     payload = await get_previous_payload(message, "classroom_id")
-    await update_or_create_classroom(
-        id=payload.get("classroom_id"), class_name=classroom
+    await update_classroom(
+        classroom_id=payload.get("classroom_id"), class_name=classroom
     )
 
     user_id = await get_user_id(message.peer_id)
