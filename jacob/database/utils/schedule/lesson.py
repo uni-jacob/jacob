@@ -1,3 +1,5 @@
+from typing import Optional
+
 from tortoise.transactions import in_transaction
 
 from jacob.database import models
@@ -19,4 +21,31 @@ async def create_lesson_from_storage(
             teacher_id=storage.teacher.id,
             classroom_id=storage.classroom.id,
             group_id=group.id,
+        )
+
+
+async def find_lesson(
+    week: int,
+    day: int,
+    time: int,
+    group: int,
+) -> Optional[models.Lesson]:
+    async with in_transaction():
+        return (
+            await models.Lesson.filter(
+                week_id=week,
+                day_id=day,
+                time_id=time,
+                group_id=group,
+            )
+            .prefetch_related(
+                "week",
+                "day",
+                "time",
+                "subject",
+                "teacher",
+                "classroom",
+                "lesson_type",
+            )
+            .first()
         )
