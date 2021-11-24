@@ -94,7 +94,7 @@ async def save_time(message: Message, time: str):
 @bp.on.message(
     EventPayloadContainsRule({"block": "schedule"}),
     EventPayloadContainsRule(
-        {"action": "select:lesson"},
+        {"action": "select:time"},
     ),
 )
 async def select_lesson_type(message: Message):

@@ -101,8 +101,8 @@ def timetable(source: list[models.Timetable]) -> str:
                 f"{lesson_time.start_time} - {lesson_time.end_time}",
                 {
                     "block": "schedule",
-                    "action": "select:lesson",
-                    "day": lesson_time.id,
+                    "action": "select:time",
+                    "time": lesson_time.id,
                 },
             ),
         )
