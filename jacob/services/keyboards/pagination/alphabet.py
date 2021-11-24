@@ -27,7 +27,7 @@ class AbstractPersonalitiesPagination(ABC):
             return ()
         if not all(ranges):
             return (alphabet[:ranges_len] or alphabet[ranges_len:],)
-        return alphabet[ranges_len:], alphabet[:ranges_len]
+        return ranges
 
     def _find_half_index_of_letter(self, letter: str) -> Optional[int]:
         for index, half in enumerate(self._get_alphabet_ranges):
