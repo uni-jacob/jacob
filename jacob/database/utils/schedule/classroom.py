@@ -4,7 +4,9 @@ from jacob.database import models
 
 
 async def create_classroom(
-    building: int, university_id: int, **kwargs
+    building: int,
+    university_id: int,
+    **kwargs,
 ) -> models.Classroom:
     async with in_transaction():
         return await models.Classroom.create(

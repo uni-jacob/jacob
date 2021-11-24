@@ -25,7 +25,7 @@ async def update_or_create_lesson_from_storage(
                     "subject_id": storage.subject.id,
                     "teacher_id": storage.teacher.id,
                     "classroom_id": storage.classroom.id,
-                }
+                },
             )
             await query.save()
             return await models.Lesson.get_or_none(

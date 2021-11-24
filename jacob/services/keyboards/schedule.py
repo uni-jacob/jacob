@@ -219,7 +219,13 @@ def classrooms(source: list[models.Classroom]) -> str:
         kb.row()
 
     kb.add(
-        Text("Создать аудиторию", {"block": "schedule", "action": "create:classroom"})
+        Text(
+            "Создать аудиторию",
+            {
+                "block": "schedule",
+                "action": "create:classroom",
+            },
+        ),
     )
     kb.row()
     kb.add(Text("Назад", {"block": "schedule", "action": "select:day"}))

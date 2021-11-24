@@ -80,7 +80,8 @@ async def select_day(message: Message):
     university = await find_university_of_user(await get_user_id(message.peer_id))
     timetable = await get_timetable(university.id)
     await message.answer(
-        "Выберите время занятия", keyboard=keyboards.timetable(timetable)
+        "Выберите время занятия",
+        keyboard=keyboards.timetable(timetable),
     )
 
 
@@ -141,10 +142,11 @@ async def select_lesson_type(message: Message):
             f"{lesson.day.name} ({lesson.week.name[0].upper()}) "
             f"{lesson.time.start_time} - {lesson.time.end_time}\n"
             f"{lesson.subject.full_name} ({lesson.lesson_type.name[0].upper()})\n"
-            f"{lesson.teacher.last_name} {lesson.teacher.first_name[0]}. {lesson.teacher.patronymic[0]}."
+            f"{lesson.teacher.last_name} {lesson.teacher.first_name[0]}. {lesson.teacher.patronymic[0]}.",
         )
     await message.answer(
-        "Выберите тип занятия", keyboard=keyboards.lesson_types(lesson_types)
+        "Выберите тип занятия",
+        keyboard=keyboards.lesson_types(lesson_types),
     )
 
 
@@ -179,7 +181,8 @@ async def select_teacher(message: Message):
 async def create_teacher(message: Message):
     await set_state(message.peer_id, "schedule:create_teacher")
     await message.answer(
-        "Введите полное имя преподавателя (ФИО) через пробел", keyboard=EMPTY_KEYBOARD
+        "Введите полное имя преподавателя (ФИО) через пробел",
+        keyboard=EMPTY_KEYBOARD,
     )
 
 
@@ -302,7 +305,7 @@ async def save_subject(message: Message, abbr: str):
 
     await update_subject(payload.get("subject_id"), abbreviation=abbr)
     await set_state(message.peer_id, "schedule:main")
-    await message.answer(f"Предмет сохранен", keyboard=keyboards.subjects(subjects))
+    await message.answer("Предмет сохранен", keyboard=keyboards.subjects(subjects))
 
 
 @bp.on.message(
@@ -319,7 +322,8 @@ async def select_classroom(message: Message):
         subject_id=payload.get("subject"),
     )
     await message.answer(
-        "Выберите аудиторию", keyboard=keyboards.classrooms(classrooms)
+        "Выберите аудиторию",
+        keyboard=keyboards.classrooms(classrooms),
     )
 
 
@@ -355,7 +359,8 @@ async def save_building_number(message: Message, building: int):
 async def save_classroom(message: Message, classroom: str):
     payload = await get_previous_payload(message, "classroom_id")
     await update_classroom(
-        classroom_id=payload.get("classroom_id"), class_name=classroom
+        classroom_id=payload.get("classroom_id"),
+        class_name=classroom,
     )
 
     user_id = await get_user_id(message.peer_id)
@@ -373,7 +378,7 @@ async def save_classroom(message: Message, classroom: str):
     EventPayloadContainsRule({"block": "schedule"}),
     EventPayloadContainsRule({"action": "select:classroom"}),
 )
-async def select_classroom(message: Message):
+async def save_lesson(message: Message):
     payload = json.loads(message.payload)
     user_id = await get_user_id(message.peer_id)
     await update_lesson_storage(

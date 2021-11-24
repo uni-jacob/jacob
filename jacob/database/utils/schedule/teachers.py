@@ -15,7 +15,7 @@ async def get_teachers(university_id: int) -> list[models.Teacher]:
     """
     async with in_transaction():
         return await models.Teacher.filter(university_id=university_id).order_by(
-            "last_name"
+            "last_name",
         )
 
 
