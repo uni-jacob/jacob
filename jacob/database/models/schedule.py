@@ -1,7 +1,7 @@
 from tortoise import fields
 from tortoise.models import Model
 
-from jacob.database.models import Group, Personality, University
+from jacob.database.models import Group, Personality, University, User
 
 
 class DayOfWeek(Model):
