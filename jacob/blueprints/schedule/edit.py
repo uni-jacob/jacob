@@ -25,6 +25,7 @@ from jacob.database.utils.schedule.timetable import (
     create_lesson_time,
     get_timetable,
 )
+from jacob.database.utils.schedule.weeks import get_weeks
 from jacob.database.utils.students import get_student
 from jacob.database.utils.universities import find_university_of_user
 from jacob.database.utils.users import get_user_id, set_state
@@ -359,4 +360,5 @@ async def select_classroom(message: Message):
 
     storage = await get_or_create_lesson_storage(user_id)
     await create_lesson_from_storage(storage)
-    await message.answer("Занятие сохранено!")
+    weeks = await get_weeks()
+    await message.answer("Занятие сохранено!", keyboard=keyboards.weeks(weeks))
