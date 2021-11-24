@@ -6,12 +6,34 @@ from jacob.database import models
 from jacob.database.utils.students import get_student
 
 
-async def create_lesson_from_storage(
+async def update_or_create_lesson_from_storage(
     storage: models.LessonTempStorage,
 ) -> models.Lesson:
     async with in_transaction():
         student = await get_student(user_id=storage.user.id)
         group = await student.group
+        lesson = await models.Lesson.get_or_none(
+            week_id=storage.week.id,
+            day_id=storage.day.id,
+            time_id=storage.time.id,
+            group_id=group.id,
+        )
+        if lesson:
+            query = await lesson.update_from_dict(
+                {
+                    "lesson_type_id": storage.lesson_type.id,
+                    "subject_id": storage.subject.id,
+                    "teacher_id": storage.teacher.id,
+                    "classroom_id": storage.classroom.id,
+                }
+            )
+            await query.save()
+            return await models.Lesson.get_or_none(
+                week_id=storage.week.id,
+                day_id=storage.day.id,
+                time_id=storage.time.id,
+                group_id=group.id,
+            )
         return await models.Lesson.create(
             lesson_type_id=storage.lesson_type.id,
             week_id=storage.week.id,
