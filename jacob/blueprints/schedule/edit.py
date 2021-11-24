@@ -10,6 +10,10 @@ from jacob.database.utils.schedule.classroom import (
     update_classroom,
 )
 from jacob.database.utils.schedule.days import get_days
+from jacob.database.utils.schedule.lesson_storage import (
+    get_or_create_lesson_storage,
+    update_lesson_storage,
+)
 from jacob.database.utils.schedule.lesson_types import get_lesson_types
 from jacob.database.utils.schedule.subjects import get_subjects, update_subject
 from jacob.database.utils.schedule.teachers import (
@@ -42,6 +46,13 @@ vbml_rule = vbml_rule(bp)
     ),
 )
 async def select_week(message: Message):
+    payload = json.loads(message.payload)
+    user_id = await get_user_id(message.peer_id)
+    await get_or_create_lesson_storage(user_id)
+    await update_lesson_storage(
+        user_id,
+        week_id=payload.get("week"),
+    )
     await set_state(message.peer_id, "schedule:edit:select_day")
     days = await get_days()
     await message.answer("Выберите день", keyboard=keyboards.days(days))
@@ -54,6 +65,12 @@ async def select_week(message: Message):
     ),
 )
 async def select_day(message: Message):
+    payload = json.loads(message.payload)
+    user_id = await get_user_id(message.peer_id)
+    await update_lesson_storage(
+        user_id,
+        day_id=payload.get("day"),
+    )
     await set_state(message.peer_id, "schedule:edit:select_time")
     university = await find_university_of_user(await get_user_id(message.peer_id))
     timetable = await get_timetable(university.id)
@@ -98,6 +115,12 @@ async def save_time(message: Message, time: str):
     ),
 )
 async def select_lesson_type(message: Message):
+    payload = json.loads(message.payload)
+    user_id = await get_user_id(message.peer_id)
+    await update_lesson_storage(
+        user_id,
+        time_id=payload.get("time"),
+    )
     lesson_types = await get_lesson_types()
     await message.answer(
         "Выберите тип занятия", keyboard=keyboards.lesson_types(lesson_types)
@@ -114,7 +137,12 @@ async def select_teacher(message: Message):
     await set_state(message.peer_id, "schedule:edit:select_teacher")
     university = await find_university_of_user(await get_user_id(message.peer_id))
     teachers = await get_teachers(university.id)
-    # TODO: add updating lesson type
+    payload = json.loads(message.payload)
+    user_id = await get_user_id(message.peer_id)
+    await update_lesson_storage(
+        user_id,
+        lesson_type_id=payload.get("type"),
+    )
     await message.answer(
         "Выберите преподавателя",
         keyboard=TeachersPagination(teachers, "schedule").function_menu(),
@@ -200,7 +228,11 @@ async def select_subject(message: Message):
     student = await get_student(user_id=user_id)
     group = await student.group
     subjects = await get_subjects(group.id)
-    # TODO: add updating teacher
+    payload = json.loads(message.payload)
+    await update_lesson_storage(
+        user_id,
+        teacher_id=payload.get("personality_id"),
+    )
     await message.answer("Выберите предмет", keyboard=keyboards.subjects(subjects))
 
 
@@ -256,7 +288,11 @@ async def select_classroom(message: Message):
     user_id = await get_user_id(message.peer_id)
     university = await find_university_of_user(user_id)
     classrooms = await get_classrooms(university.id)
-    # TODO: add updating subject
+    payload = json.loads(message.payload)
+    await update_lesson_storage(
+        user_id,
+        subject_id=payload.get("subject"),
+    )
     await message.answer(
         "Выберите аудиторию", keyboard=keyboards.classrooms(classrooms)
     )
@@ -313,5 +349,10 @@ async def save_classroom(message: Message, classroom: str):
     EventPayloadContainsRule({"action": "select:classroom"}),
 )
 async def select_classroom(message: Message):
-    # TODO: add updating classroom
+    payload = json.loads(message.payload)
+    user_id = await get_user_id(message.peer_id)
+    await update_lesson_storage(
+        user_id,
+        classroom_id=payload.get("classroom"),
+    )
     await message.answer("Занятие сохранено!")
