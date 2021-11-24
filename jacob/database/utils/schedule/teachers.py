@@ -14,7 +14,9 @@ async def get_teachers(university_id: int) -> list[models.Teacher]:
         list[Teacher]: Список преподавателей
     """
     async with in_transaction():
-        return await models.Teacher.filter(university_id=university_id)
+        return await models.Teacher.filter(university_id=university_id).order_by(
+            "last_name"
+        )
 
 
 async def create_new_teacher(
