@@ -103,6 +103,7 @@ class Lesson(Model):
         description="Lesson types ID",
     )
     week: Week = fields.ForeignKeyField("models.Week", description="Weeks ID")
+    day: DayOfWeek = fields.ForeignKeyField("models.DayOfWeek", description="Day ID")
     time: Timetable = fields.ForeignKeyField("models.Timetable", description="Time ID")
     subject: Subject = fields.ForeignKeyField("models.Subject", description="Course ID")
     teacher: Teacher = fields.ForeignKeyField(
@@ -133,6 +134,11 @@ class LessonTempStorage(Model):
     week: Week = fields.ForeignKeyField(
         "models.Week",
         description="Weeks ID",
+        null=True,
+    )
+    day: DayOfWeek = fields.ForeignKeyField(
+        "models.DayOfWeek",
+        description="Day ID",
         null=True,
     )
     time: Timetable = fields.ForeignKeyField(
