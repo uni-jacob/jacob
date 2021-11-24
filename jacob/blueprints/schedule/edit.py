@@ -10,7 +10,10 @@ from jacob.database.utils.schedule.classroom import (
     update_classroom,
 )
 from jacob.database.utils.schedule.days import get_days
-from jacob.database.utils.schedule.lesson import create_lesson_from_storage
+from jacob.database.utils.schedule.lesson import (
+    create_lesson_from_storage,
+    find_lesson,
+)
 from jacob.database.utils.schedule.lesson_storage import (
     get_or_create_lesson_storage,
     update_lesson_storage,
@@ -123,7 +126,23 @@ async def select_lesson_type(message: Message):
         user_id,
         time_id=payload.get("time"),
     )
+    student = await get_student(user_id=user_id)
+    group = await student.group
     lesson_types = await get_lesson_types()
+    storage = await get_or_create_lesson_storage(user_id)
+    if lesson := await find_lesson(
+        storage.week.id,
+        storage.day.id,
+        storage.time.id,
+        group.id,
+    ):
+        await message.answer(
+            "В этом слоте есть занятие:\n"
+            f"{lesson.day.name} ({lesson.week.name[0].upper()}) "
+            f"{lesson.time.start_time} - {lesson.time.end_time}\n"
+            f"{lesson.subject.full_name} ({lesson.lesson_type.name[0].upper()})\n"
+            f"{lesson.teacher.last_name} {lesson.teacher.first_name[0]}. {lesson.teacher.patronymic[0]}."
+        )
     await message.answer(
         "Выберите тип занятия", keyboard=keyboards.lesson_types(lesson_types)
     )
