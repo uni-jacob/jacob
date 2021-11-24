@@ -8,8 +8,8 @@ async def create_classroom(
 ) -> models.Classroom:
     async with in_transaction():
         return await models.Classroom.create(
-            building=building,
-            university=university_id,
+            building_id=building,
+            university_id=university_id,
             **kwargs,
         )
 
