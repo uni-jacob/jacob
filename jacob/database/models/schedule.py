@@ -114,6 +114,11 @@ class Lesson(Model):
         "models.Classroom",
         description="Classrooms ID",
     )
+    group: Group = fields.ForeignKeyField(
+        "models.Group",
+        description="Group ID",
+        null=True,
+    )
 
     class Meta:
         table = "lessons"
