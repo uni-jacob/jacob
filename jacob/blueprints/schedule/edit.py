@@ -200,8 +200,12 @@ async def save_teacher(
         first_name,
         patronymic,
     )
+    teachers = await get_teachers(university.id)
     await message.answer("Преподаватель сохранён")
-    await select_teacher(message)
+    await message.answer(
+        "Выберите преподавателя",
+        keyboard=TeachersPagination(teachers, "schedule").function_menu(),
+    )
 
 
 @bp.on.message(
