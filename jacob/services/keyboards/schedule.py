@@ -142,7 +142,7 @@ def lesson_types(source: list[models.LessonType]) -> str:
                 {
                     "block": "schedule",
                     "action": "select:lesson_type",
-                    "day": lesson_type.id,
+                    "type": lesson_type.id,
                 },
             ),
         )
@@ -173,7 +173,7 @@ def subjects(source: list[models.Subject]) -> str:
                 {
                     "block": "schedule",
                     "action": "select:subject",
-                    "day": subject.id,
+                    "subject": subject.id,
                 },
             ),
         )
@@ -208,7 +208,7 @@ def classrooms(source: list[models.Classroom]) -> str:
                 {
                     "block": "schedule",
                     "action": "select:classroom",
-                    "day": classroom.id,
+                    "classroom": classroom.id,
                 },
             ),
         )
