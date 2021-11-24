@@ -65,7 +65,7 @@ class AbstractPersonalitiesPagination(ABC):
                     {"block": self.block, "action": "select_letter", "letter": letter},
                 ),
             )
-            if len(kb.buttons) == 5:
+            if len(kb.buttons[-1]) == 5:
                 kb.row()
 
         return kb
@@ -84,7 +84,7 @@ class AbstractPersonalitiesPagination(ABC):
                         },
                     ),
                 )
-            if len(kb.buttons[-1]) == 2:
+            if kb.buttons and len(kb.buttons[-1]) == 2:
                 kb.row()
         return kb
 
