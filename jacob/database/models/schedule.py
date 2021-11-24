@@ -117,3 +117,45 @@ class Lesson(Model):
     class Meta:
         table = "lessons"
         table_description = "Lessons"
+
+
+class LessonTempStorage(Model):
+    id: int = fields.IntField(pk=True, description="Lessons' Storage ID")
+    user: "User" = fields.ForeignKeyField(
+        "models.User",
+        "Users ID 3",
+    )
+    lesson_type: LessonType = fields.ForeignKeyField(
+        "models.LessonType",
+        description="Lesson types ID",
+        null=True,
+    )
+    week: Week = fields.ForeignKeyField(
+        "models.Week",
+        description="Weeks ID",
+        null=True,
+    )
+    time: Timetable = fields.ForeignKeyField(
+        "models.Timetable",
+        description="Time ID",
+        null=True,
+    )
+    subject: Subject = fields.ForeignKeyField(
+        "models.Subject",
+        description="Course ID",
+        null=True,
+    )
+    teacher: Teacher = fields.ForeignKeyField(
+        "models.Teacher",
+        description="Teachers ID",
+        null=True,
+    )
+    classroom: Classroom = fields.ForeignKeyField(
+        "models.Classroom",
+        description="Classrooms ID",
+        null=True,
+    )
+
+    class Meta:
+        table = "lesson_storage"
+        table_description = "Temporary storage of lessons"
