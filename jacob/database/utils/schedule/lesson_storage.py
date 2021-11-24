@@ -5,8 +5,21 @@ from jacob.database import models
 
 async def get_or_create_lesson_storage(user_id: int) -> models.LessonTempStorage:
     async with in_transaction():
-        query = await models.LessonTempStorage.get_or_create(user_id=user_id)
-        return query[0]
+        query = (
+            await models.LessonTempStorage.filter(user_id=user_id)
+            .prefetch_related(
+                "week",
+                "day",
+                "time",
+                "subject",
+                "teacher",
+                "classroom",
+                "user",
+                "lesson_type",
+            )
+            .first()
+        )
+        return query
 
 
 async def get_lesson_storage(user_id: int) -> models.LessonTempStorage:
