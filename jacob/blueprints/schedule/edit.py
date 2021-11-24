@@ -10,6 +10,7 @@ from jacob.database.utils.schedule.classroom import (
     update_classroom,
 )
 from jacob.database.utils.schedule.days import get_days
+from jacob.database.utils.schedule.lesson import create_lesson_from_storage
 from jacob.database.utils.schedule.lesson_storage import (
     get_or_create_lesson_storage,
     update_lesson_storage,
@@ -355,4 +356,7 @@ async def select_classroom(message: Message):
         user_id,
         classroom_id=payload.get("classroom"),
     )
+
+    storage = await get_or_create_lesson_storage(user_id)
+    await create_lesson_from_storage(storage)
     await message.answer("Занятие сохранено!")
