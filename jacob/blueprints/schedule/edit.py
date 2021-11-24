@@ -11,8 +11,8 @@ from jacob.database.utils.schedule.classroom import (
 )
 from jacob.database.utils.schedule.days import get_days
 from jacob.database.utils.schedule.lesson import (
-    create_lesson_from_storage,
     find_lesson,
+    update_or_create_lesson_from_storage,
 )
 from jacob.database.utils.schedule.lesson_storage import (
     get_or_create_lesson_storage,
@@ -382,6 +382,6 @@ async def select_classroom(message: Message):
     )
 
     storage = await get_or_create_lesson_storage(user_id)
-    await create_lesson_from_storage(storage)
+    await update_or_create_lesson_from_storage(storage)
     weeks = await get_weeks()
     await message.answer("Занятие сохранено!", keyboard=keyboards.weeks(weeks))
