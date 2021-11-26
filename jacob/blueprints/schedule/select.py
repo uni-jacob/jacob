@@ -10,7 +10,6 @@ from jacob.database.utils.schedule.lesson_storage import (
     get_or_create_lesson_storage,
     update_lesson_storage,
 )
-from jacob.database.utils.schedule.lesson_types import get_lesson_types
 from jacob.database.utils.schedule.timetable import (
     create_lesson_time,
     get_timetable,
@@ -113,7 +112,6 @@ async def select_lesson_type(message: Message):
     )
     student = await get_student(user_id=user_id)
     group = await student.group
-    lesson_types = await get_lesson_types()
     storage = await get_or_create_lesson_storage(user_id)
     if lesson := await find_lesson(
         storage.week.id,
@@ -128,7 +126,12 @@ async def select_lesson_type(message: Message):
             f"{lesson.subject.full_name} ({lesson.lesson_type.name[0].upper()})\n"
             f"{lesson.teacher.last_name} {lesson.teacher.first_name[0]}. {lesson.teacher.patronymic[0]}.",
         )
-    await message.answer(
-        "Выберите тип занятия",
-        keyboard=keyboards.lesson_types(lesson_types),
-    )
+        await message.answer(
+            "Меню занятия",
+            keyboard=keyboards.lesson_menu(),
+        )
+    else:
+        await message.answer(
+            "Занятия нет. Создайте новое.",
+            keyboard=keyboards.edit_lesson(),
+        )
