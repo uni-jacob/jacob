@@ -3,6 +3,28 @@ from vkbottle import Keyboard, Text
 from jacob.database import models
 
 
+def lesson_menu() -> str:
+    """Меню редактирования занятия."""
+    kb = Keyboard()
+
+    kb.add(Text("Редактировать", {"block": "schedule", "action": "lesson:edit"}))
+    kb.add(Text("Скопировать", {"block": "schedule", "action": "lesson:copy"}))
+    kb.row()
+    kb.add(Text("Удалить", {"block": "schedule", "action": "lesson:delete"}))
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "init"}))
+
+    return kb.get_json()
+
+
+def edit_lesson() -> str:
+    kb = Keyboard()
+    kb.add(Text("Редактировать", {"block": "schedule", "action": "lesson:edit"}))
+    kb.row()
+    kb.add(Text("Назад", {"block": "schedule", "action": "init"}))
+    return kb.get_json()
+
+
 def weeks(source: list[models.Week]) -> str:
     """
     Клавиатура со списком доступных недель.
