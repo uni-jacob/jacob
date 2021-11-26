@@ -49,7 +49,7 @@ def weeks(source: list[models.Week]) -> str:
             ),
         )
     kb.row()
-    kb.add(Text("Назад", {"block": "schedule", "action": "init"}))
+    kb.add(Text("Назад", {"block": "main_menu"}))
 
     return kb.get_json()
 
