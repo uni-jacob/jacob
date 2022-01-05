@@ -25,7 +25,11 @@ async def create_group(
     """
     async with in_transaction():
         logging.info(f"Создание группы с параметрами {locals()}")
-        return await models.Group.create(**locals())
+        return await models.Group.create(
+            group_number=group_number,
+            specialty=specialty,
+            university_id=university_id,
+        )
 
 
 async def get_group(**kwargs) -> Optional[models.Group]:
@@ -65,6 +69,9 @@ async def get_managed_groups(vk_id: int) -> list[models.Admin]:
     """
     user_id = await get_user_id(vk_id)
     async with in_transaction():
-        query = await models.Admin.filter(user=user_id)
+        query = await models.Admin.filter(user=user_id).prefetch_related(
+            "group",
+            "group__university",
+        )
         logging.info(f"Найдены управляемые группы {query}")
         return query

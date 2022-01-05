@@ -5,42 +5,42 @@ from tortoise.models import Model
 from tortoise.validators import RegexValidator
 
 
-class User(Model):
-    """Анонимный пользователь."""
-
-    id: int = fields.IntField(pk=True, description="ИД пользователя")
-    vk_id: int = fields.IntField(
-        null=False,
-        unique=True,
-        description="ИД ВК пользователя",
-    )
-
-    class Meta:
-        table = "users"
-        table_description = "Пользователь"
-
-
-class Student(Model):
-    """Зарегистрированный студент."""
-
-    id: int = fields.IntField(pk=True, description="ИД студента")
-    user: int = fields.ForeignKeyField("models.User", description="ИД пользователя")
+class Personality(Model):
+    id: int = fields.IntField(pk=True, description="ID")
     first_name: str = fields.CharField(
         max_length=255,
         null=False,
-        description="Имя студента",
+        description="Name",
     )
     last_name: str = fields.CharField(
         max_length=255,
         null=False,
-        description="Фамилия студента",
+        description="Last name",
     )
+
+
+class User(Model):
+    """Анонимный пользователь."""
+
+    id: int = fields.IntField(pk=True, description="Users ID 2")
+    vk_id: int = fields.IntField(
+        null=False,
+        unique=True,
+        description="Users VK ID",
+    )
+
+    class Meta:
+        table = "users"
+        table_description = "User"
+
+
+class Student(Personality):
+    """Зарегистрированный студент."""
+
+    user: int = fields.ForeignKeyField("models.User", description="Users ID 3")
     group: "Group" = fields.ForeignKeyField(
         "models.Group",
-        description="Группа",
-    )
-    subgroup = fields.IntField(
-        null=True,
+        description="Users group",
     )
     email = fields.CharField(
         max_length=255,
@@ -64,7 +64,7 @@ class Student(Model):
 
     class Meta:
         table = "students"
-        table_description = "Зарегистрированный студент"
+        table_description = "Registered student"
 
 
 class Group(Model):
@@ -72,24 +72,24 @@ class Group(Model):
 
     id: int = fields.IntField(
         pk=True,
-        description="ИД группы",
+        description="Groups ID",
     )
     group_number: str = fields.CharField(
         max_length=20,
-        description="Номер группы",
+        description="Groups name",
     )
     specialty: str = fields.CharField(
         max_length=255,
-        description="Название специальности",
+        description="Specialties name",
     )
     university: "University" = fields.ForeignKeyField(
         "models.University",
-        description="Университет",
+        description="Groups university",
     )
 
     class Meta:
         table = "groups"
-        table_description = "Студенческая группа"
+        table_description = "Group"
 
 
 class University(Model):
@@ -97,75 +97,75 @@ class University(Model):
 
     id: int = fields.IntField(
         pk=True,
-        description="ИД университета",
+        description="Universities ID",
     )
     name: str = fields.CharField(
         max_length=255,
         null=False,
-        description="Название университета",
+        description="Universities name",
     )
     abbreviation: str = fields.CharField(
         max_length=13,
         null=True,
-        description="Сокращенное название университета",
+        description="Universities abbreviation",
     )
 
     class Meta:
         table = "universities"
-        table_description = "Университет"
+        table_description = "University"
 
 
 class State(Model):
     id: int = fields.IntField(
         pk=True,
-        description="ИД стейта",
+        description="States ID",
     )
     description: str = fields.CharField(
         max_length=255,
         null=False,
-        description="Описание стейта",
+        description="States description",
     )
 
     class Meta:
         table = "states"
-        table_description = "Стейт"
+        table_description = "State"
 
 
 class StateStorage(Model):
     id: int = fields.IntField(
         pk=True,
-        description="ИД хранилища стейтов",
+        description="States storages ID",
     )
     user: "User" = fields.ForeignKeyField(
         "models.User",
-        "ИД пользователя",
+        "Users ID 2",
     )
     state: "State" = fields.ForeignKeyField(
         "models.State",
-        "ИД стейта",
+        "States ID",
         default=1,
     )
 
     class Meta:
         table = "statestorage"
-        table_description = "Хранилище стейтов"
+        table_description = "States storage"
 
 
 class Admin(Model):
     id: int = fields.IntField(
         pk=True,
-        description="ИД админа",
+        description="Admins ID",
     )
     user: "User" = fields.ForeignKeyField(
         "models.User",
-        "ИД пользователя 2",
+        "Users ID",
     )
     group: "Group" = fields.ForeignKeyField(
         "models.Group",
-        "ИД группы",
+        "Groups ID",
     )
     is_active: bool = fields.BooleanField(default=True)
 
     class Meta:
         table = "admin"
-        table_description = "Админ"
+        table_description = "Admin"

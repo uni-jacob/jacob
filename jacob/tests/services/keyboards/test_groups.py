@@ -9,7 +9,7 @@ async def test_managed_groups():
     from jacob.services.keyboards import managed_groups
 
     groups = await get_managed_groups(549350532)
-    keyboard = await managed_groups(groups)
+    keyboard = managed_groups(groups)
 
     assert json.loads(keyboard) == {
         "buttons": [

@@ -56,7 +56,7 @@ async def create_user(vk_id: int) -> models.User:
     """
     async with in_transaction():
         logging.info(f"Создание пользователя с параметрами {locals()}...")
-        user = await models.User.get_or_create(**locals())
+        user = await models.User.get_or_create(vk_id=vk_id)
         logging.info(f"Создание хранилища пользователя {user[0].id}...")
         await models.StateStorage.get_or_create(
             user_id=user[0].id,

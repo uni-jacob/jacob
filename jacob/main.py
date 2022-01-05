@@ -1,30 +1,31 @@
 import asyncio
 import logging
 import os
+from logging.handlers import SysLogHandler
 
 import sentry_sdk
+from loguru import logger
 from vkbottle import Bot, OrFilter, load_blueprints_from_package
 from vkbottle.bot import Message
-from vkbottle.dispatch.rules.bot import VBMLRule
 
+from jacob.config import get_token
 from jacob.database.utils.admins import is_admin
 from jacob.database.utils.init import init_db_connection
 from jacob.database.utils.students import is_student
 from jacob.database.utils.users import create_user, get_user_id, set_state
 from jacob.services import keyboards as kb
 from jacob.services.api import send_empty_keyboard
-from jacob.services.common import get_token
+from jacob.services.common import vbml_rule
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule
 
-logging.basicConfig(level="DEBUG")
+handler = SysLogHandler(address=(os.getenv("LOG_HOST"), int(os.getenv("LOG_PORT"))))
+logger.add(handler)
 
 bot = Bot(token=get_token())
 bot.labeler.vbml_ignore_case = True
 bot.labeler.message_view.register_middleware(ChangeSentryUser())
-vbml_rule = VBMLRule.with_config(
-    bot.labeler.rule_config,
-)  # FIXME: temporary fix, bug in vkbottle
+vbml_rule = vbml_rule(bot)
 
 sentry_sdk.init(
     os.getenv("SENTRY_URL"),

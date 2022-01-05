@@ -3,7 +3,7 @@ from vkbottle import Keyboard, Text
 from jacob.database import models
 
 
-async def managed_groups(entries: list[models.Admin]) -> str:
+def managed_groups(entries: list[models.Admin]) -> str:
     """
     Генерирует клавиатуру со списком доступных для модерации групп
 
@@ -17,23 +17,22 @@ async def managed_groups(entries: list[models.Admin]) -> str:
     kb = Keyboard()
 
     for entry in entries:
-        if len(kb.buttons) == 2:
-            kb.row()
         selected = "✅ " if entry.is_active else ""
-        group = await entry.group
-        university = await group.university
         kb.add(
             Text(
-                f"{selected}{group.group_number}@{university.abbreviation}",
+                f"{selected}{entry.group.group_number}@{entry.group.university.abbreviation}",
                 {
                     "block": "groups",
                     "action": "select",
-                    "group_id": group.id,
+                    "group_id": entry.group.id,
                 },
             ),
         )
+        if len(kb.buttons[-1]) == 2:
+            kb.row()
 
-    kb.row()
+    if kb.buttons[-1]:
+        kb.row()
     kb.add(Text("Создать новую группу", {"block": "registration", "action": "init"}))
     kb.add(Text("Сохранить", {"block": "main_menu"}))
 

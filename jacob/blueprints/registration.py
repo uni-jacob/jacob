@@ -3,7 +3,6 @@ import logging
 
 from vkbottle import EMPTY_KEYBOARD
 from vkbottle.bot import Blueprint, Message
-from vkbottle.dispatch.rules.bot import VBMLRule
 
 from jacob.database.utils.admins import create_admin, is_admin
 from jacob.database.utils.groups import create_group
@@ -15,14 +14,15 @@ from jacob.database.utils.universities import (
     update_university_abbreviation,
 )
 from jacob.database.utils.users import get_user_id, set_state
-from jacob.services import keyboards as kb
+from jacob.services import keyboards
 from jacob.services.api import get_previous_payload
-from jacob.services.common import generate_abbreviation
+from jacob.services.common import generate_abbreviation, vbml_rule
 from jacob.services.middleware import ChangeSentryUser
 from jacob.services.rules import EventPayloadContainsRule, StateRule
 
 bp = Blueprint("Group registration")
 bp.labeler.message_view.register_middleware(ChangeSentryUser())
+vbml_rule = vbml_rule(bp)
 
 
 @bp.on.message(
@@ -35,7 +35,7 @@ async def init_registration(message: Message):
     universities = await get_universities()
     await message.answer(
         "Выберите или создайте университет",
-        keyboard=await kb.list_of_universities(universities),
+        keyboard=await keyboards.list_of_universities(universities),
     )
 
 
@@ -63,7 +63,7 @@ async def select_university(message: Message):
 async def create_university(message: Message):
     logging.info("Запущено создание нового университета: Ожидание названия...")
     await set_state(message.peer_id, "registration:ask_university_name")
-    await message.answer("Введите название университета", keyboard=kb.cancel())
+    await message.answer("Введите название университета", keyboard=keyboards.cancel())
 
 
 @bp.on.message(
@@ -76,7 +76,7 @@ async def cancel_creating_university(message: Message):
 
 
 @bp.on.message(
-    VBMLRule("<university_name>"),
+    vbml_rule("<university_name>"),
     StateRule("registration:ask_university_name"),
 )
 async def save_university(message: Message, university_name: str):
@@ -90,7 +90,7 @@ async def save_university(message: Message, university_name: str):
     )
     await message.answer(
         f"Аббревиатура {abbreviation} верна?",
-        keyboard=kb.yes_no(),
+        keyboard=keyboards.yes_no(),
         payload=json.dumps({"bot:university_id": university.id}),
     )
 
@@ -129,7 +129,7 @@ async def ask_for_abbreviation(message: Message):
 
 
 @bp.on.message(
-    VBMLRule("<abbreviation>"),
+    vbml_rule("<abbreviation>"),
     StateRule("registration:ask_for_abbreviation"),
 )
 async def save_university_abbreviation(message: Message, abbreviation: str):
@@ -146,7 +146,7 @@ async def save_university_abbreviation(message: Message, abbreviation: str):
 
 
 @bp.on.message(
-    VBMLRule("<group_name>"),
+    vbml_rule("<group_name>"),
     StateRule("registration:ask_group_name"),
 )
 async def ask_specialty(message: Message, group_name: str):
@@ -165,7 +165,7 @@ async def start_create_group(message: Message):
 
 
 @bp.on.message(
-    VBMLRule("<specialty_name>"),
+    vbml_rule("<specialty_name>"),
     StateRule("registration:ask_specialty_name"),
 )
 async def save_group(message: Message, specialty_name: str):
@@ -189,5 +189,5 @@ async def save_group(message: Message, specialty_name: str):
     await set_state(message.peer_id, "main")
     await message.answer(
         "Добро пожаловать!",
-        keyboard=kb.main_menu(await is_admin(user_id)),
+        keyboard=keyboards.main_menu(await is_admin(user_id)),
     )

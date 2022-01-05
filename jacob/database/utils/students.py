@@ -56,7 +56,12 @@ async def create_student(
     """
     async with in_transaction():
         logging.info(f"Создание студента с параметрами {locals()}")
-        return await models.Student.create(**locals())
+        return await models.Student.create(
+            user_id=user_id,
+            first_name=first_name,
+            last_name=last_name,
+            group_id=group_id,
+        )
 
 
 async def get_students_in_group(group_id: int) -> list[models.Student]:
