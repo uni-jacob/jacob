@@ -2,7 +2,7 @@
 name = "aerich"
 version = "0.6.1"
 description = "A database migrations tool for Tortoise ORM."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 
@@ -155,7 +155,7 @@ python-versions = ">=3.7,<4.0"
 name = "click"
 version = "8.0.3"
 description = "Composable command line interface toolkit"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -201,7 +201,7 @@ python-versions = ">=3.6,<4.0"
 name = "ddlparse"
 version = "1.10.0"
 description = "DDL parase and Convert to BigQuery JSON schema"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -212,7 +212,7 @@ pyparsing = "*"
 name = "dictdiffer"
 version = "0.9.0"
 description = "Dictdiffer is a library that helps you to diff and patch dictionaries."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -736,7 +736,7 @@ python-versions = ">=3.5"
 name = "pyparsing"
 version = "3.0.6"
 description = "Python parsing module"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -910,7 +910,7 @@ python-versions = ">=3.7"
 name = "tomlkit"
 version = "0.8.0"
 description = "Style preserving TOML library"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6,<4.0"
 
@@ -1054,7 +1054,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "60be75fe82f254a4e2ee8e74ab3e6777c3cd118401c9ccd70a99c048bef50395"
+content-hash = "fba50a56a14892a93989d19ea736d5479b4469e6e6dcaf06579f1fa6bb619bfa"
 
 [metadata.files]
 aerich = [
